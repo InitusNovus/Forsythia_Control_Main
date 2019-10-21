@@ -1,0 +1,201 @@
+/*
+ * Beeper_Test_Music.c
+ *
+ *      Author: Wonjun Youm
+ */
+#include "Beeper_Test_Music.h"
+
+note_t music[] =
+{
+//		HC5, HD5, HE5, HF5, HG5, HA5, HB5, HC6
+		QC5, QD5, QE5, QF5, QG5, QA5, QB5, QC6,ENDING
+};
+
+note_t Grandfathers_clock[] =
+{
+		QC5,
+		QF5, EE5, EF5, QG5, EF5, EG5,
+		QA5, EBF5,EA5, QD5, EG5, EG5,
+		QF5, EF5, EF5, QE5, ED5, EE5,
+		{note_half, note_F5, TRUE},{note_quarter, note_F5, FALSE}, EC5, EC5,
+		QF5, EE5, EF5, QG5, EF5, EG5,
+		EA5, EA5, EBF5,EA5,QD5, EG5, EG5,
+		QF5, EF5, EF5, QE5, ED5, EE5,
+		{note_half, note_F5, TRUE},{note_quarter, note_F5, FALSE}, EF5, EA5,
+		QC6, EA5, EG5, QF5, EE5, EF5,
+		EG5, EF5, EE5, ED5, QC5, EF5, EA5,
+		QC6, EA5, EG5, QF5, EE5, EF5,
+		{note_half, note_G5, TRUE},{note_quarter, note_G5, FALSE}, EC5, EC5,
+		QF5, {note_quarter, rest, FALSE}, QG5, {note_quarter, rest, FALSE},
+		EA5, EA5, EBF5,EA5, QD5, EG5, EG5,
+		HF5, QE5, ED5, EE5,
+		{note_half, note_F5, TRUE},{note_quarter, note_F5, FALSE}, EA5, EA5,
+		HBF5,QC6, QBF5,
+		{note_half, note_A5, TRUE},{note_quarter, note_A5, FALSE},
+		ENDING
+};
+
+note_t My_heart_will_go_on[] =
+{
+		EG5, EA5,
+		EA5, QB5L,EB5L,QB5,EA5, EG5, EA5, QD6L,ED6L,QD6, EC6, EB5,
+		QG5, HE5, QC5, HD5L,QD5,EG5, EA5,
+		EA5, QB5L,EB5L,QB5, SC6, SB5, SA5, SG5, EA5, QD6L,ED6L,QD6, EB5, ED6,
+		HE6, HD6,HA5L,HA5,
+
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QG5,
+		QFS5, HG5, QA5, HB5, HA5,
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QA5,
+		HD5L,HD5L,HD5, {note_half, rest, FALSE},
+
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QG5,
+		QFS5, HG5, QA5, HB5, HA5,
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QA5,
+		HD5L,HD5L,HD5, {note_half, rest, FALSE},
+
+		HG5L,HG5, HA5L,QA5, QD5,
+		HD6, QC6L,EC6, EB5, HA5, QB5L,EB5, EC6,
+		HB5, QA5L,EA5, EG5, QFS5, HG5, QFS5,
+		HE5L,HE5, HD5, {note_half, rest, FALSE},
+
+		HG5L,HG5, HA5L,QA5, QD5,
+		HD6, QC6L,EC6, EB5, HA5, QB5L,EB5, EC6,
+		HB5, QA5L,EA5, EG5, QFS5, HG5, QFS5,
+		QFS5, HG5, QA5, HB5, QA5, QG5,
+		HG5L, HG5L, HG5, {note_half, rest, FALSE},
+
+
+
+		ENDING
+};
+
+note_t  medley[]=
+{
+		/*Grandfathers_clock*/
+		QC5,
+		QF5, EE5, EF5, QG5, EF5, EG5,
+		QA5, EBF5,EA5, QD5, EG5, EG5,
+		QF5, EF5, EF5, QE5, ED5, EE5,
+		{note_half, note_F5, TRUE},{note_quarter, note_F5, FALSE}, EC5, EC5,
+		QF5, EE5, EF5, QG5, EF5, EG5,
+		EA5, EA5, EBF5,EA5,QD5, EG5, EG5,
+		QF5, EF5, EF5, QE5, ED5, EE5,
+		{note_half, note_F5, TRUE},{note_quarter, note_F5, FALSE}, EF5, EA5,
+		QC6, EA5, EG5, QF5, EE5, EF5,
+		EG5, EF5, EE5, ED5, QC5, EF5, EA5,
+		QC6, EA5, EG5, QF5, EE5, EF5,
+		{note_half, note_G5, TRUE},{note_quarter, note_G5, FALSE}, EC5, EC5,
+		QF5, {note_quarter, rest, FALSE}, QG5, {note_quarter, rest, FALSE},
+		EA5, EA5, EBF5,EA5, QD5, EG5, EG5,
+		HF5, QE5, ED5, EE5,
+		{note_half, note_F5, TRUE},{note_quarter, note_F5, FALSE}, EA5, EA5,
+		HBF5,QC6, QBF5,
+		{note_half, note_A5, TRUE},{note_quarter, note_A5, FALSE},
+
+		/*My_heart_will_go_on*/
+
+		EG5, EA5,
+		EA5, QB5L,EB5L,QB5,EA5, EG5, EA5, QD6L,ED6L,QD6, EC6, EB5,
+		QG5, HE5, QC5, HD5L,QD5,EG5, EA5,
+		EA5, QB5L,EB5L,QB5, SC6, SB5, SA5, SG5, EA5, QD6L,ED6L,QD6, EB5, ED6,
+		HE6, HD6,HA5L,HA5,
+
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QG5,
+		QFS5, HG5, QA5, HB5, HA5,
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QA5,
+		HD5L,HD5L,HD5, {note_half, rest, FALSE},
+
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QG5,
+		QFS5, HG5, QA5, HB5, HA5,
+		QG5L,EG5, EG5, QG5, QG5, QFS5, HG5, QA5,
+		HD5L,HD5L,HD5, {note_half, rest, FALSE},
+
+		HG5L,HG5, HA5L,QA5, QD5,
+		HD6, QC6L,EC6, EB5, HA5, QB5L,EB5, EC6,
+		HB5, QA5L,EA5, EG5, QFS5, HG5, QFS5,
+		HE5L,HE5, HD5, {note_half, rest, FALSE},
+
+		HG5L,HG5, HA5L,QA5, QD5,
+		HD6, QC6L,EC6, EB5, HA5, QB5L,EB5, EC6,
+		HB5, QA5L,EA5, EG5, QFS5, HG5, QFS5,
+		QFS5, HG5, QA5, HB5, QA5, QG5,
+		HG5L, HG5L, HG5, {note_half, rest, FALSE},
+
+
+
+		ENDING
+};
+
+note_t KartRider[] =
+{
+      EG6L,SG6L,SRES,ERES, SE6L,SRES, EG6L,SG6L,SRES,ERES, SE6L,SRES,
+      SA6L,SRES, SG6L,SRES, SF6L,SRES, SE6L,SRES, SF6L,SRES, EG6L,ERES, SE6, SF6,
+      EG6L,SG6L,SRES,ERES, SE6L,SRES, EG6L,SG6L,SRES,ERES, SE6L,SRES,
+      SF6, SE6, SF6, SE6, SD6L,SRES, SB5L,SRES, EC6L,ERES, QRES,
+
+//      ENDING
+//      REPEAT
+      EG6L,SG6L,SRES,ERES, SE6L,SRES, EG6L,SG6L,SRES,ERES, SE6L,SRES,
+      SA6L,SRES, SG6L,SRES, SF6L,SRES, SE6L,SRES, SF6L,SRES, EG6L,ERES, SE6, SF6,
+      EG6L,SG6L,SRES,ERES, SE6L,SRES, EG6L,SG6L,SRES,ERES, SE6L,SRES,
+      SF6, SE6, SF6, SE6, SD6L,SRES, SB5L,SRES, EC6L,ERES, QRES,
+
+      ENDING
+
+};
+
+note_t GrandfathersElevenMonth[] =
+{
+		EG5, SA5L,SRES, ERES, SC6L,SRES, ERES, SB5L,SRES, ERES, SA5L,SRES,
+		EG5, EA5, ERES, EE5L,HE5,
+		EG5, SA5L,SRES, ERES, SC6L,SRES, ERES, SB5L,SRES, ERES, SD6L,SRES,
+		HAF5L,HAF5,
+
+		EA5, EC6, ED6, QE6, ED6, EG6, EF6,
+		EG5, EC6, ED6, QE6, ED6, EF6, EE6,
+		HC6L, EC6, EB5, EA5, ED6,
+		HAF5L,EAF5, EG5,QGF5,
+
+		EG5, SA5L,SRES, ERES, SC6L,SRES, ERES, SB5L,SRES, ERES, SA5L,SRES,
+		EG5, EA5, ERES, EE5L,HE5,
+		EG5, SA5L,SRES, ERES, SC6L,SRES, ERES, SB5L,SRES, ERES, SD6L,SRES,
+		HAF5L,HAF5,
+
+		EA5, EC6, ED6, QE6, ED6, EG6, EF6,
+		EG5, EC6, ED6, QE6, ED6, EF6, EE6,
+		QD6, QE6, ED6, EAF5, ED6, EC6L,
+		HC6L,QC6, QRES,
+
+
+		EC6, EC6, EDF6, EDF6, ED6, ED6, EDF6, EDF6,
+		EE6, EE6, ED6, ED6, EDF6, EDF6, ED6, ED6,
+		ED6, ED6, EC6, EC6, EB5, EB5, EC6, EC6,
+		EB5, EA5, EB5, QA5, EA5, QE5,
+
+		EF5, EG5, EA5, QF5, EA5, ED6, EC6,
+		EG5, EA5, EB5, QG5, EB5, EE6, ED6,
+		HE6, ED6, EC6, EE6, EG6L,
+		EG6, EG6, EFS6, EFS6,EF6, EE6, ED6, EE6,
+
+		EC6, EC6, ECS6, ECS6, ED6, ED6, ECS6, ECS6,
+		EE6, EE6, ED6, ED6, ECS6, ECS6, ED6, ED6,
+		ED6, ED6, EC6, EC6, EB5, EB5, EC6, EC6,
+		EBF5, EA5, EBF5, QA5, EA5, QE5,
+
+		EF5, EA5, EC6, QE6, ED6, EE6, EF6,
+		EG6, EFS6, EF6, QE6, ECS6, ED6, EE6,
+		HC6, EC6, EGS5, ED6, EC6L, //Return to start
+		HC6, ED6, EE6, EF6, EC6L,
+		HC6, EC6, EGS5, ED6, EC6L,
+		HC6, HRES,
+		ERES, SC6, SC6, SC6L,SRES, EB5, EC6L,ERES, {note_half, note_C7, FALSE},
+
+		ENDING
+};
+
+
+
+
+
+
+

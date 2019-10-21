@@ -1,0 +1,158 @@
+----------------------------------------------------------
+
+  Connection Failed Report from
+  Basic UDE Target Interface, Version: 1.15.6
+  created: 07/10/19, 09:20:26
+
+----------------------------------------------------------
+
+Windows version:
+  Win8 ()
+  Admin: yes
+
+UDE version:
+  Release:  4.10.01
+  Build:    8105
+  Path:     C:\Program Files (x86)\pls\UDE Starterkit 4.10
+
+Target configuration file:
+  C:\Users\USER\workspace-Bifaces\_HLD_BaseFrameWork_SB275D\tool\ShieldBuddy_TC275D.cfg
+
+Error messages:
+  Tc2CoreTargIntf: Connection to target lost !
+
+Settings:
+  PortType:  DAS
+  CommDevSel:  
+  TargetPort:  Default
+  TargetPortId:  553582592
+  DasIsDefault:  n
+  MaxJtagClk:  10000
+  CheckJtagId:  y
+  ScanJTAG:  n
+  Ocds1ViaPod:  n
+  EtksArbiterMode:  None
+  EtksWaitAfterArbitrationTime:  0
+  RefreshJtag:  n
+  RefreshHarr:  n
+  ReenableOcds:  y
+  ReduceJtagClock:  n
+  UseDap:  n
+  DapMode:  2PIN
+  JtagMuxPort:  -1
+  UseNewJtagEngine:  y
+  ConnOption:  Default
+  SetDebugEnableAb1DisablePin:  n
+  ResetWaitTime:  500
+  ResetMode:  Default
+  OpenDrainReset:  n
+  DiswdtOnReset:  n
+  SetPllOnReset:  0x00000000
+  SetPllOnReset2:  0x00000000
+  ImprovedInactiveAfterResetDetection:  n
+  ExpectedEntryPoint:  
+  MaxTry:  1
+  ForceEdMode:  -1
+  UseDflashAccessFilter:  y
+  UseTranslateAddr:  y
+  SimioAddr:  g_JtagSimioAccess
+  UseStmForPtm:  1
+  ExecOnStartCmds:  n
+  OnStartScript Script:
+    Script is empty
+  ExecOnHaltCmds:  n
+  OnHaltScript Script:
+    Script is empty
+  UseTriggerToBreak:  y
+  UseTL2OnHalt:  y
+  UseOstateStable:  y
+  AllowJtagResetWhileRunning:  y
+  MaxAccRetry:  1
+  AccRetryDelay:  10
+  DefOcdsReserved:  
+  UseRestartWhileRunningHandling:  n
+  IgnoreEmemAccessErrors:  n
+  RemapEmemAccess:  n
+  ReadPmcsrWhileRunning:  n
+  MultiChipDbgMode:  0
+  IvIcacheOnHalt:  y
+  IvPlbOnHalt:  y
+  SuspendSlaveCores:  n
+  FilterMemAcc:  y
+
+Settings:
+  PortType:  DAS
+  CommDevSel:  
+  TargetPort:  Default
+  TargetPortId:  553582592
+  DasIsDefault:  n
+  MaxJtagClk:  10000
+  CheckJtagId:  y
+  ScanJTAG:  n
+  Ocds1ViaPod:  n
+  EtksArbiterMode:  None
+  EtksWaitAfterArbitrationTime:  0
+  RefreshJtag:  n
+  RefreshHarr:  n
+  ReenableOcds:  y
+  ReduceJtagClock:  n
+  UseDap:  n
+  DapMode:  2PIN
+  JtagMuxPort:  -1
+  UseNewJtagEngine:  y
+  ConnOption:  Default
+  SetDebugEnableAb1DisablePin:  n
+  ResetWaitTime:  500
+  ResetMode:  Default
+  OpenDrainReset:  n
+  DiswdtOnReset:  n
+  SetPllOnReset:  0x00000000
+  SetPllOnReset2:  0x00000000
+  ImprovedInactiveAfterResetDetection:  n
+  ExpectedEntryPoint:  
+  MaxTry:  1
+  ForceEdMode:  -1
+  UseDflashAccessFilter:  y
+  UseTranslateAddr:  y
+  SimioAddr:  g_JtagSimioAccess
+  UseStmForPtm:  1
+  ExecOnStartCmds:  n
+  OnStartScript Script:
+    Script is empty
+  ExecOnHaltCmds:  n
+  OnHaltScript Script:
+    Script is empty
+  UseTriggerToBreak:  y
+  UseTL2OnHalt:  y
+  UseOstateStable:  y
+  AllowJtagResetWhileRunning:  y
+  MaxAccRetry:  1
+  AccRetryDelay:  10
+  DefOcdsReserved:  
+  UseRestartWhileRunningHandling:  n
+  IgnoreEmemAccessErrors:  n
+  RemapEmemAccess:  n
+  ReadPmcsrWhileRunning:  n
+  MultiChipDbgMode:  0
+  IvIcacheOnHalt:  y
+  IvPlbOnHalt:  y
+  SuspendSlaveCores:  n
+  FilterMemAcc:  y
+
+JTAG target infos:
+  JTAG-ID:           0x00000000
+  UsedJtagClk:       0 MHz
+  ExtVoltage:        0.0 V
+  IntVoltageUsed:    n
+  STSTAT:            0x241A1274
+
+DAS related information:
+  DAS DLL Version:        
+  Server started by UDE:  
+  Server name:              Server manufacturer:      Server version:         V3.8
+  DAS-API version:        V4.1
+  Server lib version:     V3.0
+  last DAS error:         256
+  last DAS function:      send_list
+
+
