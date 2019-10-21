@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 # Compiled source #
 
-###################
+##################
 
 *.com
 
@@ -23,7 +23,25 @@
 
 *.sd3
 
- 
+*.i
+
+*.d
+
+*.s
+
+#UDE tool#
+
+*.wsx
+
+tool/
+
+#doxygen#
+
+3_Doc/
+
+#vscode workspace#
+
+.vscode/
 
 # Packages #
 
