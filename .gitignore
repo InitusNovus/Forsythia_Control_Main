@@ -29,6 +29,10 @@
 
 *.s
 
+#Build#
+
+9_Make/
+
 #UDE tool#
 
 *.wsx
