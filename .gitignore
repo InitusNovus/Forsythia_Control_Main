@@ -151,3 +151,5 @@ Module.symvers
 Mkfile.old
 dkms.conf
 >>>>>>> b96586e3a75de724aa5797f182fc0790918efef4
+tool/ShieldBuddy_TC275D.wsx
+tool/ShieldBuddy_TC275D_102119091356.wsx
