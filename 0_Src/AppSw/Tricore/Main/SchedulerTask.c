@@ -14,6 +14,8 @@
 #include "User.h"
 #include "SDP.h"
 
+#include "CanCommunication.h"
+
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -146,6 +148,10 @@ void Task_init (void)
 	/*HLD_Userinterface initialization*/
 	{
 		HLD_UserInterface_init(Task_startButtonRoutine);
+	}	
+	/* UHM initialization */
+	{
+		CanCommunication_init();
 	}
 	/*SDP initialization*/
 	{

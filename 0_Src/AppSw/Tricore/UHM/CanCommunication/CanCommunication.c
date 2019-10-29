@@ -2,6 +2,8 @@
  * CanCommunication.c
  * Created on 2019. 10. 24.
  * Author: Dua
+ * 
+ * For RH26_Control_main
  */
 
 
@@ -16,6 +18,8 @@
 IfxMultican_Can			CanCommunication_canModule;
 
 IfxMultican_Can_Node	CanCommunication_canNode0;
+IfxMultican_Can_Node	CanCommunication_canNode1;
+IfxMultican_Can_Node	CanCommunication_canNode2;
 
 // CanCommunication_Message CanCommunication_message0;
 
@@ -45,6 +49,29 @@ void CanCommunication_init(void)
 	canNodeConfig.txPinMode	= IfxPort_OutputMode_pushPull;
 	IfxMultican_Can_Node_init(&CanCommunication_canNode0, &canNodeConfig);
 
+	/* Can node1 initialization */
+	// IfxMultican_Can_NodeConfig canNodeConfig;
+	IfxMultican_Can_Node_initConfig(&canNodeConfig, &CanCommunication_canModule);
+
+	canNodeConfig.baudrate 	= 250000;		//250kbps
+	canNodeConfig.nodeId	= IfxMultican_NodeId_1;
+	canNodeConfig.rxPin		= &CAN0NODE1IN;
+	canNodeConfig.rxPinMode	= IfxPort_InputMode_pullUp;
+	canNodeConfig.txPin		= &CAN0NODE1OUT;
+	canNodeConfig.txPinMode	= IfxPort_OutputMode_pushPull;
+	IfxMultican_Can_Node_init(&CanCommunication_canNode1, &canNodeConfig);
+
+	/* Can node2 initialization */
+	// IfxMultican_Can_NodeConfig canNodeConfig;
+	IfxMultican_Can_Node_initConfig(&canNodeConfig, &CanCommunication_canModule);
+
+	canNodeConfig.baudrate 	= 250000;		//250kbps
+	canNodeConfig.nodeId	= IfxMultican_NodeId_2;
+	canNodeConfig.rxPin		= &CAN0NODE2IN;
+	canNodeConfig.rxPinMode	= IfxPort_InputMode_pullUp;
+	canNodeConfig.txPin		= &CAN0NODE2OUT;
+	canNodeConfig.txPinMode	= IfxPort_OutputMode_pushPull;
+	IfxMultican_Can_Node_init(&CanCommunication_canNode2, &canNodeConfig);
 }
 
 void CanCommunication_initMessage(CanCommunication_Message* ccMsg, CanCommunication_Message_Config* config)
