@@ -159,6 +159,10 @@ void Task_init (void)
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
 	}
+	/* Hmm... */
+	{
+		AccumulatorManager_master_init();
+	}
 	/*HLD initialization finished*/
 	{
 		while(IfxCpu_acquireMutex(&Task_core1.mutex));

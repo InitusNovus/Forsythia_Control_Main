@@ -57,6 +57,8 @@ typedef struct
 }Accumulator_Status_t;
 
 
+/* Function Prototypes */
+IFX_EXTERN void AccumulatorManager_master_init(void);
 
 
 
