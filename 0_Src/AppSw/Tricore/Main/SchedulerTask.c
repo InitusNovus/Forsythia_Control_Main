@@ -170,6 +170,13 @@ void Task_init (void)
 			Task_core1.start = TRUE;	//starting-up Cpu1
 			IfxCpu_releaseMutex(&Task_core1.mutex);
 		}
+
+		while(IfxCpu_acquireMutex(&Task_core2.mutex));
+		{
+			Task_core2.start = TRUE;	//starting-up Cpu2
+			IfxCpu_releaseMutex(&Task_core2.mutex);
+		}
+		
 		HLD_GtmTomBeeper_start(Beep_pattern4);
 		//		HLD_GtmTomBeeper_start(KartRider);
 		//		HLD_GtmTomBeeper_start(GrandfathersElevenMonth);

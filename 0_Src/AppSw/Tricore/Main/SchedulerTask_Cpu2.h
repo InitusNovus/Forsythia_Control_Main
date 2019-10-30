@@ -1,12 +1,12 @@
 /*
- * SchedulerTask_Cpu1.h
+ * SchedulerTask_Cpu2.h
  *
- *  Created on: 2019. 10. 16.
+ *  Created on: 2019. 10. 30.
  *      Author: Dua
  */
 
-#ifndef SRC_APPSW_TRICORE_MAIN_SCHEDULERTASK_CPU1_H_
-#define SRC_APPSW_TRICORE_MAIN_SCHEDULERTASK_CPU1_H_
+#ifndef SRC_APPSW_TRICORE_MAIN_SCHEDULERTASK_CPU2_H_
+#define SRC_APPSW_TRICORE_MAIN_SCHEDULERTASK_CPU2_H_
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
@@ -35,13 +35,13 @@ typedef struct
 	IfxCpu_mutexLock mutex;
 	boolean start;
 	boolean flag;
-}Task_cpu1;
+}Task_cpu2;
 
 
 /******************************************************************************/
 /*------------------------------Global variables------------------------------*/
 /******************************************************************************/
-IFX_EXTERN Task_cpu1 Task_core1;
+IFX_EXTERN Task_cpu2 Task_core2;
 
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
@@ -51,7 +51,7 @@ IFX_EXTERN Task_cpu1 Task_core1;
 /******************************************************************************/
 /*---------------------Inline Function Implementations------------------------*/
 /******************************************************************************/
-void Task_core1_1ms (void);
+void Task_core2_1ms (void);
 
 
 #endif

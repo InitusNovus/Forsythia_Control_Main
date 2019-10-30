@@ -2,7 +2,7 @@
  * SchedulerTask_Cpu1.c
  *
  *  Created on: 2019. 10. 16.
- *      Author: bigbi
+ *      Author: Dua
  */
 
 
