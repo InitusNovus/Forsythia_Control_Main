@@ -42,27 +42,14 @@ typedef struct
 	float32 Accel_z;
 
 	boolean isOk;
+
 }HLD_Imu_data_t;
 
 
 typedef struct
 {
-
-/*
-	struct _data
-	{
-		float32 Gyro_x;
-		float32 Gyro_y;
-		float32 Gyro_z;
-
-		float32 Accel_x;
-		float32 Accel_y;
-		float32 Accel_z;
-
-		boolean isOk;
-	}data;
-*/
 	HLD_Imu_data_t data;
+
 	struct
 	{
 		IfxCpu_mutexLock mutex;
@@ -71,7 +58,6 @@ typedef struct
 
 	struct
 	{
-
 		sint16 Gyro_x;
 		sint16 Gyro_y;
 		sint16 Gyro_z;
@@ -82,7 +68,6 @@ typedef struct
 
 		uint16 WhoAmI;
 	}MPU;
-
 
 }HLD_Imu_t;
 
