@@ -2,6 +2,8 @@
  * CanCommunication.h
  * Created on 2019. 10. 24.
  * Author: Dua
+ * 
+ * For RH26_Control_main
  */
 
 #ifndef CANCOMMUNICATION_H_
@@ -13,10 +15,6 @@
 #include <IfxMultican.h>
 #include <IfxMultican_Can.h>
 #include "Configuration.h"
-
-
-/* Macros */
-// #define CANCOMM_MSGID0		0x00100001UL
 
 
 

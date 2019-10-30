@@ -14,6 +14,8 @@
 #include "User.h"
 #include "SDP.h"
 
+#include "CanCommunication.h"
+
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -146,12 +148,20 @@ void Task_init (void)
 	/*HLD_Userinterface initialization*/
 	{
 		HLD_UserInterface_init(Task_startButtonRoutine);
+	}	
+	/* UHM initialization */
+	{
+		CanCommunication_init();
 	}
 	/*SDP initialization*/
 	{
 		SDP_PedalBox_init();
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
+	}
+	/* Hmm... */
+	{
+		AccumulatorManager_master_init();
 	}
 	/*HLD initialization finished*/
 	{

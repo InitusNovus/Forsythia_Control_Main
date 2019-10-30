@@ -31,6 +31,7 @@
 #include "PedalBox.h"
 #include "SteeringAngle.h"
 #include "WheelSpeed.h"
+#include "AccumulatorManager_master.h"
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
