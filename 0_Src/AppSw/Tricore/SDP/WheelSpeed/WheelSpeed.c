@@ -12,6 +12,7 @@
 #include "SDP.h"
 #include "WheelSpeed.h"
 #include "GtmTim.h"
+#include <math.h>
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -154,8 +155,13 @@ IFX_STATIC void SDP_WheelSpeed_update(void)
 
 IFX_STATIC void SDP_WheelSpeed_getSensorValue(SDP_WheelSpeed_sensor_t* sensor, HLD_GtmTim_dataPulse_t* tim)
 {
+	float32 freq = tim->pulseHz;
+	if(isinf(freq))
+	{
+		freq = 0;
+	}
 	sensor->wheelLinearVelocity =
 			sensor->config.speedToVelocity *(sensor->sensorAngularSpeed =
-					sensor->config.freqToSpeed *(sensor->sensorFrequencyRaw = tim->pulseHz));
+					sensor->config.freqToSpeed *(sensor->sensorFrequencyRaw = freq));
 }
 
