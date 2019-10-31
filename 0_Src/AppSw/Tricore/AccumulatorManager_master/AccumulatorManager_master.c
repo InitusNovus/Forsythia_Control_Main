@@ -120,13 +120,16 @@ void AccumulatorManager_master_run_1ms_c2(void)
 	AmsCanMsg0_data.U[0] = AmsCanMsg0.msg.data[0];
 	AmsCanMsg0_data.U[1] = AmsCanMsg0.msg.data[1];
 	
+	AmsCanMsg1_data.U[0] = AmsCanMsg1.msg.data[0];
+	AmsCanMsg1_data.U[1] = AmsCanMsg1.msg.data[1];
+
 	/* Decode received can messages */
 	AccumulatorManager_master.data.voltage = AmsCanMsg_decodeData(AmsCanMsg0_data.S.voltage, &AmsCanMsg_voltageConst);
 	AccumulatorManager_master.data.current = AmsCanMsg_decodeData(AmsCanMsg0_data.S.current, &AmsCanMsg_currentConst);
 	for(uint32 index = 0; index < TEMP_SEN_NUM; index++)
 	{
 		AccumulatorManager_master.data.temperature[index] 
-			= AmsCanMsg_decodeData(AmsCanMsg1_data.S.temperature[index], &AmsCanMsg_temperatureConst);
+			= AmsCanMsg_decodeData((sint8)AmsCanMsg1_data.S.temperature[index], &AmsCanMsg_temperatureConst);
 	}
 	AccumulatorManager_master.status.bms[0] = AmsCanMsg0_data.S.status.B.bms0;
 	AccumulatorManager_master.status.bms[1] = AmsCanMsg0_data.S.status.B.bms1;

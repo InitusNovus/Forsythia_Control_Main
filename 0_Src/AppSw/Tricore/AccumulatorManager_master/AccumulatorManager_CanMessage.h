@@ -90,7 +90,7 @@ IFX_INLINE sint32 AmsCanMsg_encodeData(float32 data, AmsCanMsg_CanDataConstant* 
 
 IFX_INLINE float32 AmsCanMsg_decodeData(sint32 code, AmsCanMsg_CanDataConstant* constants)
 {
-	return (float32)( ((float32)(constants->mul * code)) / ((float32)constants->div) + (float32)constants->offset );
+	return (float32)( ((float32)constants->mul * (float32)code) / ((float32)constants->div) + (float32)constants->offset );
 }
 
 
