@@ -176,7 +176,7 @@ void Task_init (void)
 			Task_core2.start = TRUE;	//starting-up Cpu2
 			IfxCpu_releaseMutex(&Task_core2.mutex);
 		}
-		
+
 		HLD_GtmTomBeeper_start(Beep_pattern4);
 		//		HLD_GtmTomBeeper_start(KartRider);
 		//		HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
@@ -205,6 +205,11 @@ void Task_IsrCb_1ms (void)
 	{
 		Task_core1.flag = Task_core1.start ? TRUE : FALSE;
 		IfxCpu_releaseMutex(&Task_core1.mutex);
+	}
+		while(IfxCpu_acquireMutex(&Task_core1.mutex));
+	{
+		Task_core2.flag = Task_core2.start ? TRUE : FALSE;
+		IfxCpu_releaseMutex(&Task_core2.mutex);
 	}
 
 	{

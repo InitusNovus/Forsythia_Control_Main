@@ -52,8 +52,6 @@ void core1_main(void)
 		{
 			break;
 		}
-//		Task.core1.test++;
-//		*testP = *testP + 1;
 	}
 
 	/** - Background loop */

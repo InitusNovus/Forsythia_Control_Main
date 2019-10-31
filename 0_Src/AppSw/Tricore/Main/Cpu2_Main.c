@@ -28,6 +28,7 @@
 #include "Cpu0_Main.h"
 #include "IfxScuWdt.h"
 
+#include "SchedulerTask.h"
 /** \brief Main entry point for CPU1 */
 void core2_main(void)
 {
@@ -37,7 +38,38 @@ void core2_main(void)
      * */
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
 
+	while(TRUE)	//waiting for the start-up sign.
+	{
+		boolean start;
+		while(IfxCpu_acquireMutex(&Task_core2.mutex));
+		{
+			start = Task_core2.start;
+			IfxCpu_releaseMutex(&Task_core2.mutex);
+		}
+		if(start)
+		{
+			break;
+		}
+	}
+
     /** - Background loop */
     while (TRUE)
-    {}
+    {
+		boolean flag;
+		while(IfxCpu_acquireMutex(&Task_core2.mutex));
+		{
+			flag = Task_core2.flag;
+			IfxCpu_releaseMutex(&Task_core2.mutex);
+		}
+		if(flag)
+		{
+			Task_core2_1ms();
+
+			while(IfxCpu_acquireMutex(&Task_core2.mutex));
+			{
+				Task_core2.flag = FALSE;
+				IfxCpu_releaseMutex(&Task_core2.mutex);
+            }
+		}
+	}
 }
