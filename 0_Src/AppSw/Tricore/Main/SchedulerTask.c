@@ -15,6 +15,8 @@
 #include "SDP.h"
 
 #include "CanCommunication.h"
+#include "AccumulatorManager_master.h"
+#include "RVC.h"
 
 
 /******************************************************************************/
@@ -162,6 +164,7 @@ void Task_init (void)
 	/* Hmm... */
 	{
 		AccumulatorManager_master_init();
+		RVC_init();
 	}
 	/*HLD initialization finished*/
 	{
@@ -220,6 +223,9 @@ void Task_IsrCb_1ms (void)
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
 	}
+	{
+		RVC_run_1ms();
+	}
 	HLD_GtmTomBeeper_run_1ms();
 
 	ticToc_1ms = (IfxStm_get(&MODULE_STM0) - stm_buf_1ms)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
@@ -231,6 +237,8 @@ void Task_10ms (void)			//Slot 0
 {
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_10ms();
+
+	RVC_run_10ms();
 
 	HLD_UserInterface_run_10ms();
 

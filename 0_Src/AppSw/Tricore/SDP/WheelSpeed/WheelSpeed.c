@@ -23,7 +23,7 @@
 #define WSSRR		HLD_GtmTim.ch[9].data
 
 #define GR			1.00
-#define WDIA		0.52324
+#define WDIA		0.52324f
 #define	WSSRES		20
 
 #define AVG2(x,y)	((x + y)/2)
