@@ -14,7 +14,7 @@
 
 
 /* Macro */
-#define RVCTEST
+
 
 #define PWMVREF	5.0
 #define R2DOUT	IfxPort_P21_0
@@ -49,6 +49,7 @@ typedef struct
 
 	struct 
 	{
+		float32 desired;
 		float32 required;
 
 		float32 rearLeft;
@@ -81,9 +82,9 @@ typedef struct
 	{
 		float32 pGain;
 	}tvMode1;
-	
-
 }RVC_t;
+
+
 
 
 /* Global Variables */
@@ -170,7 +171,7 @@ void RVC_run_1ms(void)
 	/* Get torque required from pedal value */
 	if(SDP_PedalBox.apps.isValueOk)
 	{
-		RVC.torque.required = RVC_PedalMap_lut_getResult(SDP_PedalBox.apps.pps);
+		RVC.torque.desired = ( RVC.torque.required = RVC_PedalMap_lut_getResult(SDP_PedalBox.apps.pps) );
 	}
 	else
 	{
@@ -185,6 +186,11 @@ void RVC_run_1ms(void)
 			RVC.torque.required = 0;
 		}
 	}
+
+	float32 cTorqueLimit = 100;
+
+	
+
 	/* Torque distribution */
 	switch(RVC.tvMode)
 	{
