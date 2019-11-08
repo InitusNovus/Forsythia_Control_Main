@@ -90,6 +90,13 @@ IFX_STATIC void HLD_GtmTim_initChannel(HLD_GtmTim_channel_t* channel,IfxGtm_Tim_
 	timInConfig.timIndex = timIn->tim;
 	timInConfig.channelIndex = timIn->channel;
 	timInConfig.filter.inputPin = timIn;
+
+	timInConfig.filter.fallingEdgeMode = IfxGtm_Tim_In_ConfigFilterMode_individualDeglitchTimeUpDown;
+	timInConfig.filter.fallingEdgeFilterTime = 5e-6;
+
+	timInConfig.filter.risingEdgeMode = IfxGtm_Tim_In_ConfigFilterMode_individualDeglitchTimeUpDown;
+	timInConfig.filter.risingEdgeFilterTime = 5e-6;
+
 	IfxGtm_Tim_In_init(&channel->driver,&timInConfig);
 }
 
