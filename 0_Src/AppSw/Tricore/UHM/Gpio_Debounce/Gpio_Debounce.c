@@ -4,6 +4,12 @@
  * Author: Dua
  */
 
+/* TODO:
+ *	Active high mode
+ *	To be included by HLD
+ *  Userinterface button
+ */
+
 /* Includes */
 #include "Gpio_Debounce.h"
 
