@@ -1,0 +1,7 @@
+﻿---
+BasedOnStyle: Microsoft
+AlignAfterOpenBracket: DontAlign
+SpaceBeforeParens: Never
+UseTab: ForIndentation
+
+...
