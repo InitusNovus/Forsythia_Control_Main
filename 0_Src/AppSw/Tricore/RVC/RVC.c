@@ -9,8 +9,11 @@
 #include "HLD.h"
 #include "IfxPort.h"
 #include "PedalMap.h"
-#include "RVC.h"
 #include "UserInterface_Button.h"
+
+#include "RVC.h"
+#include "RVC_privateDataStructure.h"
+#include "TorqueVectoring/TorqueVectoring.h"
 
 /* Macro */
 #define PWMFREQ 20000 // PWM frequency in Hz
@@ -27,69 +30,6 @@
 
 #define TV1PGAIN 0.001
 
-/* Enumerations */
-typedef enum
-{
-	RVC_ReadyToDrive_status_notInitialized = 0,
-	RVC_ReadyToDrive_status_initialized = 1,
-	RVC_ReadyToDrive_status_run = 2,
-} RVC_ReadyToDrive_status;
-
-typedef enum
-{
-	RVC_TorqueVectoring_modeOpen = 0,
-	RVC_TorqueVectoring_mode1 = 1,
-} RVC_TorqueVectoring_mode_t;
-
-typedef struct
-{
-	float32 mul;
-	float32 offset;
-} RVC_pwmCalibration;
-
-/* Data Structures */
-typedef struct
-{
-	RVC_ReadyToDrive_status readyToDrive;
-	RVC_TorqueVectoring_mode_t tvMode;
-
-	struct
-	{
-		float32 desired;
-		float32 controlled;
-
-		float32 rearLeft;
-		float32 rearRight;
-	} torque;
-
-	struct
-	{
-		float32 rearLeft;
-		float32 rearRight;
-	} pwmDuty;
-
-	struct
-	{
-		HLD_GtmTom_Pwm accel_rearLeft;
-		HLD_GtmTom_Pwm accel_rearRight;
-		HLD_GtmTom_Pwm decel_rearLeft;
-		HLD_GtmTom_Pwm decel_rearRight;
-	} out;
-
-	HLD_button_t startButton;
-
-	struct
-	{
-		RVC_pwmCalibration left;
-		RVC_pwmCalibration right;
-	} calibration;
-
-	struct
-	{
-		float32 pGain;
-	} tvMode1;
-} RVC_t;
-
 /* Global Variables */
 RVC_t RVC = {
     .readyToDrive = RVC_ReadyToDrive_status_notInitialized,
@@ -105,9 +45,6 @@ IFX_STATIC void RVC_toggleR2d(void);
 
 IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
-
-IFX_STATIC void RVC_TorqueVectoring_run_modeOpen(void);
-IFX_STATIC void RVC_TorqueVectoring_run_mode1(void);
 
 /* Function Implementation */
 void RVC_init(void)
@@ -149,6 +86,7 @@ IFX_STATIC void RVC_initPwm(void)
 	RVC.calibration.right.mul = OUTCAL_RIGHT_MUL;
 	RVC.calibration.right.offset = OUTCAL_RIGHT_OFFSET;
 }
+
 IFX_STATIC void RVC_initButton(void)
 {
 	HLD_buttonConfig_t buttonConfig;
@@ -195,6 +133,15 @@ void RVC_run_1ms(void)
 
 	/* TODO: Torque limit: Traction control */
 	float32 TorqueLimit = 100;
+	if(RVC.torque.controlled > 100)
+	{
+		RVC.torque.controlled = 100;
+	}
+	else if (RVC.torque.controlled < 0)
+	{
+		RVC.torque.controlled = 0;
+	}
+	
 
 	/* Torque distribution */
 	switch(RVC.tvMode)
@@ -254,17 +201,4 @@ IFX_STATIC void RVC_toggleR2d(void)
 		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
 	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
-}
-
-IFX_STATIC void RVC_TorqueVectoring_run_modeOpen(void)
-{
-	RVC.torque.rearLeft = RVC.torque.controlled;
-	RVC.torque.rearRight = RVC.torque.controlled;
-}
-
-IFX_STATIC void RVC_TorqueVectoring_run_mode1(void)
-{
-	/*Default*/
-	// FIXME: TV algorithm
-	RVC_TorqueVectoring_run_modeOpen();
 }
