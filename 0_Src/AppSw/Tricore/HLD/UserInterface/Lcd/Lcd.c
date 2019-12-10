@@ -3,6 +3,8 @@
  *
  *  Created on: 2019. 7. 5.
  *      Author: bigbi_000
+ *  
+ *  TODO: Refactoring: Lcd->CharLcd
  */
 
 
