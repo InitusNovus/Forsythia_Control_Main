@@ -50,6 +50,7 @@ IFX_STATIC void RVC_initButton(void);
 void RVC_init(void)
 {
 	RVC.tvMode = RVC_TorqueVectoring_modeOpen;
+	RVC.tcMode = RVC_TractionControl_modeNone;
 	RVC_PedalMap_lut_setMode(0);
 
 	/* PWM output initialzation */
@@ -131,8 +132,7 @@ void RVC_run_1ms(void)
 		}
 	}
 
-	/* TODO: Torque limit: Traction control */
-	float32 TorqueLimit = 100;
+	/* TODO: Torque limit: Traction control, Power Limit */
 	if(RVC.torque.controlled > 100)
 	{
 		RVC.torque.controlled = 100;
@@ -141,7 +141,13 @@ void RVC_run_1ms(void)
 	{
 		RVC.torque.controlled = 0;
 	}
-	
+	switch(RVC.tcMode)
+	{
+		case RVC_TractionControl_mode1:
+		break;
+		default:
+		break;
+	}
 
 	/* Torque distribution */
 	switch(RVC.tvMode)

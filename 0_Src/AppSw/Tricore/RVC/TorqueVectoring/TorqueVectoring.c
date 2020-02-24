@@ -20,7 +20,7 @@ void RVC_TorqueVectoring_run_modeOpen(void)
 
 void RVC_TorqueVectoring_run_mode1(void)
 {
-	/*Default*/
 	// TODO: TV algorithm
+	/*Default*/
 	RVC_TorqueVectoring_run_modeOpen();
 }

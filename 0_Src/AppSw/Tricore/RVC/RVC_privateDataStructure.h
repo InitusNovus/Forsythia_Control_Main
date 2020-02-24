@@ -25,6 +25,12 @@ typedef enum
 	RVC_TorqueVectoring_mode1 = 1,
 } RVC_TorqueVectoring_mode_t;
 
+typedef enum
+{
+	RVC_TractionControl_modeNone = 0,
+	RVC_TractionControl_mode1 = 1,
+} RVC_TractionControl_mode_t;
+
 typedef struct
 {
 	float32 mul;
@@ -36,6 +42,7 @@ typedef struct
 {
 	RVC_ReadyToDrive_status readyToDrive;
 	RVC_TorqueVectoring_mode_t tvMode;
+	RVC_TractionControl_mode_t tcMode;
 	HLD_button_t startButton;
 
 	struct
@@ -45,6 +52,8 @@ typedef struct
 
 		float32 rearLeft;
 		float32 rearRight;
+
+		float32 predeterminedLimit;
 	} torque;
 
 	struct
@@ -66,6 +75,11 @@ typedef struct
 		float32 rearLeft;
 		float32 rearRight;
 	} pwmDuty;
+
+	struct 
+	{
+		
+	}tcMode1;
 
 	struct
 	{
