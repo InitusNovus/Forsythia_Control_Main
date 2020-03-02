@@ -58,7 +58,7 @@ void HLD_GtmTom_init(void)
     boolean  interruptState = IfxCpu_disableInterrupts();
 	Ifx_GTM *gtm = &MODULE_GTM;
 
-	/* Initialze GTM global */
+	/* Initialze GTM global */	//FIXME: Split out GTM global init functions
 	{
 		/* Get GTM clocks */
 		g_GtmTom.frequency = IfxGtm_Cmu_getModuleFrequency(gtm);
