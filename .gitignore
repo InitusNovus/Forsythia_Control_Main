@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Compiled source #
 
 ##################
@@ -31,7 +30,9 @@
 
 #Build#
 
-9_Make/
+*/9_Make/
+
+*/SubDirectory.mk
 
 #UDE tool#
 
@@ -97,7 +98,6 @@ Icon?
 
 Thumbs.db
 
-=======
 # Prerequisites
 *.d
 
@@ -150,6 +150,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
->>>>>>> b96586e3a75de724aa5797f182fc0790918efef4
-tool/ShieldBuddy_TC275D.wsx
-tool/ShieldBuddy_TC275D_102119091356.wsx
+
+tool/
+1_ToolEnv/
+2_Out/
