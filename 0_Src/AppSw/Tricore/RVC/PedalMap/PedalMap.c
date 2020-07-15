@@ -8,4 +8,6 @@
 /* Includes */
 #include "PedalMap.h"
 
-
+/*TODO:
+ *	Reconstruct pedal map
+ */
