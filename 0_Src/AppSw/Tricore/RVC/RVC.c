@@ -16,13 +16,21 @@
 #include "TorqueVectoring/TorqueVectoring.h"
 
 /* Macro */
-#define PWMFREQ 20000 // PWM frequency in Hz
+#define PWMFREQ 5000 // PWM frequency in Hz
 #define PWMVREF 5.0   // PWM reference voltage (On voltage)
 
+/* 
 #define OUTCAL_LEFT_MUL 1.06
 #define OUTCAL_LEFT_OFFSET 0.015
 #define OUTCAL_RIGHT_MUL 1.065
 #define OUTCAL_RIGHT_OFFSET 0.0125
+ */
+
+#define OUTCAL_LEFT_MUL 1.0f
+#define OUTCAL_LEFT_OFFSET 0.0f
+#define OUTCAL_RIGHT_MUL 1.0f
+#define OUTCAL_RIGHT_OFFSET 0.0f
+
 
 #define R2DOUT IfxPort_P21_0
 
@@ -90,12 +98,13 @@ IFX_STATIC void RVC_initPwm(void)
 
 IFX_STATIC void RVC_initButton(void)
 {
+	//FIXME: Button (Active Low) -> GPIO (Active High)
 	HLD_buttonConfig_t buttonConfig;
 	HLD_UserInterface_buttonInitConfig(&buttonConfig);
 
 	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
 	buttonConfig.port = &START_BTN;
-	buttonConfig.callBack = RVC_toggleR2d;
+	buttonConfig.callBack = RVC_toggleR2d;	//FIXME: Do not just toggle the state!
 
 	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
 	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
@@ -104,6 +113,7 @@ IFX_STATIC void RVC_initButton(void)
 
 void RVC_run_1ms(void)
 {
+	//TODO: R2D entry routine
 	/* ready to drive state output update */
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
