@@ -3,6 +3,8 @@
  *
  *  Created on: 2019. 7. 3.
  *      Author: bigbi_000
+ * 
+ * TODO: Merge TFTLCD functions(AK237)
  */
 
 
