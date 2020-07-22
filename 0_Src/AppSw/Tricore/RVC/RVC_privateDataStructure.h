@@ -9,7 +9,8 @@
 
 /* Includes */
 #include "HLD.h"
-#include "UserInterface_Button.h"
+// #include "UserInterface_Button.h"
+#include "Gpio_Debounce.h"
 
 /* Enumerations */
 typedef enum
@@ -41,9 +42,12 @@ typedef struct
 typedef struct
 {
 	RVC_ReadyToDrive_status readyToDrive;
+
+	
 	RVC_TorqueVectoring_mode_t tvMode;
 	RVC_TractionControl_mode_t tcMode;
-	HLD_button_t startButton;
+	// HLD_button_t startButton;
+	Gpio_Debounce_input startButton;
 
 	struct
 	{

@@ -9,7 +9,7 @@
 #include "HLD.h"
 #include "IfxPort.h"
 #include "PedalMap.h"
-#include "UserInterface_Button.h"
+#include "Gpio_Debounce.h"
 
 #include "RVC.h"
 #include "RVC_privateDataStructure.h"
@@ -17,9 +17,9 @@
 
 /* Macro */
 #define PWMFREQ 5000 // PWM frequency in Hz
-#define PWMVREF 5.0   // PWM reference voltage (On voltage)
+#define PWMVREF 5.0  // PWM reference voltage (On voltage)
 
-/* 
+/*
 #define OUTCAL_LEFT_MUL 1.06
 #define OUTCAL_LEFT_OFFSET 0.015
 #define OUTCAL_RIGHT_MUL 1.065
@@ -31,15 +31,18 @@
 #define OUTCAL_RIGHT_MUL 1.0f
 #define OUTCAL_RIGHT_OFFSET 0.0f
 
-
 #define R2DOUT IfxPort_P21_0
+#define R2D_ONHOLD (3*100)			//3 seconds
+#define R2D_OFFHOLD(1*100)			//1 seconds	
+#define R2D_REL (1*100)			//1 seconds
 
 #define PEDAL_BRAKE_ON_THRESHOLD 10
 
 #define TV1PGAIN 0.001
 
 /* Global Variables */
-RVC_t RVC = {
+RVC_t RVC = 
+{
     .readyToDrive = RVC_ReadyToDrive_status_notInitialized,
     .torque.controlled = 0,
     .torque.rearLeft = 0,
@@ -98,22 +101,33 @@ IFX_STATIC void RVC_initPwm(void)
 
 IFX_STATIC void RVC_initButton(void)
 {
-	//FIXME: Button (Active Low) -> GPIO (Active High)
+	// FIXME: Button (Active Low) -> GPIO (Active High)
+/* 	
 	HLD_buttonConfig_t buttonConfig;
 	HLD_UserInterface_buttonInitConfig(&buttonConfig);
 
 	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
 	buttonConfig.port = &START_BTN;
-	buttonConfig.callBack = RVC_toggleR2d;	//FIXME: Do not just toggle the state!
+	buttonConfig.callBack = RVC_toggleR2d; // FIXME: Do not just toggle the state!
 
 	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
 	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
 	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+ */
+
+	Gpio_Debounce_inputConfig StartBtnContig;
+	Gpio_Debounce_initInputConfig(&StartBtnContig);
+	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
+	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
+	StartBtnContig.port = &START_BTN;
+	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
+
+
 }
 
 void RVC_run_1ms(void)
 {
-	//TODO: R2D entry routine
+	// TODO: R2D entry routine
 	/* ready to drive state output update */
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
@@ -147,15 +161,15 @@ void RVC_run_1ms(void)
 	{
 		RVC.torque.controlled = 100;
 	}
-	else if (RVC.torque.controlled < 0)
+	else if(RVC.torque.controlled < 0)
 	{
 		RVC.torque.controlled = 0;
 	}
 	switch(RVC.tcMode)
 	{
-		case RVC_TractionControl_mode1:
+	case RVC_TractionControl_mode1:
 		break;
-		default:
+	default:
 		break;
 	}
 
@@ -172,30 +186,66 @@ void RVC_run_1ms(void)
 
 	/* Torque signal saturation */
 	if(RVC.torque.rearLeft)
-		/* Torque signal generation */
-		// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
-		if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		{
-			RVC.pwmDuty.rearLeft =
-			    (RVC.torque.rearLeft) * 0.006f * RVC.calibration.left.mul + 0.2f + RVC.calibration.left.offset;
-			RVC.pwmDuty.rearRight =
-			    (RVC.torque.rearRight) * 0.006f * RVC.calibration.right.mul + 0.2f + RVC.calibration.right.offset;
-		}
-		else
-		{
-			RVC.pwmDuty.rearLeft = (0) * 0.006f * RVC.calibration.left.mul + 0.2f + RVC.calibration.left.offset;
-			RVC.pwmDuty.rearRight = (0) * 0.006f * RVC.calibration.right.mul + 0.2f + RVC.calibration.right.offset;
-		}
+	{
+	}
+
+	/* Torque signal generation */
+	// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	{
+		RVC.pwmDuty.rearLeft =
+		    (RVC.torque.rearLeft) * 0.006f * RVC.calibration.left.mul + 0.2f + RVC.calibration.left.offset;
+		RVC.pwmDuty.rearRight =
+		    (RVC.torque.rearRight) * 0.006f * RVC.calibration.right.mul + 0.2f + RVC.calibration.right.offset;
+	}
+	else
+	{
+		RVC.pwmDuty.rearLeft = (0) * 0.006f * RVC.calibration.left.mul + 0.2f + RVC.calibration.left.offset;
+		RVC.pwmDuty.rearRight = (0) * 0.006f * RVC.calibration.right.mul + 0.2f + RVC.calibration.right.offset;
+	}
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearLeft, RVC.pwmDuty.rearLeft);
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRight);
 }
 
 void RVC_run_10ms(void)
 {
-	if(HLD_UserInterface_pollButton(&RVC.startButton))
-	{
-		if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	static boolean risingEdgeFlag = FALSE;
+	static uint32 pushCount = 0;
+	static uint32 releaseCount = 0;
+
+	if( (Gpio_Debounce_pollInput(&RVC.startButton) == TRUE)&&(risingEdgeFlag == FALSE) )
+	{	/* The button is Pushed */
+		pushCount++;
+
+		/* For Test */
+		if( (RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)&&(pushCount > R2D_ONHOLD) )
+		{
+			RVC_setR2d();
 			HLD_GtmTomBeeper_start(music);
+			pushCount = 0;
+			risingEdgeFlag = TRUE; //Rising edge detected
+		}
+		else if( (RVC.readyToDrive == RVC_ReadyToDrive_status_run)&&(pushCount > R2D_ONHOLD)/* &&() */ )	//TODO: RTD off condition: Speed == 0, 
+		{
+			RVC_resetR2d();
+			pushCount = 0;
+			risingEdgeFlag = TRUE; //Rising edge detected
+		}
+
+	}
+	else if( (Gpio_Debounce_pollInput(&RVC.startButton) == FALSE)&&(risingEdgeFlag == TRUE) )
+	{	/* The button is released */
+		releaseCount++;
+		if( releaseCount > R2DREL)
+		{
+			risingEdgeFlag = FALSE;
+			/* The button is released */
+		}
+	}
+	else
+	{
+		pushCount = 0;
+		releaseCount = 0;
 	}
 }
 
