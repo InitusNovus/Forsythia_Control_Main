@@ -18,6 +18,9 @@
 #include "AccumulatorManager_master.h"
 #include "RVC.h"
 
+#include "SharedPinFix.h"
+#include "AdcForceStart.h"
+
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -142,6 +145,7 @@ void Task_init (void)
 		HLD_GtmTim_init();
 		HLD_Qspi_init();
 		HLD_Multican_init();
+		HLD_Vadc_init();
 	}
 	/*HLD_AbstractionLayer initialization*/
 	{
@@ -166,6 +170,7 @@ void Task_init (void)
 		AccumulatorManager_master_init();
 		RVC_init();
 	}
+
 	/*HLD initialization finished*/
 	{
 		while(IfxCpu_acquireMutex(&Task_core1.mutex));

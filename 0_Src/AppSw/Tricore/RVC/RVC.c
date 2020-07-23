@@ -10,10 +10,13 @@
 #include "IfxPort.h"
 #include "PedalMap.h"
 #include "Gpio_Debounce.h"
+#include "AdcSensor.h"
+#include "AdcForceStart.h"
 
 #include "RVC.h"
 #include "RVC_privateDataStructure.h"
 #include "TorqueVectoring/TorqueVectoring.h"
+
 
 /* Macro */
 #define PWMFREQ 5000 // PWM frequency in Hz
@@ -33,12 +36,14 @@
 
 #define R2DOUT IfxPort_P21_0
 #define R2D_ONHOLD (3*100)			//3 seconds
-#define R2D_OFFHOLD(1*100)			//1 seconds	
+#define R2D_OFFHOLD (1*100)			//1 seconds	
 #define R2D_REL (1*100)			//1 seconds
 
 #define PEDAL_BRAKE_ON_THRESHOLD 10
 
 #define TV1PGAIN 0.001
+
+#define VBAT_VADC 
 
 /* Global Variables */
 RVC_t RVC = 
@@ -56,10 +61,28 @@ IFX_STATIC void RVC_toggleR2d(void);
 
 IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
+IFX_STATIC void RVC_pollButton(void);
 
 /* Function Implementation */
 void RVC_init(void)
 {
+	AdcSensor_Config adcConfig;
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
+
+	adcConfig.adcConfig.lpf.activated = TRUE;
+	adcConfig.adcConfig.lpf.config.gain = 1;
+	adcConfig.adcConfig.lpf.config.cutOffFrequency = 1.0e1;
+	adcConfig.adcConfig.lpf.config.samplingTime = 10.0e-3;
+
+	adcConfig.isOvervoltageProtected = FALSE;
+	adcConfig.linCalConfig.isAct = FALSE;
+	adcConfig.tfConfig.a = (20.0f+8.2f)/8.2f;
+	adcConfig.tfConfig.b = 0.0f;
+
+	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
+	HLD_AdcForceStart(RVC.LvBattery_Voltage.adcChannel.channel.group);
+
+
 	RVC.tvMode = RVC_TorqueVectoring_modeOpen;
 	RVC.tcMode = RVC_TractionControl_modeNone;
 	RVC_PedalMap_lut_setMode(0);
@@ -209,6 +232,34 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
+	/* Start button polling and debouncing */
+	RVC_pollButton();
+	/* Get LV battery voltage */
+	AdcSensor_getData(&RVC.LvBattery_Voltage);
+}
+
+IFX_STATIC void RVC_setR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+}
+
+IFX_STATIC void RVC_resetR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+}
+
+IFX_STATIC void RVC_toggleR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+}
+
+IFX_STATIC void RVC_pollButton(void)
+{
 	static boolean risingEdgeFlag = FALSE;
 	static uint32 pushCount = 0;
 	static uint32 releaseCount = 0;
@@ -236,7 +287,7 @@ void RVC_run_10ms(void)
 	else if( (Gpio_Debounce_pollInput(&RVC.startButton) == FALSE)&&(risingEdgeFlag == TRUE) )
 	{	/* The button is released */
 		releaseCount++;
-		if( releaseCount > R2DREL)
+		if( releaseCount > R2D_REL)
 		{
 			risingEdgeFlag = FALSE;
 			/* The button is released */
@@ -247,24 +298,4 @@ void RVC_run_10ms(void)
 		pushCount = 0;
 		releaseCount = 0;
 	}
-}
-
-IFX_STATIC void RVC_setR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-}
-
-IFX_STATIC void RVC_resetR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
-}
-
-IFX_STATIC void RVC_toggleR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
 }

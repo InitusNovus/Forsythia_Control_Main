@@ -11,6 +11,7 @@
 #include "HLD.h"
 // #include "UserInterface_Button.h"
 #include "Gpio_Debounce.h"
+#include "AdcSensor.h"
 
 /* Enumerations */
 typedef enum
@@ -43,7 +44,8 @@ typedef struct
 {
 	RVC_ReadyToDrive_status readyToDrive;
 
-	
+	AdcSensor LvBattery_Voltage;
+
 	RVC_TorqueVectoring_mode_t tvMode;
 	RVC_TractionControl_mode_t tcMode;
 	// HLD_button_t startButton;
@@ -89,6 +91,7 @@ typedef struct
 	{
 		float32 pGain;
 	} tvMode1;
+
 } RVC_t;
 
 #endif
