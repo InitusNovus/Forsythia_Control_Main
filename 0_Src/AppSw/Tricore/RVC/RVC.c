@@ -7,6 +7,8 @@
 
 /* 	
 TODO: 
+	Speed Sensor
+		- Slip calculation
 	CAN associated functions 
 		- R2D entry routine display
 		- Steering wheel function
@@ -15,7 +17,9 @@ TODO:
 			** Data parsing in SDP
 		- Log Data Broadcasting
 	Torque Limit algorithm
-		- signoid function?
+		- Signoid function?
+	Battery Management
+		- Charge consumed calculation
  */
 
 
@@ -137,8 +141,7 @@ void RVC_run_1ms(void)
 			else 
 			{
 				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
-			}
-			
+			}	
 		}
 	}
 	else //FIXME: BSPD control using Brake Pressure Analog signal. Failsafe for BPPS.
@@ -146,14 +149,6 @@ void RVC_run_1ms(void)
 		RVC.torque.controlled = 0;		//BPPS Fail
 	}
 
-	/* Traction Control Calculation */
-	switch(RVC.tcMode)
-	{
-	case RVC_TractionControl_mode1:
-		break;
-	default:
-		break;
-	}
 
 	/* TODO: Torque limit: Traction control, Power Limit */
 	/* TODO: Negative value for controlled torque value - Regen */
@@ -170,6 +165,15 @@ void RVC_run_1ms(void)
 	else if(RVC.torque.desired < RVC.torque.controlled)
 	{
 		RVC.torque.controlled = RVC.torque.desired;
+	}
+
+	/* Traction Control Calculation */
+	switch(RVC.tcMode)
+	{
+	case RVC_TractionControl_mode1:
+		break;
+	default:
+		break;
 	}
 
 	/* Torque distribution */
@@ -233,6 +237,7 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
+	/* Start button polling */
 	static boolean risingEdgeFlag = FALSE;
 	static uint32 pushCount = 0;
 	static uint32 releaseCount = 0;
