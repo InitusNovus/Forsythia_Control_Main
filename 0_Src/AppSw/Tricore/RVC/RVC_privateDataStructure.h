@@ -58,6 +58,8 @@ typedef struct
 		float32 rearRight;
 
 		float32 predeterminedLimit;
+
+		boolean isRegenOn;
 	} torque;
 
 	struct
@@ -70,14 +72,18 @@ typedef struct
 
 	struct
 	{
-		RVC_pwmCalibration left;
-		RVC_pwmCalibration right;
-	} calibration;
+		RVC_pwmCalibration leftAcc;
+		RVC_pwmCalibration rightAcc;
+		RVC_pwmCalibration leftDec;
+		RVC_pwmCalibration rightDec;
+	} calibration;				//FIXME: To be suitable for LTC2645
 
 	struct
 	{
-		float32 rearLeft;
-		float32 rearRight;
+		float32 rearLeftAcc;
+		float32 rearRightAcc;
+		float32 rearLeftDec;
+		float32 rearRightDec;
 	} pwmDuty;
 
 	struct 
