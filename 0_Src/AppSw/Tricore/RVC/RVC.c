@@ -4,7 +4,22 @@
  * Author: Dua
  */
 
-/* Includes */
+
+/* 	
+TODO: 
+	CAN associated functions 
+		- R2D entry routine
+		- Steering wheel function
+		- Parameter load/save
+		- BMS data: Power calculation and limit
+			** Data parsing in SDP
+		- Broadcasting
+	Torque Limit algorithm
+		- signoid function?
+ */
+
+
+/***************************** Includes ******************************/
 #include "Beeper_Test_Music.h"
 #include "HLD.h"
 #include "IfxPort.h"
@@ -15,9 +30,15 @@
 #include "RVC_privateDataStructure.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
+<<<<<<< HEAD
 /* Macro */
 #define PWMFREQ 5000 // PWM frequency in Hz
 #define PWMVREF 5.0  // PWM reference voltage (On voltage)
+=======
+/****************************** Macro ********************************/
+#define PWMFREQ 20000 // PWM frequency in Hz
+#define PWMVREF 5.0   // PWM reference voltage (On voltage)
+>>>>>>> RVC_temp
 
 /*
 #define OUTCAL_LEFT_MUL 1.06
@@ -40,16 +61,21 @@
 
 #define TV1PGAIN 0.001
 
+<<<<<<< HEAD
 /* Global Variables */
 RVC_t RVC = 
 {
+=======
+/************************* Global Variables **************************/
+RVC_t RVC = {
+>>>>>>> RVC_temp
     .readyToDrive = RVC_ReadyToDrive_status_notInitialized,
     .torque.controlled = 0,
     .torque.rearLeft = 0,
     .torque.rearRight = 0,
 };
 
-/* Private Function Prototypes */
+/******************* Private Function Prototypes *********************/
 IFX_STATIC void RVC_setR2d(void);
 IFX_STATIC void RVC_resetR2d(void);
 IFX_STATIC void RVC_toggleR2d(void);
@@ -57,7 +83,7 @@ IFX_STATIC void RVC_toggleR2d(void);
 IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
 
-/* Function Implementation */
+/********************* Function Implementation ***********************/
 void RVC_init(void)
 {
 	RVC.tvMode = RVC_TorqueVectoring_modeOpen;
@@ -127,7 +153,12 @@ IFX_STATIC void RVC_initButton(void)
 
 void RVC_run_1ms(void)
 {
+<<<<<<< HEAD
 	// TODO: R2D entry routine
+=======
+	/* TODO: R2D entry routine */
+
+>>>>>>> RVC_temp
 	/* ready to drive state output update */
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
@@ -157,6 +188,7 @@ void RVC_run_1ms(void)
 	}
 
 	/* TODO: Torque limit: Traction control, Power Limit */
+	/* TODO: Negative value for controlled torque value - Regen */
 	if(RVC.torque.controlled > 100)
 	{
 		RVC.torque.controlled = 100;
@@ -184,12 +216,20 @@ void RVC_run_1ms(void)
 		break;
 	}
 
+<<<<<<< HEAD
 	/* Torque signal saturation */
 	if(RVC.torque.rearLeft)
 	{
 	}
 
 	/* Torque signal generation */
+=======
+	/* TODO: Torque signal saturation */
+	/* TODO: Torque signal check*/
+
+	/* Torque signal generation */
+	/* TODO: Regen signal generation */
+>>>>>>> RVC_temp
 	// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
@@ -249,6 +289,7 @@ void RVC_run_10ms(void)
 	}
 }
 
+/****************** Private Function Implementation ******************/
 IFX_STATIC void RVC_setR2d(void)
 {
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
