@@ -149,7 +149,7 @@ void Task_init (void)
 	}
 	/*HLD_Userinterface initialization*/
 	{
-		HLD_UserInterface_init(Task_startButtonRoutine);
+		// HLD_UserInterface_init(Task_startButtonRoutine);
 	}	
 	/* UHM initialization */
 	{
