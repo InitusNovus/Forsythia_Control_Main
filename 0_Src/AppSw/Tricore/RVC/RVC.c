@@ -36,12 +36,7 @@ TODO:
 #include "RVC_privateDataStructure.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
-<<<<<<< HEAD
-
-/* Macro */
-=======
 /**************************** Macro **********************************/
->>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
 #define PWMFREQ 5000 // PWM frequency in Hz
 #define PWMVREF 5.0  // PWM reference voltage (On voltage)
 
@@ -66,15 +61,9 @@ TODO:
 
 #define TV1PGAIN 0.001
 
-<<<<<<< HEAD
-#define VBAT_VADC 
-
-/* Global Variables */
-=======
 #define REGEN_INIT	FALSE
 
 /*********************** Global Variables ****************************/
->>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
 RVC_t RVC = 
 {
     .readyToDrive = RVC_ReadyToDrive_status_notInitialized,
@@ -273,38 +262,7 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
-<<<<<<< HEAD
-	/* Start button polling and debouncing */
-	RVC_pollButton();
-	/* Get LV battery voltage */
-	AdcSensor_getData(&RVC.LvBattery_Voltage);
-}
-
-IFX_STATIC void RVC_setR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-}
-
-IFX_STATIC void RVC_resetR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
-}
-
-IFX_STATIC void RVC_toggleR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
-}
-
-IFX_STATIC void RVC_pollButton(void)
-{
-=======
 	/* Start button polling */
->>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
 	static boolean risingEdgeFlag = FALSE;
 	static uint32 pushCount = 0;
 	static uint32 releaseCount = 0;
@@ -343,9 +301,6 @@ IFX_STATIC void RVC_pollButton(void)
 		pushCount = 0;
 		releaseCount = 0;
 	}
-<<<<<<< HEAD
-}
-=======
 }
 
 /****************** Private Function Implementation ******************/
@@ -417,4 +372,3 @@ IFX_STATIC void RVC_initButton(void)
 	StartBtnContig.port = &START_BTN;
 	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
 }
->>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
