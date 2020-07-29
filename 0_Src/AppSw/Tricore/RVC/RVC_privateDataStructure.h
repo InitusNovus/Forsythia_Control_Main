@@ -86,10 +86,17 @@ typedef struct
 		float32 rearRightDec;
 	} pwmDuty;
 
+	struct
+	{
+		float32 axle;
+		float32 left;
+		float32 right;
+	} slip;
+
 	struct 
 	{
 		
-	}tcMode1;
+	} tcMode1;
 
 	struct
 	{

@@ -119,6 +119,11 @@ void RVC_run_1ms(void)
 		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
 	}
 
+	/* Rear wheel slip calculation */
+	RVC.slip.axle = SDP_WheelSpeed.velocity.rearAxle/SDP_WheelSpeed.velocity.frontAxle;
+	RVC.slip.left = SDP_WheelSpeed.wssRL.wheelLinearVelocity/SDP_WheelSpeed.wssFL.wheelLinearVelocity;
+	RVC.slip.right = SDP_WheelSpeed.wssRR.wheelLinearVelocity/SDP_WheelSpeed.wssFR.wheelLinearVelocity;
+
 	/* Get torque required from pedal value*/
 	if(SDP_PedalBox.apps.isValueOk)		//APPS Plausibility check
 	{
