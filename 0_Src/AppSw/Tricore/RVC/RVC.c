@@ -4,7 +4,26 @@
  * Author: Dua
  */
 
-/* Includes */
+
+/* 	
+TODO: 
+	Speed Sensor
+		- Slip calculation
+	CAN associated functions 
+		- R2D entry routine display
+		- Steering wheel function
+		- Parameter load/save
+		- BMS data: Power calculation and limit
+			** Data parsing in SDP
+		- Log Data Broadcasting
+	Torque Limit algorithm
+		- Signoid function?
+	Battery Management
+		- Charge consumed calculation
+ */
+
+
+/***************************** Includes ******************************/
 #include "Beeper_Test_Music.h"
 #include "HLD.h"
 #include "IfxPort.h"
@@ -17,8 +36,12 @@
 #include "RVC_privateDataStructure.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
+<<<<<<< HEAD
 
 /* Macro */
+=======
+/**************************** Macro **********************************/
+>>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
 #define PWMFREQ 5000 // PWM frequency in Hz
 #define PWMVREF 5.0  // PWM reference voltage (On voltage)
 
@@ -43,18 +66,34 @@
 
 #define TV1PGAIN 0.001
 
+<<<<<<< HEAD
 #define VBAT_VADC 
 
 /* Global Variables */
+=======
+#define REGEN_INIT	FALSE
+
+/*********************** Global Variables ****************************/
+>>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
 RVC_t RVC = 
 {
     .readyToDrive = RVC_ReadyToDrive_status_notInitialized,
     .torque.controlled = 0,
     .torque.rearLeft = 0,
     .torque.rearRight = 0,
+	.torque.isRegenOn = REGEN_INIT,
+
+	.calibration.leftAcc.mul = 1,
+	.calibration.leftAcc.offset = 0,
+	.calibration.rightAcc.mul = 1,
+	.calibration.rightAcc.offset = 0,
+	.calibration.leftDec.mul = 1,
+	.calibration.leftDec.offset = 0,
+	.calibration.rightDec.mul = 1,
+	.calibration.rightDec.offset = 0,
 };
 
-/* Private Function Prototypes */
+/******************* Private Function Prototypes *********************/
 IFX_STATIC void RVC_setR2d(void);
 IFX_STATIC void RVC_resetR2d(void);
 IFX_STATIC void RVC_toggleR2d(void);
@@ -63,7 +102,7 @@ IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
 IFX_STATIC void RVC_pollButton(void);
 
-/* Function Implementation */
+/********************* Function Implementation ***********************/
 void RVC_init(void)
 {
 	AdcSensor_Config adcConfig;
@@ -97,60 +136,10 @@ void RVC_init(void)
 	RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
 }
 
-IFX_STATIC void RVC_initPwm(void)
-{
-	HLD_GtmTom_Pwm_Config pwmConfig;
-	pwmConfig.frequency = PWMFREQ;
-
-	pwmConfig.tomOut = &PWMACCL;
-	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearLeft, &pwmConfig);
-
-	pwmConfig.tomOut = &PWMACCR;
-	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearRight, &pwmConfig);
-
-	pwmConfig.tomOut = &PWMDCCL;
-	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearLeft, &pwmConfig);
-
-	pwmConfig.tomOut = &PWMDCCR;
-	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearRight, &pwmConfig);
-
-	/* PWM output calibration */
-	RVC.calibration.left.mul = OUTCAL_LEFT_MUL;
-	RVC.calibration.left.offset = OUTCAL_LEFT_OFFSET;
-
-	RVC.calibration.right.mul = OUTCAL_RIGHT_MUL;
-	RVC.calibration.right.offset = OUTCAL_RIGHT_OFFSET;
-}
-
-IFX_STATIC void RVC_initButton(void)
-{
-	// FIXME: Button (Active Low) -> GPIO (Active High)
-/* 	
-	HLD_buttonConfig_t buttonConfig;
-	HLD_UserInterface_buttonInitConfig(&buttonConfig);
-
-	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
-	buttonConfig.port = &START_BTN;
-	buttonConfig.callBack = RVC_toggleR2d; // FIXME: Do not just toggle the state!
-
-	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
-	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
-	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
- */
-
-	Gpio_Debounce_inputConfig StartBtnContig;
-	Gpio_Debounce_initInputConfig(&StartBtnContig);
-	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
-	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
-	StartBtnContig.port = &START_BTN;
-	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
-
-
-}
-
 void RVC_run_1ms(void)
 {
-	// TODO: R2D entry routine
+	/* TODO: R2D entry routine */
+
 	/* ready to drive state output update */
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
@@ -161,33 +150,60 @@ void RVC_run_1ms(void)
 		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
 	}
 
+	/* Rear wheel slip calculation */
+	RVC.slip.axle = SDP_WheelSpeed.velocity.rearAxle/SDP_WheelSpeed.velocity.frontAxle;
+	RVC.slip.left = SDP_WheelSpeed.wssRL.wheelLinearVelocity/SDP_WheelSpeed.wssFL.wheelLinearVelocity;
+	RVC.slip.right = SDP_WheelSpeed.wssRR.wheelLinearVelocity/SDP_WheelSpeed.wssFR.wheelLinearVelocity;
+
 	/* Get torque required from pedal value*/
-	if(SDP_PedalBox.apps.isValueOk)
+	if(SDP_PedalBox.apps.isValueOk)		//APPS Plausibility check
 	{
 		RVC.torque.controlled = (RVC.torque.desired = RVC_PedalMap_lut_getResult(SDP_PedalBox.apps.pps));
 	}
 	else
 	{
-		RVC.torque.controlled = 0;
+		RVC.torque.controlled = (RVC.torque.desired = 0);		//APPS Fail
 	}
 
-	if(SDP_PedalBox.bpps.isValueOk)
+	if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
 	{
 		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
 		{
-			RVC.torque.controlled = 0;
+			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
+			if(RVC.torque.isRegenOn)							//Regen
+			{
+				RVC.torque.controlled = RVC.torque.desired;
+			}
+			else 
+			{
+				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
+			}	
 		}
 	}
+	else //FIXME: BSPD control using Brake Pressure Analog signal. Failsafe for BPPS.
+	{
+		RVC.torque.controlled = 0;		//BPPS Fail
+	}
+
 
 	/* TODO: Torque limit: Traction control, Power Limit */
+	/* TODO: Negative value for controlled torque value - Regen */
+
+	/* Torque signal saturation */
 	if(RVC.torque.controlled > 100)
 	{
 		RVC.torque.controlled = 100;
 	}
-	else if(RVC.torque.controlled < 0)
+	else if(RVC.torque.controlled < -100)
 	{
-		RVC.torque.controlled = 0;
+		RVC.torque.controlled = -100;
 	}
+	else if(RVC.torque.desired < RVC.torque.controlled)
+	{
+		RVC.torque.controlled = RVC.torque.desired;
+	}
+
+	/* Traction Control Calculation */
 	switch(RVC.tcMode)
 	{
 	case RVC_TractionControl_mode1:
@@ -207,31 +223,57 @@ void RVC_run_1ms(void)
 		break;
 	}
 
-	/* Torque signal saturation */
-	if(RVC.torque.rearLeft)
-	{
-	}
+	/* TODO: Torque signal check*/
 
 	/* Torque signal generation */
 	// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
-		RVC.pwmDuty.rearLeft =
-		    (RVC.torque.rearLeft) * 0.006f * RVC.calibration.left.mul + 0.2f + RVC.calibration.left.offset;
-		RVC.pwmDuty.rearRight =
-		    (RVC.torque.rearRight) * 0.006f * RVC.calibration.right.mul + 0.2f + RVC.calibration.right.offset;
+		if(RVC.torque.rearLeft > 0) 	//Accelertation
+		{
+			RVC.pwmDuty.rearLeftAcc =
+				(RVC.torque.rearLeft) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
+			RVC.pwmDuty.rearLeftDec = 
+				(0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+		}
+		else 
+		{
+			RVC.pwmDuty.rearLeftAcc =
+				(0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
+			RVC.pwmDuty.rearLeftDec = 
+				(-(RVC.torque.rearLeft)) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+		}
+		if(RVC.torque.rearRight > 0)
+		{
+			RVC.pwmDuty.rearRightAcc =
+				(RVC.torque.rearRight) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;			
+			RVC.pwmDuty.rearRightDec = 
+				(0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
+		}
+		else 
+		{
+			RVC.pwmDuty.rearRightAcc =
+				(0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
+			RVC.pwmDuty.rearRightDec = 
+				(-(RVC.torque.rearRight)) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;			
+		}
 	}
 	else
 	{
-		RVC.pwmDuty.rearLeft = (0) * 0.006f * RVC.calibration.left.mul + 0.2f + RVC.calibration.left.offset;
-		RVC.pwmDuty.rearRight = (0) * 0.006f * RVC.calibration.right.mul + 0.2f + RVC.calibration.right.offset;
+		RVC.pwmDuty.rearLeftAcc = (0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
+		RVC.pwmDuty.rearRightAcc = (0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
 	}
-	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearLeft, RVC.pwmDuty.rearLeft);
-	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRight);
+
+	/* Update Pwm signal */
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearLeft, RVC.pwmDuty.rearLeftAcc);
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRightAcc);
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearLeft, RVC.pwmDuty.rearLeftDec);
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearRight, RVC.pwmDuty.rearRightDec);
 }
 
 void RVC_run_10ms(void)
 {
+<<<<<<< HEAD
 	/* Start button polling and debouncing */
 	RVC_pollButton();
 	/* Get LV battery voltage */
@@ -260,6 +302,9 @@ IFX_STATIC void RVC_toggleR2d(void)
 
 IFX_STATIC void RVC_pollButton(void)
 {
+=======
+	/* Start button polling */
+>>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
 	static boolean risingEdgeFlag = FALSE;
 	static uint32 pushCount = 0;
 	static uint32 releaseCount = 0;
@@ -298,4 +343,78 @@ IFX_STATIC void RVC_pollButton(void)
 		pushCount = 0;
 		releaseCount = 0;
 	}
+<<<<<<< HEAD
 }
+=======
+}
+
+/****************** Private Function Implementation ******************/
+IFX_STATIC void RVC_setR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+}
+
+IFX_STATIC void RVC_resetR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+}
+
+IFX_STATIC void RVC_toggleR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+}
+
+IFX_STATIC void RVC_initPwm(void)
+{
+	HLD_GtmTom_Pwm_Config pwmConfig;
+	pwmConfig.frequency = PWMFREQ;
+
+	pwmConfig.tomOut = &PWMACCL;
+	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearLeft, &pwmConfig);
+
+	pwmConfig.tomOut = &PWMACCR;
+	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearRight, &pwmConfig);
+
+	pwmConfig.tomOut = &PWMDCCL;
+	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearLeft, &pwmConfig);
+
+	pwmConfig.tomOut = &PWMDCCR;
+	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearRight, &pwmConfig);
+
+	/* PWM output calibration */
+	RVC.calibration.leftAcc.mul = OUTCAL_LEFT_MUL;
+	RVC.calibration.leftAcc.offset = OUTCAL_LEFT_OFFSET;
+
+	RVC.calibration.rightAcc.mul = OUTCAL_RIGHT_MUL;
+	RVC.calibration.rightAcc.offset = OUTCAL_RIGHT_OFFSET;
+}
+
+IFX_STATIC void RVC_initButton(void)
+{
+	// FIXME: Button (Active Low) -> GPIO (Active High)
+/* 	
+	HLD_buttonConfig_t buttonConfig;
+	HLD_UserInterface_buttonInitConfig(&buttonConfig);
+
+	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
+	buttonConfig.port = &START_BTN;
+	buttonConfig.callBack = RVC_toggleR2d; // FIXME: Do not just toggle the state!
+
+	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
+	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
+	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+ */
+
+	Gpio_Debounce_inputConfig StartBtnContig;
+	Gpio_Debounce_initInputConfig(&StartBtnContig);
+	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
+	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
+	StartBtnContig.port = &START_BTN;
+	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
+}
+>>>>>>> 9ee3cdb28fe9a33b28469d9474f1e5644865c971
