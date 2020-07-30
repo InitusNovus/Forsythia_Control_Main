@@ -93,6 +93,7 @@ typedef struct
 		float32 axle;
 		float32 left;
 		float32 right;
+		boolean error;
 	} slip;
 
 	struct 
