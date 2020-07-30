@@ -58,6 +58,7 @@ TODO:
 #define R2D_REL (1*100)			//1 seconds
 
 #define PEDAL_BRAKE_ON_THRESHOLD 10
+#define REGEN_MUL	1	//2
 
 #define TV1PGAIN 0.001
 
@@ -230,8 +231,9 @@ void RVC_run_1ms(void)
 			RVC.pwmDuty.rearLeftAcc =
 				(0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
 			RVC.pwmDuty.rearLeftDec = 
-				(-(RVC.torque.rearLeft)) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+				(-(RVC.torque.rearLeft)*REGEN_MUL) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
 		}
+
 		if(RVC.torque.rearRight > 0)
 		{
 			RVC.pwmDuty.rearRightAcc =
@@ -244,13 +246,15 @@ void RVC_run_1ms(void)
 			RVC.pwmDuty.rearRightAcc =
 				(0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
 			RVC.pwmDuty.rearRightDec = 
-				(-(RVC.torque.rearRight)) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;			
+				(-(RVC.torque.rearRight)*REGEN_MUL) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;			
 		}
 	}
 	else
 	{
 		RVC.pwmDuty.rearLeftAcc = (0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
 		RVC.pwmDuty.rearRightAcc = (0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
+		RVC.pwmDuty.rearLeftDec = (0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+		RVC.pwmDuty.rearRightDec = (0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
 	}
 
 	/* Update Pwm signal */
@@ -258,6 +262,8 @@ void RVC_run_1ms(void)
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRightAcc);
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearLeft, RVC.pwmDuty.rearLeftDec);
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearRight, RVC.pwmDuty.rearRightDec);
+
+	/* Shared variable update */
 }
 
 void RVC_run_10ms(void)
