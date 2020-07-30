@@ -146,6 +146,8 @@ void RVC_run_1ms(void)
 
 	/* TODO: Torque limit: Traction control, Power Limit */
 
+	/* PowerCalculation */
+
 	RVC_torqueSatuation();
 
 	RVC_torqueDistrobution();
@@ -153,7 +155,7 @@ void RVC_run_1ms(void)
 	/* TODO: Torque signal check*/
 
 	RVC_torqueSignalGeneration();
-	
+
 	RVC_updatePwmSignal();
 
 	/* TODO: Shared variable update */

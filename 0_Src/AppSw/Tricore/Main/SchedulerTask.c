@@ -167,7 +167,7 @@ void Task_init (void)
 	}
 	/* Hmm... */
 	{
-		AccumulatorManager_master_init();
+		// AccumulatorManager_master_init();
 		RVC_init();
 	}
 
