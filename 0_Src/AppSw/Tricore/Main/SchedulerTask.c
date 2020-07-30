@@ -245,7 +245,7 @@ void Task_10ms (void)			//Slot 0
 
 	RVC_run_10ms();
 
-	HLD_UserInterface_run_10ms();
+	// HLD_UserInterface_run_10ms();
 
 	ticToc_10ms_s0 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
 }
