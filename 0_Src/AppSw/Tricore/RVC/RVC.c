@@ -7,8 +7,6 @@
 
 /* 	
 TODO: 
-	Speed Sensor
-		- Slip calculation
 	CAN associated functions 
 		- R2D entry routine display
 		- Steering wheel function
@@ -94,6 +92,14 @@ IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
 IFX_STATIC void RVC_pollButton(void);
 
+IFX_INLINE void RVC_updateReadyToDriveSignal(void);
+IFX_INLINE void RVC_slipComputation(void);
+IFX_INLINE void RVC_getTorqueRequired(void);
+IFX_INLINE void RVC_torqueSatuation(void);
+IFX_INLINE void RVC_torqueDistrobution(void);
+IFX_INLINE void RVC_torqueSignalGeneration(void);
+IFX_INLINE void RVC_updatePwmSignal(void);
+
 /********************* Function Implementation ***********************/
 void RVC_init(void)
 {
@@ -132,149 +138,25 @@ void RVC_run_1ms(void)
 {
 	/* TODO: R2D entry routine */
 
-	/* ready to drive state output update */
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-	{
-		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
-	}
-	else
-	{
-		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
-	}
+	RVC_updateReadyToDriveSignal();
 
-	/* Rear wheel slip calculation */
-	RVC.slip.axle = SDP_WheelSpeed.velocity.rearAxle/SDP_WheelSpeed.velocity.frontAxle;
-	RVC.slip.left = SDP_WheelSpeed.wssRL.wheelLinearVelocity/SDP_WheelSpeed.wssFL.wheelLinearVelocity;
-	RVC.slip.right = SDP_WheelSpeed.wssRR.wheelLinearVelocity/SDP_WheelSpeed.wssFR.wheelLinearVelocity;
-	if(isnan(RVC.slip.axle)||isnan(RVC.slip.left)||isnan(RVC.slip.right)) 
-	{
-		RVC.slip.error = TRUE;
-	}
-	else
-	{
-		RVC.slip.error = FALSE;
-	}
-	
+	RVC_slipComputation();
 
-	/* Get torque required from pedal value*/
-	if(SDP_PedalBox.apps.isValueOk)		//APPS Plausibility check
-	{
-		RVC.torque.controlled = (RVC.torque.desired = RVC_PedalMap_lut_getResult(SDP_PedalBox.apps.pps));
-	}
-	else
-	{
-		RVC.torque.controlled = (RVC.torque.desired = 0);		//APPS Fail
-	}
-
-	if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
-	{
-		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
-		{
-			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
-			if(RVC.torque.isRegenOn)							//Regen
-			{
-				RVC.torque.controlled = RVC.torque.desired;
-			}
-			else 
-			{
-				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
-			}	
-		}
-	}
-	else //FIXME: BSPD control using Brake Pressure Analog signal. Failsafe for BPPS.
-	{
-		RVC.torque.controlled = 0;		//BPPS Fail
-	}
-
+	RVC_getTorqueRequired();
 
 	/* TODO: Torque limit: Traction control, Power Limit */
-	/* TODO: Negative value for controlled torque value - Regen */
 
-	/* Torque signal saturation */
-	if(RVC.torque.controlled > 100)
-	{
-		RVC.torque.controlled = 100;
-	}
-	else if(RVC.torque.controlled < -100)
-	{
-		RVC.torque.controlled = -100;
-	}
-	else if(RVC.torque.desired < RVC.torque.controlled)
-	{
-		RVC.torque.controlled = RVC.torque.desired;
-	}
+	RVC_torqueSatuation();
 
-	/* Traction Control Calculation */
-	switch(RVC.tcMode)
-	{
-	case RVC_TractionControl_mode1:
-		break;
-	default:
-		break;
-	}
-
-	/* Torque distribution */
-	switch(RVC.tvMode)
-	{
-	case RVC_TorqueVectoring_mode1:
-		RVC_TorqueVectoring_run_mode1();
-		break;
-	default:
-		RVC_TorqueVectoring_run_modeOpen();
-		break;
-	}
+	RVC_torqueDistrobution();
 
 	/* TODO: Torque signal check*/
 
-	/* Torque signal generation */
-	// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-	{
-		if(RVC.torque.rearLeft > 0) 	//Accelertation
-		{
-			RVC.pwmDuty.rearLeftAcc =
-				(RVC.torque.rearLeft) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
-			RVC.pwmDuty.rearLeftDec = 
-				(0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
-		}
-		else 
-		{
-			RVC.pwmDuty.rearLeftAcc =
-				(0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
-			RVC.pwmDuty.rearLeftDec = 
-				(-(RVC.torque.rearLeft)*REGEN_MUL) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
-		}
+	RVC_torqueSignalGeneration();
+	
+	RVC_updatePwmSignal();
 
-		if(RVC.torque.rearRight > 0)
-		{
-			RVC.pwmDuty.rearRightAcc =
-				(RVC.torque.rearRight) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;			
-			RVC.pwmDuty.rearRightDec = 
-				(0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
-		}
-		else 
-		{
-			RVC.pwmDuty.rearRightAcc =
-				(0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
-			RVC.pwmDuty.rearRightDec = 
-				(-(RVC.torque.rearRight)*REGEN_MUL) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;			
-		}
-	}
-	else
-	{
-		RVC.pwmDuty.rearLeftAcc = (0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
-		RVC.pwmDuty.rearRightAcc = (0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
-		RVC.pwmDuty.rearLeftDec = (0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
-		RVC.pwmDuty.rearRightDec = (0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
-	}
-
-	/* Update Pwm signal */
-	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearLeft, RVC.pwmDuty.rearLeftAcc);
-	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRightAcc);
-	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearLeft, RVC.pwmDuty.rearLeftDec);
-	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearRight, RVC.pwmDuty.rearRightDec);
-
-	/* Shared variable update */
+	/* TODO: Shared variable update */
 }
 
 void RVC_run_10ms(void)
@@ -388,4 +270,156 @@ IFX_STATIC void RVC_initButton(void)
 	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
 	StartBtnContig.port = &START_BTN;
 	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
+}
+
+
+/***************** Inline Function Implementation ******************/
+IFX_INLINE void RVC_updateReadyToDriveSignal(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	{
+		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
+	}
+	else
+	{
+		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+	}
+}
+
+IFX_INLINE void RVC_slipComputation(void)
+{
+	RVC.slip.axle = SDP_WheelSpeed.velocity.rearAxle/SDP_WheelSpeed.velocity.frontAxle;
+	RVC.slip.left = SDP_WheelSpeed.wssRL.wheelLinearVelocity/SDP_WheelSpeed.wssFL.wheelLinearVelocity;
+	RVC.slip.right = SDP_WheelSpeed.wssRR.wheelLinearVelocity/SDP_WheelSpeed.wssFR.wheelLinearVelocity;
+	if(isnan(RVC.slip.axle)||isnan(RVC.slip.left)||isnan(RVC.slip.right)) 
+	{
+		RVC.slip.error = TRUE;
+	}
+	else
+	{
+		RVC.slip.error = FALSE;
+	}
+}
+
+IFX_INLINE void RVC_getTorqueRequired(void)
+{
+	if(SDP_PedalBox.apps.isValueOk)		//APPS Plausibility check
+	{
+		RVC.torque.controlled = (RVC.torque.desired = RVC_PedalMap_lut_getResult(SDP_PedalBox.apps.pps));
+	}
+	else
+	{
+		RVC.torque.controlled = (RVC.torque.desired = 0);		//APPS Fail
+	}
+
+	if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
+	{
+		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
+		{
+			RVC.torque.desired = -(SDP_PedalBox.bpps.pps);		//BPPS overide
+			if(RVC.torque.isRegenOn)							//Regen
+			{
+				RVC.torque.controlled = RVC.torque.desired;
+			}
+			else 
+			{
+				RVC.torque.controlled = (RVC.torque.desired = 0);	//Regen off: Zero torque signal when brake on.
+			}	
+		}
+	}
+	else //FIXME: BSPD control using Brake Pressure Analog signal. Failsafe for BPPS.
+	{
+		RVC.torque.controlled = 0;		//BPPS Fail
+	}
+}
+
+IFX_INLINE void RVC_torqueSatuation(void)
+{
+	if(RVC.torque.controlled > 100)
+	{
+		RVC.torque.controlled = 100;
+	}
+	else if(RVC.torque.controlled < -100)
+	{
+		RVC.torque.controlled = -100;
+	}
+	else if(RVC.torque.desired < RVC.torque.controlled)
+	{
+		RVC.torque.controlled = RVC.torque.desired;
+	}
+}
+
+IFX_INLINE void RVC_torqueDistrobution(void)
+{
+	/* Traction Control Calculation */
+	switch(RVC.tcMode)
+	{
+	case RVC_TractionControl_mode1:
+		break;
+	default:
+		break;
+	}
+
+	/* Torque distribution */
+	switch(RVC.tvMode)
+	{
+	case RVC_TorqueVectoring_mode1:
+		RVC_TorqueVectoring_run_mode1();
+		break;
+	default:
+		RVC_TorqueVectoring_run_modeOpen();
+		break;
+	}
+}
+
+IFX_INLINE void RVC_torqueSignalGeneration(void)
+{
+	// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	{
+		if(RVC.torque.rearLeft > 0) 	//Accelertation
+		{
+			RVC.pwmDuty.rearLeftAcc =
+				(RVC.torque.rearLeft) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
+			RVC.pwmDuty.rearLeftDec = 
+				(0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+		}
+		else 
+		{
+			RVC.pwmDuty.rearLeftAcc =
+				(0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
+			RVC.pwmDuty.rearLeftDec = 
+				(-(RVC.torque.rearLeft)*REGEN_MUL) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+		}
+
+		if(RVC.torque.rearRight > 0)
+		{
+			RVC.pwmDuty.rearRightAcc =
+				(RVC.torque.rearRight) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;			
+			RVC.pwmDuty.rearRightDec = 
+				(0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
+		}
+		else 
+		{
+			RVC.pwmDuty.rearRightAcc =
+				(0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
+			RVC.pwmDuty.rearRightDec = 
+				(-(RVC.torque.rearRight)*REGEN_MUL) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;			
+		}
+	}
+	else
+	{
+		RVC.pwmDuty.rearLeftAcc = (0) * 0.006f * RVC.calibration.leftAcc.mul + 0.2f + RVC.calibration.leftAcc.offset;
+		RVC.pwmDuty.rearRightAcc = (0) * 0.006f * RVC.calibration.rightAcc.mul + 0.2f + RVC.calibration.rightAcc.offset;
+		RVC.pwmDuty.rearLeftDec = (0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
+		RVC.pwmDuty.rearRightDec = (0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
+	}
+}
+
+IFX_INLINE void RVC_updatePwmSignal(void)
+{
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearLeft, RVC.pwmDuty.rearLeftAcc);
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRightAcc);
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearLeft, RVC.pwmDuty.rearLeftDec);
+	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearRight, RVC.pwmDuty.rearRightDec);
 }

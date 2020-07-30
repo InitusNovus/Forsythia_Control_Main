@@ -98,7 +98,12 @@ typedef struct
 
 	struct 
 	{
-		
+		float32 rear;
+	} diff;
+
+	struct 
+	{
+		float32 slipLimit;
 	} tcMode1;
 
 	struct
