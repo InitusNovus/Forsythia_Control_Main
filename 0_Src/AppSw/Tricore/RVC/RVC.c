@@ -64,6 +64,10 @@ TODO:
 
 #define REGEN_INIT	FALSE
 
+#define LVBAT_LINCAL_A	1.015f
+#define LVBAT_LINCAL_B	0
+#define LVBAT_LINCAL_D	0
+
 /*********************** Global Variables ****************************/
 RVC_t RVC = 
 {
@@ -88,6 +92,7 @@ IFX_STATIC void RVC_setR2d(void);
 IFX_STATIC void RVC_resetR2d(void);
 IFX_STATIC void RVC_toggleR2d(void);
 
+IFX_STATIC void RVC_initAdcSensor(void);
 IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
 IFX_STATIC void RVC_pollButton(void);
@@ -103,31 +108,14 @@ IFX_INLINE void RVC_updatePwmSignal(void);
 /********************* Function Implementation ***********************/
 void RVC_init(void)
 {
-	AdcSensor_Config adcConfig;
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
-
-	adcConfig.adcConfig.lpf.activated = TRUE;
-	adcConfig.adcConfig.lpf.config.gain = 1;
-	adcConfig.adcConfig.lpf.config.cutOffFrequency = 1.0e1;
-	adcConfig.adcConfig.lpf.config.samplingTime = 10.0e-3;
-
-	adcConfig.isOvervoltageProtected = FALSE;
-	adcConfig.linCalConfig.isAct = FALSE;
-	adcConfig.tfConfig.a = (20.0f+8.2f)/8.2f;
-	adcConfig.tfConfig.b = 0.0f;
-
-	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
-	HLD_AdcForceStart(RVC.LvBattery_Voltage.adcChannel.channel.group);
-
+	RVC_initAdcSensor();
 
 	RVC.tvMode = RVC_TorqueVectoring_modeOpen;
 	RVC.tcMode = RVC_TractionControl_modeNone;
 	RVC_PedalMap_lut_setMode(0);
 
-	/* PWM output initialzation */
 	RVC_initPwm();
 
-	/* R2D button config */
 	RVC_initButton();
 
 	RVC.tvMode1.pGain = TV1PGAIN;
@@ -147,7 +135,6 @@ void RVC_run_1ms(void)
 	/* TODO: Torque limit: Traction control, Power Limit */
 
 	/* PowerCalculation */
-
 	RVC_torqueSatuation();
 
 	RVC_torqueDistrobution();
@@ -163,7 +150,107 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
-	/* Start button polling */
+	RVC_pollButton();
+	AdcSensor_getData(&RVC.LvBattery_Voltage);
+}
+
+/****************** Private Function Implementation ******************/
+IFX_STATIC void RVC_setR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+}
+
+IFX_STATIC void RVC_resetR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+}
+
+IFX_STATIC void RVC_toggleR2d(void)
+{
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+}
+
+IFX_STATIC void RVC_initAdcSensor(void)
+{
+	AdcSensor_Config adcConfig;
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
+
+	adcConfig.adcConfig.lpf.activated = TRUE;
+	adcConfig.adcConfig.lpf.config.gain = 1;
+	adcConfig.adcConfig.lpf.config.cutOffFrequency = 2;
+	adcConfig.adcConfig.lpf.config.samplingTime = 10.0e-3;
+
+	adcConfig.isOvervoltageProtected = FALSE;
+	adcConfig.linCalConfig.isAct = TRUE;
+	adcConfig.linCalConfig.a = LVBAT_LINCAL_A;
+	adcConfig.linCalConfig.b = LVBAT_LINCAL_B;
+	adcConfig.linCalConfig.d = LVBAT_LINCAL_D;
+	adcConfig.tfConfig.a = (20.0f+8.2f)/8.2f;
+	adcConfig.tfConfig.b = 0.0f;
+
+	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
+	HLD_AdcForceStart(RVC.LvBattery_Voltage.adcChannel.channel.group);
+}
+
+IFX_STATIC void RVC_initPwm(void)
+{
+	/* PWM output initialzation */
+	HLD_GtmTom_Pwm_Config pwmConfig;
+	pwmConfig.frequency = PWMFREQ;
+
+	pwmConfig.tomOut = &PWMACCL;
+	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearLeft, &pwmConfig);
+
+	pwmConfig.tomOut = &PWMACCR;
+	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearRight, &pwmConfig);
+
+	pwmConfig.tomOut = &PWMDCCL;
+	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearLeft, &pwmConfig);
+
+	pwmConfig.tomOut = &PWMDCCR;
+	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearRight, &pwmConfig);
+
+	/* PWM output calibration */
+	RVC.calibration.leftAcc.mul = OUTCAL_LEFT_MUL;
+	RVC.calibration.leftAcc.offset = OUTCAL_LEFT_OFFSET;
+
+	RVC.calibration.rightAcc.mul = OUTCAL_RIGHT_MUL;
+	RVC.calibration.rightAcc.offset = OUTCAL_RIGHT_OFFSET;
+}
+
+IFX_STATIC void RVC_initButton(void)
+{
+	/* R2D button config */
+
+	// FIXME: Button (Active Low) -> GPIO (Active High)
+/* 	
+	HLD_buttonConfig_t buttonConfig;
+	HLD_UserInterface_buttonInitConfig(&buttonConfig);
+
+	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
+	buttonConfig.port = &START_BTN;
+	buttonConfig.callBack = RVC_toggleR2d; // FIXME: Do not just toggle the state!
+
+	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
+	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
+	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+ */
+
+	Gpio_Debounce_inputConfig StartBtnContig;
+	Gpio_Debounce_initInputConfig(&StartBtnContig);
+	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
+	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
+	StartBtnContig.port = &START_BTN;
+	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
+}
+
+IFX_STATIC void RVC_pollButton(void)
+{
 	static boolean risingEdgeFlag = FALSE;
 	static uint32 pushCount = 0;
 	static uint32 releaseCount = 0;
@@ -202,76 +289,6 @@ void RVC_run_10ms(void)
 		pushCount = 0;
 		releaseCount = 0;
 	}
-}
-
-/****************** Private Function Implementation ******************/
-IFX_STATIC void RVC_setR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-}
-
-IFX_STATIC void RVC_resetR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
-}
-
-IFX_STATIC void RVC_toggleR2d(void)
-{
-	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
-}
-
-IFX_STATIC void RVC_initPwm(void)
-{
-	HLD_GtmTom_Pwm_Config pwmConfig;
-	pwmConfig.frequency = PWMFREQ;
-
-	pwmConfig.tomOut = &PWMACCL;
-	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearLeft, &pwmConfig);
-
-	pwmConfig.tomOut = &PWMACCR;
-	HLD_GtmTomPwm_initPwm(&RVC.out.accel_rearRight, &pwmConfig);
-
-	pwmConfig.tomOut = &PWMDCCL;
-	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearLeft, &pwmConfig);
-
-	pwmConfig.tomOut = &PWMDCCR;
-	HLD_GtmTomPwm_initPwm(&RVC.out.decel_rearRight, &pwmConfig);
-
-	/* PWM output calibration */
-	RVC.calibration.leftAcc.mul = OUTCAL_LEFT_MUL;
-	RVC.calibration.leftAcc.offset = OUTCAL_LEFT_OFFSET;
-
-	RVC.calibration.rightAcc.mul = OUTCAL_RIGHT_MUL;
-	RVC.calibration.rightAcc.offset = OUTCAL_RIGHT_OFFSET;
-}
-
-IFX_STATIC void RVC_initButton(void)
-{
-	// FIXME: Button (Active Low) -> GPIO (Active High)
-/* 	
-	HLD_buttonConfig_t buttonConfig;
-	HLD_UserInterface_buttonInitConfig(&buttonConfig);
-
-	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
-	buttonConfig.port = &START_BTN;
-	buttonConfig.callBack = RVC_toggleR2d; // FIXME: Do not just toggle the state!
-
-	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
-	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
-	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
- */
-
-	Gpio_Debounce_inputConfig StartBtnContig;
-	Gpio_Debounce_initInputConfig(&StartBtnContig);
-	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
-	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
-	StartBtnContig.port = &START_BTN;
-	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
 }
 
 
