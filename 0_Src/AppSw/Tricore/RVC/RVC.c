@@ -135,8 +135,6 @@ void RVC_init(void)
 
 void RVC_run_1ms(void)
 {
-	/* TODO: R2D entry routine */
-
 	RVC_updateReadyToDriveSignal();
 
 	RVC_slipComputation();
