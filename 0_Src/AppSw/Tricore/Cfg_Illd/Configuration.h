@@ -45,8 +45,9 @@
 #define HLD_BOARD 			HLD_BOARD_SB275
 #define HLD_FOURTH_CANNODE	FALSE
 
-/*UserInterface macros*/
+/*GPIO macros*/
 #define START_BTN					IfxPort_P11_9
+#define FWD_OUT						IfxPort_P21_3
 
 /*Qspi2 macros*/
 #define QSPI2_SCLK					IfxQspi2_SCLK_P15_6_OUT
