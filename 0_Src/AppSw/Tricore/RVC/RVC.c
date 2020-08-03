@@ -55,7 +55,6 @@ TODO:
 #define OUTCAL_RIGHT_MUL 1.0f
 #define OUTCAL_RIGHT_OFFSET 0.0f
 
-#define R2DOUT IfxPort_P21_0
 #define R2D_ONHOLD (3*100)			//3 seconds
 #define R2D_OFFHOLD (1*100)			//1 seconds	
 #define R2D_REL (1*100)			//1 seconds

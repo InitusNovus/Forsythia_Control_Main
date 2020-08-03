@@ -45,9 +45,14 @@
 #define HLD_BOARD 			HLD_BOARD_SB275
 #define HLD_FOURTH_CANNODE	FALSE
 
-/*GPIO macros*/
+/*GPIO macros*/		//FIXME: Specify Port Init source file
 #define START_BTN					IfxPort_P11_9
+#define R2DOUT 						IfxPort_P21_0
 #define FWD_OUT						IfxPort_P21_3
+#define AIR_P_IN					IfxPort_P00_6
+#define AIR_N_IN					IfxPort_P00_7
+#define BP_IN						IfxPort_P14_1
+#define BSW_IN						IfxPort_P00_0
 
 /*Qspi2 macros*/
 #define QSPI2_SCLK					IfxQspi2_SCLK_P15_6_OUT
@@ -106,7 +111,7 @@
 #define CAN1NODE2OUT				IfxMultican1_TXD2_P20_10_OUT
 #endif
 
-/*Not used macros*/
+/********************* Unused macro s*********************/
 
 /*Ccu6 macros*/
 /*Compatibility layer*/
