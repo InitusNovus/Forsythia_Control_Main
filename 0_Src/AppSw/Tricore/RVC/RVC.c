@@ -18,6 +18,8 @@ TODO:
 		- Signoid function?
 	Battery Management
 		- Charge consumed calculation
+	GPIO
+		- AIR contact check: if(AIRcontact == FALSE)R2D = OFF;
  */
 
 
@@ -34,6 +36,7 @@ TODO:
 
 #include "RVC.h"
 #include "RVC_privateDataStructure.h"
+#include "RVC_r2dSound.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
 /**************************** Macro **********************************/
@@ -56,6 +59,13 @@ TODO:
 #define R2D_ONHOLD (3*100)			//3 seconds
 #define R2D_OFFHOLD (1*100)			//1 seconds	
 #define R2D_REL (1*100)			//1 seconds
+#define R2D_APPS_TH		95
+#define R2D_APPS_LO		5
+#define R2D_APPS_HOLD	(5*10)	//0.5 seconds
+#define R2D_BPPS_TH		95
+#define R2D_BPPS_LO		5
+#define R2D_BPPS_HOLD	(5*10)	//0.5 seconds
+// #define R2D_TEST		//Test: start button set R2D directly
 
 #define PEDAL_BRAKE_ON_THRESHOLD 10
 #define REGEN_MUL	1	//2
@@ -95,7 +105,7 @@ IFX_STATIC void RVC_toggleR2d(void);
 IFX_STATIC void RVC_initAdcSensor(void);
 IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initButton(void);
-IFX_STATIC void RVC_pollButton(void);
+IFX_STATIC void RVC_r2d(void);
 
 IFX_INLINE void RVC_updateReadyToDriveSignal(void);
 IFX_INLINE void RVC_slipComputation(void);
@@ -150,7 +160,7 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
-	RVC_pollButton();
+	RVC_r2d();
 	AdcSensor_getData(&RVC.LvBattery_Voltage);
 }
 
@@ -158,13 +168,21 @@ void RVC_run_10ms(void)
 IFX_STATIC void RVC_setR2d(void)
 {
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
+	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+		HLD_GtmTomBeeper_setVolume(1);
+		HLD_GtmTomBeeper_start(RVC_r2dSound); // R2D sound	//FIXME: R2D sound, volume
+		HLD_GtmTomBeeper_setVolumeDefault();
+	}
 }
 
 IFX_STATIC void RVC_resetR2d(void)
 {
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+		HLD_GtmTomBeeper_start(RVC_r2dResetSound);
+	}
 }
 
 IFX_STATIC void RVC_toggleR2d(void)
@@ -226,21 +244,6 @@ IFX_STATIC void RVC_initPwm(void)
 IFX_STATIC void RVC_initButton(void)
 {
 	/* R2D button config */
-
-	// FIXME: Button (Active Low) -> GPIO (Active High)
-/* 	
-	HLD_buttonConfig_t buttonConfig;
-	HLD_UserInterface_buttonInitConfig(&buttonConfig);
-
-	buttonConfig.bufferLen = HLD_buttonBufferLength_10;
-	buttonConfig.port = &START_BTN;
-	buttonConfig.callBack = RVC_toggleR2d; // FIXME: Do not just toggle the state!
-
-	HLD_UserInterface_buttonInit(&RVC.startButton, &buttonConfig);
-	IfxPort_setPinModeOutput(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
-	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
- */
-
 	Gpio_Debounce_inputConfig StartBtnContig;
 	Gpio_Debounce_initInputConfig(&StartBtnContig);
 	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
@@ -249,46 +252,151 @@ IFX_STATIC void RVC_initButton(void)
 	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
 }
 
-IFX_STATIC void RVC_pollButton(void)
+/* TODO: 
+	Check APPS and BPPS
+	R2D sound generation
+*/
+//FIXME: Using struct - Hi,Lo,None,Error
+IFX_STATIC boolean CheckPpsHi(SDP_PedalBox_struct_t *pps)
 {
-	static boolean risingEdgeFlag = FALSE;
+	if(pps->isValueOk)
+	{
+		if(pps->pps > R2D_APPS_TH)
+			return TRUE;
+		else
+			return FALSE;
+	}	
+	else
+	{
+		return FALSE;
+	}
+}
+IFX_STATIC boolean CheckPpsLo(SDP_PedalBox_struct_t *pps)
+{
+	if(pps->pps < R2D_APPS_LO)
+		return TRUE;
+	else
+		return FALSE;
+}
+IFX_STATIC void PpsCheck(boolean *isChecked, uint32 *count, boolean isHi, uint32 hold)
+{
+	if(isHi)
+	{
+		(*count)++;
+		if(count > hold)
+		{
+			*isChecked = TRUE;
+			*count = 0;
+		}
+	}
+	else 
+	{
+		*count = 0;
+	}
+}
+IFX_STATIC void RVC_r2d(void)
+{
+	static boolean risingEdgeFlag = FALSE;	//Ready to drive contorl button hysteresis
 	static uint32 pushCount = 0;
 	static uint32 releaseCount = 0;
+	boolean buttonState = FALSE; //GPIO debounced input result
 
-	if( (Gpio_Debounce_pollInput(&RVC.startButton) == TRUE)&&(risingEdgeFlag == FALSE) )
+	boolean buttonOn = FALSE;	//Start button 
+
+	static uint32 appsCount = 0;
+	static uint32 bppsCount = 0;
+	boolean isAppsHi = FALSE;
+	boolean isAppsLo = FALSE;
+	boolean isBppsHi = FALSE;
+	boolean isBppsLo = FALSE;
+	
+	/* Poll the button */
+	buttonState = Gpio_Debounce_pollInput(&RVC.startButton);
+
+	/* Poll PPS signals */
+	isAppsHi = CheckPpsHi(&SDP_PedalBox.apps);
+	isAppsLo = CheckPpsLo(&SDP_PedalBox.apps);
+	isBppsHi = CheckPpsHi(&SDP_PedalBox.bpps);
+	isBppsLo = CheckPpsLo(&SDP_PedalBox.bpps);
+
+	/* Pedal check routine */
+	PpsCheck(&RVC.R2d.isAppsChecked, &appsCount, isAppsHi, R2D_APPS_HOLD);
+	PpsCheck(&RVC.R2d.isBppsChecked1, &bppsCount, isBppsHi, R2D_BPPS_HOLD);	//FIXME: Using Brake Pressure sensor
+	if(RVC.R2d.isBppsChecked1 == TRUE)
+		if(isBppsLo)
+			RVC.R2d.isBppsChecked2 = TRUE;
+	
+	/* Start button routine */
+	if( (buttonState == TRUE)&&(risingEdgeFlag == FALSE) )
 	{	/* The button is Pushed */
 		pushCount++;
 
-		/* For Test */
-		if( (RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)&&(pushCount > R2D_ONHOLD) )
+/* 		if( (RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)&&(pushCount > R2D_ONHOLD) )
 		{
+			pushCount = 0;
+			risingEdgeFlag = TRUE; //Rising edge detected
 			RVC_setR2d();
-			HLD_GtmTomBeeper_start(music);
-			pushCount = 0;
-			risingEdgeFlag = TRUE; //Rising edge detected
 		}
-		else if( (RVC.readyToDrive == RVC_ReadyToDrive_status_run)&&(pushCount > R2D_ONHOLD)/* &&() */ )	//TODO: RTD off condition: Speed == 0, 
+		else if( (RVC.readyToDrive == RVC_ReadyToDrive_status_run)&&(pushCount > R2D_ONHOLD) )	//TODO: RTD off condition: Speed == 0, 
 		{
-			RVC_resetR2d();
 			pushCount = 0;
 			risingEdgeFlag = TRUE; //Rising edge detected
+			RVC_resetR2d();
+			//TODO: R2D off sound
 		}
-
+ */		
+		if(pushCount > R2D_ONHOLD)
+		{
+			buttonOn = TRUE;
+			pushCount = 0;
+			risingEdgeFlag = TRUE;	//Rising edge detected
+		}
 	}
-	else if( (Gpio_Debounce_pollInput(&RVC.startButton) == FALSE)&&(risingEdgeFlag == TRUE) )
+	else if( (buttonState == FALSE)&&(risingEdgeFlag == TRUE) )
 	{	/* The button is released */
+		buttonOn = FALSE;
 		releaseCount++;
 		if( releaseCount > R2D_REL)
 		{
-			risingEdgeFlag = FALSE;
-			/* The button is released */
+			risingEdgeFlag = FALSE;	// The button is released
 		}
 	}
 	else
 	{
+		buttonOn = FALSE;
 		pushCount = 0;
 		releaseCount = 0;
 	}
+
+	/* R2D routine */
+#ifdef R2D_TEST
+	/***** Test: start button set/reset R2D directly *****/
+	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE))
+	{
+		RVC_setR2d();
+	}
+	else if((RVC.readyToDrive == RVC_ReadyToDrive_status_run) && (buttonOn == FALSE))
+	{
+		RVC_resetR2d();
+	}
+#else
+	/* R2D On condition */
+	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (RVC.R2d.isAppsChecked == TRUE) &&
+	    (RVC.R2d.isBppsChecked2 == TRUE) && (isAppsLo == TRUE) && (isBppsHi == TRUE))
+	{
+		if((buttonOn == TRUE))
+		{
+			RVC_setR2d();
+		}
+	}
+	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	{
+		if(buttonOn == TRUE)
+		{
+			RVC_resetR2d();
+		}
+	}
+#endif // R2D_TEST
 }
 
 

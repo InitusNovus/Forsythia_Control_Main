@@ -51,6 +51,13 @@ typedef struct
 	// HLD_button_t startButton;
 	Gpio_Debounce_input startButton;
 
+	struct 
+	{
+		boolean isAppsChecked;
+		boolean isBppsChecked1;
+		boolean isBppsChecked2;
+	}R2d;
+
 	struct
 	{
 		float32 desired;
