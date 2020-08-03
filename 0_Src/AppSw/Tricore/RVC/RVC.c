@@ -18,8 +18,9 @@ TODO:
 		- Signoid function?
 	Battery Management
 		- Charge consumed calculation
-	GPIO
-		- AIR contact check: if(AIRcontact == FALSE)R2D = OFF;
+	Analog sensor
+		- Steering Wheel Analog
+		- BrakePressure
  */
 
 
@@ -103,8 +104,9 @@ IFX_STATIC void RVC_toggleR2d(void);
 
 IFX_STATIC void RVC_initAdcSensor(void);
 IFX_STATIC void RVC_initPwm(void);
-IFX_STATIC void RVC_initButton(void);
+IFX_STATIC void RVC_initGpio(void);
 IFX_STATIC void RVC_r2d(void);
+IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi);
 
 IFX_INLINE void RVC_updateReadyToDriveSignal(void);
 IFX_INLINE void RVC_slipComputation(void);
@@ -125,7 +127,7 @@ void RVC_init(void)
 
 	RVC_initPwm();
 
-	RVC_initButton();
+	RVC_initGpio();
 
 	RVC.tvMode1.pGain = TV1PGAIN;
 	RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
@@ -159,6 +161,10 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
+	RVC_pollGpi(&RVC.airPositive);
+	RVC_pollGpi(&RVC.airNegative);
+	RVC_pollGpi(&RVC.brakePressureOn);
+	RVC_pollGpi(&RVC.brakeSwitch);
 	RVC_r2d();
 	AdcSensor_getData(&RVC.LvBattery_Voltage);
 }
@@ -170,7 +176,7 @@ IFX_STATIC void RVC_setR2d(void)
 	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
 		HLD_GtmTomBeeper_setVolume(1);
-		HLD_GtmTomBeeper_start(RVC_r2dSound); // R2D sound	//FIXME: R2D sound, volume
+		HLD_GtmTomBeeper_start(RVC_r2dSound); // R2D sound	//FIXME: R2D sound
 		HLD_GtmTomBeeper_setVolumeDefault();
 	}
 }
@@ -240,15 +246,38 @@ IFX_STATIC void RVC_initPwm(void)
 	RVC.calibration.rightAcc.offset = OUTCAL_RIGHT_OFFSET;
 }
 
-IFX_STATIC void RVC_initButton(void)
+IFX_STATIC void RVC_initGpio(void)
 {
-	/* R2D button config */
-	Gpio_Debounce_inputConfig StartBtnContig;
-	Gpio_Debounce_initInputConfig(&StartBtnContig);
-	StartBtnContig.bufferLen = Gpio_Debounce_BufferLength_10;
-	StartBtnContig.inputMode = IfxPort_InputMode_noPullDevice;
-	StartBtnContig.port = &START_BTN;
-	Gpio_Debounce_initInput(&RVC.startButton, &StartBtnContig);
+	/* FWD output config */
+	IfxPort_setPinMode(FWD_OUT.port, FWD_OUT.pinIndex, IfxPort_OutputMode_pushPull);
+	IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
+	/* R2D signal output config */
+	IfxPort_setPinMode(R2DOUT.port, R2DOUT.pinIndex, IfxPort_OutputMode_pushPull);
+	IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+
+	/* Start button config */
+	Gpio_Debounce_inputConfig gpioInputConfig;
+	Gpio_Debounce_initInputConfig(&gpioInputConfig);
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &START_BTN;
+	Gpio_Debounce_initInput(&RVC.startButton, &gpioInputConfig);
+
+	/* AIR Contact signal input config */
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &AIR_P_IN;
+	Gpio_Debounce_initInput(&RVC.airPositive.debounce, &gpioInputConfig);
+	gpioInputConfig.port = &AIR_N_IN;
+	Gpio_Debounce_initInput(&RVC.airNegative.debounce, &gpioInputConfig);
+
+	/* Pedalbox signal input config */
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &BP_IN;
+	Gpio_Debounce_initInput(&RVC.brakePressureOn.debounce, &gpioInputConfig);
+	gpioInputConfig.port = &BSW_IN;
+	Gpio_Debounce_initInput(&RVC.brakeSwitch.debounce, &gpioInputConfig);
 }
 
 /* TODO: 
@@ -390,14 +419,19 @@ IFX_STATIC void RVC_r2d(void)
 	}
 	else if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
-		if(buttonOn == TRUE)
+		if(buttonOn == TRUE || (RVC.airPositive.value == FALSE) || (RVC.airNegative.value == FALSE))
 		{
 			RVC_resetR2d();
 		}
 	}
+
 #endif // R2D_TEST
 }
 
+IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi)
+{
+	gpi->value = Gpio_Debounce_pollInput(&gpi->debounce);
+}
 
 /***************** Inline Function Implementation ******************/
 IFX_INLINE void RVC_updateReadyToDriveSignal(void)
@@ -405,10 +439,12 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
 		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
+		IfxPort_setPinHigh(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
 	else
 	{
 		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
 }
 

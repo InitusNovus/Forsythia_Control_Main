@@ -8,7 +8,7 @@
 
 #include "GtmTomBeeper_note.h"
 
-note_t RVC_r2dSound[];
-note_t RVC_r2dResetSound[];
+IFX_EXTERN note_t RVC_r2dSound[];
+IFX_EXTERN note_t RVC_r2dResetSound[];
 
 #endif

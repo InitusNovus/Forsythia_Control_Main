@@ -39,6 +39,12 @@ typedef struct
 	float32 offset;
 } RVC_pwmCalibration;
 
+typedef struct 
+{
+	Gpio_Debounce_input debounce;
+	boolean value;
+} RVC_Gpi_t;
+
 /* Data Structures */
 typedef struct
 {
@@ -48,8 +54,14 @@ typedef struct
 
 	RVC_TorqueVectoring_mode_t tvMode;
 	RVC_TractionControl_mode_t tcMode;
-	// HLD_button_t startButton;
+	
 	Gpio_Debounce_input startButton;
+
+	RVC_Gpi_t airPositive;
+	RVC_Gpi_t airNegative;
+	RVC_Gpi_t brakePressureOn;
+	RVC_Gpi_t brakeSwitch;
+
 
 	struct 
 	{
