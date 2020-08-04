@@ -36,11 +36,6 @@ void kelly8080ips_can_run_1ms_c2(void)
 {
 	kelly8080ips_receiveMessage(&kelly8080ips1);
 	kelly8080ips_receiveMessage(&kelly8080ips2);
-	CanCommunication_receiveMessage(&kelly8080ips1.canMsgObj00);
-	CanCommunication_receiveMessage(&kelly8080ips1.canMsgObj01);
-	CanCommunication_receiveMessage(&kelly8080ips2.canMsgObj00);
-	CanCommunication_receiveMessage(&kelly8080ips2.canMsgObj01);
-
 }
 
 /*---------------------Private Function Implementations-----------------------*/

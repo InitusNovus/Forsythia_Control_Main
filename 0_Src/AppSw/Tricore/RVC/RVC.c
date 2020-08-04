@@ -10,6 +10,7 @@ TODO:
 	CAN associated functions 
 		- R2D entry routine display
 		- Steering wheel function
+		- Intercore communication: Mutex
 		- Parameter load/save
 		- BMS data: Power calculation and limit
 			** Data parsing in SDP
@@ -20,6 +21,8 @@ TODO:
 		- Charge consumed calculation
 	Analog sensor
 		- Steering Wheel Analog: need calibration code
+	GPIO
+		- Charge Enable
  */
 
 
@@ -84,7 +87,7 @@ RVC_t RVC =
     .torque.controlled = 0,
     .torque.rearLeft = 0,
     .torque.rearRight = 0,
-	.torque.isRegenOn = REGEN_INIT,
+	.torque.isRegenOn = REGEN_ON_INIT,
 
 	.calibration.leftAcc.mul = 1,
 	.calibration.leftAcc.offset = 0,
