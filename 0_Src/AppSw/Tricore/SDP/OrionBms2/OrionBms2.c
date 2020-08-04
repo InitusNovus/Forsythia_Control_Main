@@ -19,7 +19,7 @@ OrionBms2_t OrionBms2;
 
 
 /******************* Private Function Prototypes *********************/
-
+IFX_STATIC void OrionBms2_receiveMessage(void);
 
 /********************* Function Implementation ***********************/
 void OrionBms2_init(void)
@@ -29,7 +29,7 @@ void OrionBms2_init(void)
         config.messageId		=	OrionMsgId1;
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_6;
-        config.node				=	OrionBms2.msgObj1.node;
+        config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&OrionBms2.msgObj1, &config);
 	}
 	{
@@ -37,7 +37,7 @@ void OrionBms2_init(void)
         config.messageId		=	OrionMsgId2;
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_6;
-        config.node				=	OrionBms2.msgObj2.node;
+        config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&OrionBms2.msgObj2, &config);
 	}
 	{
@@ -45,26 +45,37 @@ void OrionBms2_init(void)
         config.messageId		=	OrionMsgId3;
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_6;
-        config.node				=	OrionBms2.msgObj3.node;
+        config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&OrionBms2.msgObj3, &config);
 	}
 }
 
-void OrionBms2_receiveMessage(void)
+void OrionBms2_run_1ms_c2(void)
+{
+	OrionBms2_receiveMessage();
+}
+
+//TODO: CRC check
+IFX_STATIC void OrionBms2_receiveMessage(void)
 {
 	if(CanCommunication_receiveMessage(&OrionBms2.msgObj1))
 	{
 		OrionBms2.msg1.packCurrent = ((OrionBms2.msgObj1.msg.data[0] & 0x0000FFFF) >> 0);
 		OrionBms2.msg1.packVoltage = ((OrionBms2.msgObj1.msg.data[0] & 0xFFFF0000) >> 16);
-		Orion
+		OrionBms2.msg1.packSoc = ((OrionBms2.msgObj1.msg.data[1] & 0x000000FF) >> 0 );
 	}
 	if(CanCommunication_receiveMessage(&OrionBms2.msgObj2))
 	{
-
+		OrionBms2.msg2.packChargeLimit = ((OrionBms2.msgObj2.msg.data[0] & 0x0000FFFF) >>0);
+		OrionBms2.msg2.packDischargeLimit = ((OrionBms2.msgObj2.msg.data[0] & 0xFFFF0000) >>16);
 	}
 	if(CanCommunication_receiveMessage(&OrionBms2.msgObj3))
 	{
-
+		OrionBms2.msg3.highTemp = ((OrionBms2.msgObj3.msg.data[0] & 0x000000FF) >> 0);
+		OrionBms2.msg3.highCell = ((OrionBms2.msgObj3.msg.data[0] & 0x0000FF00) >> 8);
+		OrionBms2.msg3.avgTemp = ((OrionBms2.msgObj3.msg.data[0] & 0x00FF0000) >> 16);
+		OrionBms2.msg3.bmsTemp = ((OrionBms2.msgObj3.msg.data[0] & 0xFF000000) >> 24);
+		OrionBms2.msg3.lowVoltage = ((OrionBms2.msgObj3.msg.data[1] & 0x000000FF) >> 0);
 	}
 }
 

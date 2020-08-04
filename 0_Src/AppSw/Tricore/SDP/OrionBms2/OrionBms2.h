@@ -47,12 +47,13 @@ typedef struct
 
 	uint32 canErrorCount;
 	boolean canError;
-}OrionBms2_t
+}OrionBms2_t;
 
 /************************ Global Variables ***************************/
 
 
 /*********************** Function Prototypes *************************/
-
+IFX_EXTERN void OrionBms2_init(void);
+IFX_EXTERN void OrionBms2_run_1ms_c2(void);
 
 #endif

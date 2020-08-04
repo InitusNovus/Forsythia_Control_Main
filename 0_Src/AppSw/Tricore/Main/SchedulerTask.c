@@ -18,6 +18,7 @@
 #include "AccumulatorManager_master.h"
 #include "RVC.h"
 #include "kelly8080ips_can.h"
+#include "OrionBms2.h"
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
@@ -170,6 +171,7 @@ void Task_init (void)
 	{
 		// AccumulatorManager_master_init();
 		kelly8080ips_can_init();
+		OrionBms2_init();
 		RVC_init();
 	}
 
@@ -188,8 +190,8 @@ void Task_init (void)
 		}
 
 		HLD_GtmTomBeeper_start(Beep_pattern4);
-		//		HLD_GtmTomBeeper_start(KartRider);
-		//		HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
+		//HLD_GtmTomBeeper_start(KartRider);
+		//HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
 	}
 
 }

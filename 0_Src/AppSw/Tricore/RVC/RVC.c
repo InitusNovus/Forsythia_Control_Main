@@ -74,7 +74,7 @@ TODO:
 
 #define TV1PGAIN 0.001
 
-#define REGEN_INIT	FALSE
+#define REGEN_ON_INIT	FALSE
 
 #define LVBAT_LINCAL_A	1.015f
 #define LVBAT_LINCAL_B	0

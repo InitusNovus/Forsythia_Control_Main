@@ -11,6 +11,7 @@
 /******************************************************************************/
 #include "SchedulerTask_Cpu2.h"
 #include "kelly8080ips_can.h"
+#include "OrionBms2.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
@@ -57,7 +58,8 @@ void Task_core2_1ms (void)
 	stm_buf_c2 = IfxStm_get(&MODULE_STM0);
 
 	// AccumulatorManager_master_run_1ms_c2();
-	kelly8080ips_can_run_1ms_c2();
+	// kelly8080ips_can_run_1ms_c2();
+	// OrionBms2_run_1ms_c2();
 
 	ticToc_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
 }

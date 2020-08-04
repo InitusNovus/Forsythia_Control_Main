@@ -22,14 +22,14 @@ kelly8080ips_t kelly8080ips1;
 kelly8080ips_t kelly8080ips2;
 
 /*-------------------------Function Prototypes--------------------------------*/
-IFX_STATIC void kelly8080ips_canMessage_init(kelly8080ips_t *inverter);
+IFX_STATIC void kelly8080ips_canMessage_init(kelly8080ips_t *inverter, IfxMultican_Can_Node *node);
 IFX_STATIC void kelly8080ips_receiveMessage(kelly8080ips_t *inverter);
 
 /*-------------------------Function Implementations---------------------------*/
 void kelly8080ips_can_init(void)
 {
-	kelly8080ips_canMessage_init(&kelly8080ips1);
-	kelly8080ips_canMessage_init(&kelly8080ips2);
+	kelly8080ips_canMessage_init(&kelly8080ips1, &CanCommunication_canNode1);
+	kelly8080ips_canMessage_init(&kelly8080ips2, &CanCommunication_canNode2);
 }
 
 void kelly8080ips_can_run_1ms_c2(void)
@@ -39,14 +39,14 @@ void kelly8080ips_can_run_1ms_c2(void)
 }
 
 /*---------------------Private Function Implementations-----------------------*/
-IFX_STATIC void kelly8080ips_canMessage_init(kelly8080ips_t *inverter)
+IFX_STATIC void kelly8080ips_canMessage_init(kelly8080ips_t *inverter, IfxMultican_Can_Node *node)
 {
 	{
         CanCommunication_Message_Config config;
         config.messageId		=	conMsgId1;
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_8;
-        config.node				=	inverter->canMsgObj00.node;
+        config.node				=	node;
         CanCommunication_initMessage(&inverter->canMsgObj00, &config);
 	}
 	{
@@ -54,7 +54,7 @@ IFX_STATIC void kelly8080ips_canMessage_init(kelly8080ips_t *inverter)
         config.messageId		=	conMsgId2;
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_8;
-        config.node				=	inverter->canMsgObj01.node;
+        config.node				=	node;
 		CanCommunication_initMessage(&inverter->canMsgObj01 , &config);
 	}
 }
