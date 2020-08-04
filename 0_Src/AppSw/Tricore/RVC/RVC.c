@@ -165,6 +165,8 @@ void RVC_run_10ms(void)
 	RVC_pollGpi(&RVC.brakeSwitch);
 	RVC_r2d();
 	AdcSensor_getData(&RVC.LvBattery_Voltage);
+	AdcSensor_getData(&RVC.BrakePressure1);
+	AdcSensor_getData(&RVC.BrakePressure2);
 }
 
 /****************** Private Function Implementation ******************/
@@ -197,6 +199,8 @@ IFX_STATIC void RVC_toggleR2d(void)
 IFX_STATIC void RVC_initAdcSensor(void)
 {
 	AdcSensor_Config adcConfig;
+
+	/* LV battery voltage */
 	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
 
 	adcConfig.adcConfig.lpf.activated = TRUE;
@@ -214,6 +218,26 @@ IFX_STATIC void RVC_initAdcSensor(void)
 
 	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
 	HLD_AdcForceStart(RVC.LvBattery_Voltage.adcChannel.channel.group);
+
+	/* Brake Pressure*/
+	adcConfig.adcConfig.lpf.activated = TRUE;
+	adcConfig.adcConfig.lpf.config.gain = 1;
+	adcConfig.adcConfig.lpf.config.cutOffFrequency = 1/(2*IFX_PI*(1e-2f));
+	adcConfig.adcConfig.lpf.config.samplingTime = 10.0e-3;
+
+	adcConfig.isOvervoltageProtected = FALSE;
+	adcConfig.linCalConfig.isAct = FALSE;
+	adcConfig.tfConfig.a = 50;
+	adcConfig.tfConfig.b = -25;
+
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_2};
+	AdcSensor_initSensor(&RVC.BrakePressure1, &adcConfig);
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_1};
+	AdcSensor_initSensor(&RVC.BrakePressure2, &adcConfig);
+	HLD_AdcForceStart(RVC.BrakePressure1.adcChannel.channel.group);
+
+	/* Steering Angle Analog (Backup function) */
+	//TODO
 }
 
 IFX_STATIC void RVC_initPwm(void)
@@ -307,7 +331,7 @@ IFX_STATIC void PpsCheck(boolean *isChecked, uint32 *count, boolean isHi, uint32
 	if(isHi)
 	{
 		(*count)++;
-		if(count > hold)
+		if(*count > hold)
 		{
 			*isChecked = TRUE;
 			*count = 0;

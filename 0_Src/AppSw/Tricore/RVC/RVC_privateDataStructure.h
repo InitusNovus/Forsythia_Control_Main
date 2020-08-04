@@ -51,6 +51,8 @@ typedef struct
 	RVC_ReadyToDrive_status readyToDrive;
 
 	AdcSensor LvBattery_Voltage;
+	AdcSensor BrakePressure1;
+	AdcSensor BrakePressure2;
 
 	RVC_TorqueVectoring_mode_t tvMode;
 	RVC_TractionControl_mode_t tcMode;
