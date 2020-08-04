@@ -103,6 +103,13 @@ IFX_EXTERN void HLD_GtmTomBeeper_run_1ms(void);
  * Note: The new beep pattern overrides the playing one.
  * */
 IFX_EXTERN void HLD_GtmTomBeeper_start (note_t* target);
+/*
+ * Beep pattern start function
+ * Argument1: Beep pattern array
+ * Argument2: Volume(0~1, real number)
+ * Note: The new beep pattern overrides the playing one.
+ * */
+IFX_EXTERN void HLD_GtmTomBeeper_start_volume(note_t* target, float32 volume);
 
 /******************************************************************************/
 /*---------------------Inline Function Implimentations------------------------*/

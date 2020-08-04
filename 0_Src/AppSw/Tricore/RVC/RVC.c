@@ -173,9 +173,7 @@ IFX_STATIC void RVC_setR2d(void)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)
 	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
-		HLD_GtmTomBeeper_setVolume(1);
-		HLD_GtmTomBeeper_start(RVC_r2dSound); // R2D sound	//FIXME: R2D sound
-		HLD_GtmTomBeeper_setVolumeDefault();
+		HLD_GtmTomBeeper_start_volume(RVC_r2dSound, 1); // R2D sound	//FIXME: R2D sound
 	}
 }
 
