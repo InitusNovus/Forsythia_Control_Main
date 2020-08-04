@@ -19,8 +19,7 @@ TODO:
 	Battery Management
 		- Charge consumed calculation
 	Analog sensor
-		- Steering Wheel Analog
-		- BrakePressure
+		- Steering Wheel Analog: need calibration code
  */
 
 
