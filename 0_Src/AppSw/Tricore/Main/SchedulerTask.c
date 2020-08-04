@@ -17,6 +17,7 @@
 #include "CanCommunication.h"
 #include "AccumulatorManager_master.h"
 #include "RVC.h"
+#include "kelly8080ips_can.h"
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
@@ -168,6 +169,7 @@ void Task_init (void)
 	/* Hmm... */
 	{
 		// AccumulatorManager_master_init();
+		kelly8080ips_can_init();
 		RVC_init();
 	}
 
@@ -224,6 +226,7 @@ void Task_IsrCb_1ms (void)
 		HLD_GtmTim_run_1ms();
 	}
 	{
+		CanCommunication_init();
 		SDP_PedalBox_run_1ms();
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
