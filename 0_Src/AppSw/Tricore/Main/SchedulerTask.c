@@ -19,6 +19,7 @@
 #include "RVC.h"
 #include "kelly8080ips_can.h"
 #include "OrionBms2.h"
+#include "SteeringWheel.h"
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
@@ -173,6 +174,7 @@ void Task_init (void)
 		kelly8080ips_can_init();
 		OrionBms2_init();
 		RVC_init();
+		SteeringWheel_init();
 	}
 
 	/*HLD initialization finished*/

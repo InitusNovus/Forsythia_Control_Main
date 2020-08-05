@@ -42,6 +42,8 @@ TODO:
 #include "RVC_r2dSound.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
+#include "SteeringWheel.h"
+
 /**************************** Macro **********************************/
 #define PWMFREQ 5000 // PWM frequency in Hz
 #define PWMVREF 5.0  // PWM reference voltage (On voltage)
@@ -80,6 +82,8 @@ TODO:
 #define LVBAT_LINCAL_B	0
 #define LVBAT_LINCAL_D	0
 
+#define VAR_UPDATE_ERROR_LIM	10
+
 /*********************** Global Variables ****************************/
 RVC_t RVC = 
 {
@@ -99,6 +103,7 @@ RVC_t RVC =
 	.calibration.rightDec.offset = 0,
 };
 
+RVC_public_t RVC_public;
 /******************* Private Function Prototypes *********************/
 IFX_STATIC void RVC_setR2d(void);
 IFX_STATIC void RVC_resetR2d(void);
@@ -117,6 +122,7 @@ IFX_INLINE void RVC_torqueSatuation(void);
 IFX_INLINE void RVC_torqueDistrobution(void);
 IFX_INLINE void RVC_torqueSignalGeneration(void);
 IFX_INLINE void RVC_updatePwmSignal(void);
+IFX_INLINE void RVC_updateSharedVariable(void);
 
 /********************* Function Implementation ***********************/
 void RVC_init(void)
@@ -157,6 +163,7 @@ void RVC_run_1ms(void)
 	RVC_updatePwmSignal();
 
 	/* TODO: Shared variable update */
+	
 }
 
 void RVC_run_10ms(void)
@@ -606,4 +613,50 @@ IFX_INLINE void RVC_updatePwmSignal(void)
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.accel_rearRight, RVC.pwmDuty.rearRightAcc);
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearLeft, RVC.pwmDuty.rearLeftDec);
 	HLD_GtmTomPwm_setTriggerPointFloat(&RVC.out.decel_rearRight, RVC.pwmDuty.rearRightDec);
+}
+
+IFX_INLINE void VariableUpdateRoutine(void)
+{
+	SteeringWheel_public.shared.data.vehicleSpeed = SDP_WheelSpeed.velocity.chassis;
+	SteeringWheel_public.shared.data.apps = SDP_PedalBox.apps.pps;
+	SteeringWheel_public.shared.data.bpps = SDP_PedalBox.bpps.pps;
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+		SteeringWheel_public.shared.data.isReadyToDrive = TRUE;
+	else
+		SteeringWheel_public.shared.data.isReadyToDrive = FALSE;
+	SteeringWheel_public.shared.data.isAppsChecked = RVC.R2d.isAppsChecked;
+	SteeringWheel_public.shared.data.isBppsChecked1 = RVC.R2d.isBppsChecked1;
+	SteeringWheel_public.shared.data.isBppsChecked2 = RVC.R2d.isBppsChecked2;
+	if(SDP_PedalBox.apps.isValueOk == TRUE)
+		SteeringWheel_public.shared.data.appsError = FALSE;
+	else
+		SteeringWheel_public.shared.data.appsError = TRUE;
+	if(SDP_PedalBox.bpps.isValueOk == TRUE)
+		SteeringWheel_public.shared.data.bppsError = FALSE;
+	else 
+		SteeringWheel_public.shared.data.bppsError = TRUE;
+	SteeringWheel_public.shared.data.lvBatteryVoltage = RVC.LvBattery_Voltage.value;
+}
+
+IFX_INLINE void RVC_updateSharedVariable(void)
+{
+	static uint32 updateErrorCount = 0;
+	if(IfxCpu_acquireMutex(&SteeringWheel_public.shared.mutex))	//Do not wait.
+	{
+		VariableUpdateRoutin();
+		IfxCpu_releaseMutex(&SteeringWheel_public.shared.mutex);
+	}
+	else if(updateErrorCount < VAR_UPDATE_ERROR_LIM)
+	{
+		updateErrorCount++;
+	}
+	else
+	{
+		while(IfxCpu_acquireMutex(&SteeringWheel_public.shared.mutex));
+		{
+			VariableUpdateRoutin();
+			IfxCpu_releaseMutex(&SteeringWheel_public.shared.mutex);
+		}
+		updateErrorCount = 0;
+	}
 }

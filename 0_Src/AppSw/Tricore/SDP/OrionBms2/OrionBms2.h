@@ -50,7 +50,7 @@ typedef struct
 }OrionBms2_t;
 
 /************************ Global Variables ***************************/
-
+IFX_EXTERN OrionBms2_t OrionBms2;
 
 /*********************** Function Prototypes *************************/
 IFX_EXTERN void OrionBms2_init(void);
