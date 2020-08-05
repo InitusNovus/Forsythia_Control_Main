@@ -228,7 +228,6 @@ void Task_IsrCb_1ms (void)
 		HLD_GtmTim_run_1ms();
 	}
 	{
-		CanCommunication_init();
 		SDP_PedalBox_run_1ms();
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();

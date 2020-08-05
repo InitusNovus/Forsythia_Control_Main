@@ -7,13 +7,12 @@
 #ifndef RVC_PRIVATEDATASTRUCTURE_H_
 #define RVC_PRIVATEDATASTRUCTURE_H_
 
-/* Includes */
+/******************************** Includes ***********************************/
 #include "HLD.h"
-// #include "UserInterface_Button.h"
 #include "Gpio_Debounce.h"
 #include "AdcSensor.h"
 
-/* Enumerations */
+/****************************** Enumerations *********************************/
 typedef enum
 {
 	RVC_ReadyToDrive_status_notInitialized = 0,
@@ -45,7 +44,7 @@ typedef struct
 	boolean value;
 } RVC_Gpi_t;
 
-/* Data Structures */
+/*************************** Data Structures *********************************/
 typedef struct
 {
 	RVC_ReadyToDrive_status readyToDrive;
