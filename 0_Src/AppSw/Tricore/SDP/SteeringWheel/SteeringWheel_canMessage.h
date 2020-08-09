@@ -12,20 +12,20 @@ typedef union
 	struct 
 	{
 		uint8 vehicleSpeed;		//byte0;	//SDP
-		uint8 lowestVoltage;	//byte1;	//BMS
-		uint8 highestTemp;		//byte2;	//BMS
-		uint8 bmsTemp;			//byte3;	//BMS
-		uint8 soc;				//byte4;	//BMS
-		uint8 averageTemp;		//byte5		//BMS
-		union 					//byte6~7;	//RVC
+		uint16 lowestVoltage;	//byte1~2;	//BMS
+		uint8 highestTemp;		//byte3;	//BMS
+		uint8 bmsTemp;			//byte4;	//BMS
+		uint8 soc;				//byte5;	//BMS
+		uint8 averageTemp;		//byte6;	//BMS
+		union 					//byte7;	//RVC
 		{
-			uint16 U;
+			uint8 U;
 			struct 
 			{
 				uint16 r2d:4;
 				uint16 appsError:1;
 				uint16 bppsError:1;
-				uint16 reserved:10; 
+				uint16 reserved:2; 
 			}S;
 		}status;
 	}S;
@@ -43,5 +43,17 @@ typedef union
 	}S;
 	uint32 U[2];
 }SteeringWheel_canMsg2_t;
+
+typedef union 
+{
+	struct 
+	{
+		uint8 inverter1Temp;		//byte0;		//Inverter
+		uint8 motor1Temp;			//byte1;		//Inverter
+		uint8 inverter2Temp;        //byte2;		//Inverter
+		uint8 motor2Temp;			//byte3;		//Inverter
+	}S;
+	uint32 U;
+}SteeringWheel_canMsg3_t;
 
 #endif

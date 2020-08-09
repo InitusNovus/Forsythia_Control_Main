@@ -10,13 +10,8 @@ TODO:
 	CAN associated functions 
 		- R2D entry routine display
 		- Steering wheel function
-		- Intercore communication: Mutex
 		- Parameter load/save
-		- BMS data: Power calculation and limit
-			** Data parsing in SDP
 		- Log Data Broadcasting
-	Torque Limit algorithm
-		- Signoid function?
 	Battery Management
 		- Charge consumed calculation
 	Analog sensor
@@ -69,20 +64,31 @@ TODO:
 #define R2D_BPPS_TH		95
 #define R2D_BPPS_LO		5
 #define R2D_BPPS_HOLD	(5*10)	//0.5 seconds
-// #define R2D_TEST		//Test: start button set R2D directly
+#define R2D_TEST		//Test: start button set R2D directly
 
 #define PEDAL_BRAKE_ON_THRESHOLD 10
 #define REGEN_MUL	1	//2
 
+#define POWER_LIM				40000	//40kW
+#define CURRENT_LIM_SET_VAL		10		//10A
+
 #define TV1PGAIN 0.001
 
-#define REGEN_ON_INIT	FALSE
+#define REGEN_ON_INIT	FALSE	//***** Regen is not abailable now!!! ***** //FIXME //TODO: Regen limit
 
 #define LVBAT_LINCAL_A	1.015f
 #define LVBAT_LINCAL_B	0
 #define LVBAT_LINCAL_D	0
 
 #define VAR_UPDATE_ERROR_LIM	10
+
+#define THROTLE_5V
+
+#define BRAKE_ON_BP
+#define BRAKE_ON_TH_BP1	3.3f
+#define BRAKE_ON_TH_BP2 5.6f
+
+#define BMS_PDL_ERROR	TRUE
 
 /*********************** Global Variables ****************************/
 RVC_t RVC = 
@@ -101,6 +107,9 @@ RVC_t RVC =
 	.calibration.leftDec.offset = 0,
 	.calibration.rightDec.mul = 1,
 	.calibration.rightDec.offset = 0,
+
+	.power.limit = POWER_LIM,
+	.currentLimit.setValue = CURRENT_LIM_SET_VAL,
 };
 
 RVC_public_t RVC_public;
@@ -118,6 +127,8 @@ IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi);
 IFX_INLINE void RVC_updateReadyToDriveSignal(void);
 IFX_INLINE void RVC_slipComputation(void);
 IFX_INLINE void RVC_getTorqueRequired(void);
+IFX_INLINE void RVC_powerComputation(void);
+IFX_INLINE void RVC_torqueLimit(void);
 IFX_INLINE void RVC_torqueSatuation(void);
 IFX_INLINE void RVC_torqueDistrobution(void);
 IFX_INLINE void RVC_torqueSignalGeneration(void);
@@ -149,9 +160,24 @@ void RVC_run_1ms(void)
 
 	RVC_getTorqueRequired();
 
-	/* TODO: Torque limit: Traction control, Power Limit */
+	if(RVC.BrakePressure1.value > BRAKE_ON_TH_BP1)
+		RVC.brakeOn.bp1 = TRUE;
+	else
+		RVC.brakeOn.bp1 = FALSE;
 
-	/* PowerCalculation */
+	if(RVC.BrakePressure2.value > BRAKE_ON_TH_BP2)
+		RVC.brakeOn.bp2 = TRUE;
+	else
+		RVC.brakeOn.bp2 = FALSE;
+
+	RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2 | RVC.brakePressureOn.value;
+
+	/* TODO: Torque limit: Traction control */
+
+	RVC_powerComputation();
+
+	RVC_torqueLimit();
+
 	RVC_torqueSatuation();
 
 	RVC_torqueDistrobution();
@@ -163,7 +189,7 @@ void RVC_run_1ms(void)
 	RVC_updatePwmSignal();
 
 	/* TODO: Shared variable update */
-	
+	RVC_updateSharedVariable();
 }
 
 void RVC_run_10ms(void)
@@ -428,11 +454,11 @@ IFX_STATIC void RVC_r2d(void)
 	/* R2D routine */
 #ifdef R2D_TEST
 	/***** Test: start button set/reset R2D directly *****/
-	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE))
+	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE) && (RVC.brakeOn.tot == TRUE))
 	{
 		RVC_setR2d();
 	}
-	else if((RVC.readyToDrive == RVC_ReadyToDrive_status_run) && (buttonOn == FALSE))
+	else if((RVC.readyToDrive == RVC_ReadyToDrive_status_run) && (buttonOn == TRUE))
 	{
 		RVC_resetR2d();
 	}
@@ -482,6 +508,7 @@ IFX_INLINE void RVC_slipComputation(void)
 	RVC.slip.axle = SDP_WheelSpeed.velocity.rearAxle/SDP_WheelSpeed.velocity.frontAxle;
 	RVC.slip.left = SDP_WheelSpeed.wssRL.wheelLinearVelocity/SDP_WheelSpeed.wssFL.wheelLinearVelocity;
 	RVC.slip.right = SDP_WheelSpeed.wssRR.wheelLinearVelocity/SDP_WheelSpeed.wssFR.wheelLinearVelocity;
+	// RVC.diff.rear
 	if(isnan(RVC.slip.axle)||isnan(RVC.slip.left)||isnan(RVC.slip.right)) 
 	{
 		RVC.slip.error = TRUE;
@@ -502,7 +529,12 @@ IFX_INLINE void RVC_getTorqueRequired(void)
 	{
 		RVC.torque.controlled = (RVC.torque.desired = 0);		//APPS Fail
 	}
-
+#ifdef BRAKE_ON_BP	//No Regen!	//TODO
+	if(RVC.brakeOn.tot == TRUE)
+	{
+		RVC.torque.controlled = (RVC.torque.desired = 0);	//Zero torque signal when brake on.
+	}
+#else
 	if(SDP_PedalBox.bpps.isValueOk)		//BPPS Plausibility check
 	{
 		if(SDP_PedalBox.bpps.pps > PEDAL_BRAKE_ON_THRESHOLD)
@@ -521,6 +553,59 @@ IFX_INLINE void RVC_getTorqueRequired(void)
 	else //FIXME: BSPD control using Brake Pressure Analog signal. Failsafe for BPPS.
 	{
 		RVC.torque.controlled = 0;		//BPPS Fail
+	}
+#endif
+}
+
+IFX_INLINE void RVC_powerComputation(void)
+{
+	RVC.power.value = RVC_public.bms.data.current * RVC_public.bms.data.voltage;
+	RVC.power.currentLimit = RVC.power.limit / RVC_public.bms.data.voltage;
+}
+
+IFX_INLINE void RVC_torqueLimit(void)
+{
+	uint16 dischargeLimit ;
+
+	if(BMS_PDL_ERROR == TRUE)
+	{
+		dischargeLimit = 400;
+		if(RVC_public.bms.data.highestTemp > 45)
+		{
+			dischargeLimit = 200;
+		}
+		else if(RVC_public.bms.data.highestTemp > 50)
+		{
+			dischargeLimit = 100;
+		}
+		else if(RVC_public.bms.data.highestTemp > 55)
+		{
+			dischargeLimit = 50;
+		}
+		if(RVC_public.bms.data.lowestVoltage < 3.0f)
+		{
+			dischargeLimit = 50;
+		}
+	}
+	else
+	{
+		dischargeLimit = RVC_public.bms.data.dischargeLimit;
+	}
+
+	float32 currentLimitByPower = RVC.power.currentLimit;
+
+	RVC.currentLimit.value = (dischargeLimit > currentLimitByPower) ? currentLimitByPower : dischargeLimit;
+
+	RVC.currentLimit.margin = RVC.currentLimit.value - RVC_public.bms.data.current;
+
+	if(RVC.currentLimit.margin < RVC.currentLimit.setValue)
+	{
+		RVC.torque.controlled = RVC.torque.controlled * RVC.currentLimit.margin / RVC.currentLimit.setValue;
+		RVC.currentLimit.isLimited = TRUE;
+	}
+	else
+	{
+		RVC.currentLimit.isLimited = FALSE;
 	}
 }
 
@@ -565,6 +650,48 @@ IFX_INLINE void RVC_torqueDistrobution(void)
 
 IFX_INLINE void RVC_torqueSignalGeneration(void)
 {
+#ifdef THROTLE_5V
+	// 0~100% maped to 0~5V ( = 0.0~1.0 duty)
+	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+	{
+		if(RVC.torque.rearLeft > 0) 	//Accelertation
+		{
+			RVC.pwmDuty.rearLeftAcc =
+				(RVC.torque.rearLeft) * 0.01f * RVC.calibration.leftAcc.mul + RVC.calibration.leftAcc.offset;
+			RVC.pwmDuty.rearLeftDec = 
+				(0) * 0.01f * RVC.calibration.leftDec.mul + RVC.calibration.leftDec.offset;
+		}
+		else 
+		{
+			RVC.pwmDuty.rearLeftAcc =
+				(0) * 0.01f * RVC.calibration.leftAcc.mul + RVC.calibration.leftAcc.offset;
+			RVC.pwmDuty.rearLeftDec = 
+				(-(RVC.torque.rearLeft)*REGEN_MUL) * 0.01f * RVC.calibration.leftDec.mul + RVC.calibration.leftDec.offset;
+		}
+
+		if(RVC.torque.rearRight > 0)
+		{
+			RVC.pwmDuty.rearRightAcc =
+				(RVC.torque.rearRight) * 0.01f * RVC.calibration.rightAcc.mul + RVC.calibration.rightAcc.offset;			
+			RVC.pwmDuty.rearRightDec = 
+				(0) * 0.01f * RVC.calibration.rightDec.mul + RVC.calibration.rightDec.offset;
+		}
+		else 
+		{
+			RVC.pwmDuty.rearRightAcc =
+				(0) * 0.01f * RVC.calibration.rightAcc.mul + RVC.calibration.rightAcc.offset;
+			RVC.pwmDuty.rearRightDec = 
+				(-(RVC.torque.rearRight)*REGEN_MUL) * 0.01f * RVC.calibration.rightDec.mul + RVC.calibration.rightDec.offset;			
+		}
+	}
+	else
+	{
+		RVC.pwmDuty.rearLeftAcc = (0) * 0.01f * RVC.calibration.leftAcc.mul + RVC.calibration.leftAcc.offset;
+		RVC.pwmDuty.rearRightAcc = (0) * 0.01f * RVC.calibration.rightAcc.mul + RVC.calibration.rightAcc.offset;
+		RVC.pwmDuty.rearLeftDec = (0) * 0.01f * RVC.calibration.leftDec.mul + RVC.calibration.leftDec.offset;
+		RVC.pwmDuty.rearRightDec = (0) * 0.01f * RVC.calibration.rightDec.mul + RVC.calibration.rightDec.offset;
+	}
+#else
 	// 0~100% maped to 1~4V ( = 0.2~0.8 duty)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
@@ -605,6 +732,7 @@ IFX_INLINE void RVC_torqueSignalGeneration(void)
 		RVC.pwmDuty.rearLeftDec = (0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
 		RVC.pwmDuty.rearRightDec = (0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
 	}
+#endif 
 }
 
 IFX_INLINE void RVC_updatePwmSignal(void)
@@ -637,13 +765,13 @@ IFX_INLINE void VariableUpdateRoutine(void)
 		SteeringWheel_public.shared.data.bppsError = TRUE;
 	SteeringWheel_public.shared.data.lvBatteryVoltage = RVC.LvBattery_Voltage.value;
 }
-
+volatile uint32 updateErrorCount = 0;
 IFX_INLINE void RVC_updateSharedVariable(void)
 {
-	static uint32 updateErrorCount = 0;
+	// static uint32 updateErrorCount = 0;
 	if(IfxCpu_acquireMutex(&SteeringWheel_public.shared.mutex))	//Do not wait.
 	{
-		VariableUpdateRoutin();
+		VariableUpdateRoutine();
 		IfxCpu_releaseMutex(&SteeringWheel_public.shared.mutex);
 	}
 	else if(updateErrorCount < VAR_UPDATE_ERROR_LIM)
@@ -654,7 +782,7 @@ IFX_INLINE void RVC_updateSharedVariable(void)
 	{
 		while(IfxCpu_acquireMutex(&SteeringWheel_public.shared.mutex));
 		{
-			VariableUpdateRoutin();
+			VariableUpdateRoutine();
 			IfxCpu_releaseMutex(&SteeringWheel_public.shared.mutex);
 		}
 		updateErrorCount = 0;

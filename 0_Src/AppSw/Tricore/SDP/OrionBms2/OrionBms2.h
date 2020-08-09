@@ -32,7 +32,7 @@ typedef struct
 	uint8 highCell;
 	uint8 avgTemp;
 	uint8 bmsTemp;
-	uint8 lowVoltage;
+	uint16 lowVoltage;
 }OrionBms2_msg3_t;
 
 typedef struct 

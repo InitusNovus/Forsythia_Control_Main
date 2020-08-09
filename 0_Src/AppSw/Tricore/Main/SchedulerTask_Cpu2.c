@@ -33,7 +33,6 @@
 Task_cpu2 Task_core2 =
 {
 	.flag = FALSE,
-	.flag_10ms = FALSE,
 };
 uint64 stm_buf_c2 = 0;
 uint64 stm_buf_c2_delay = 0;

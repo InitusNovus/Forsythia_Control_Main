@@ -36,7 +36,7 @@ void OrionBms2_init(void)
 		CanCommunication_Message_Config config;
 		config.messageId = OrionMsgId2;
 		config.frameType = IfxMultican_Frame_receive;
-		config.dataLen = IfxMultican_DataLengthCode_6;
+		config.dataLen = IfxMultican_DataLengthCode_4;
 		config.node = &CanCommunication_canNode0;
 		CanCommunication_initMessage(&OrionBms2.msgObj2, &config);
 	}
@@ -98,7 +98,7 @@ IFX_STATIC void OrionBms2_receiveMessage(void)
 		OrionBms2.msg3.highCell = ((OrionBms2.msgObj3.msg.data[0] & 0x0000FF00) >> 8);
 		OrionBms2.msg3.avgTemp = ((OrionBms2.msgObj3.msg.data[0] & 0x00FF0000) >> 16);
 		OrionBms2.msg3.bmsTemp = ((OrionBms2.msgObj3.msg.data[0] & 0xFF000000) >> 24);
-		OrionBms2.msg3.lowVoltage = ((OrionBms2.msgObj3.msg.data[1] & 0x000000FF) >> 0);
+		OrionBms2.msg3.lowVoltage = ((OrionBms2.msgObj3.msg.data[1] & 0x0000FFFF) >> 0);
 		while(IfxCpu_acquireMutex(&RVC_public.bms.shared.mutex))
 			; // Wait for mutex
 		{

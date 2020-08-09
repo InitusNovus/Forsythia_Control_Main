@@ -147,7 +147,7 @@ void Task_init (void)
 		HLD_GtmTom_init();
 		HLD_GtmTim_init();
 		HLD_Qspi_init();
-		HLD_Multican_init();
+		// HLD_Multican_init();
 		HLD_Vadc_init();
 	}
 	/*HLD_AbstractionLayer initialization*/

@@ -24,6 +24,7 @@ typedef enum
 {
 	RVC_TorqueVectoring_modeOpen = 0,
 	RVC_TorqueVectoring_mode1 = 1,
+	RVC_TorqueVectoring_diff = 2,
 } RVC_TorqueVectoring_mode_t;
 
 typedef enum
@@ -60,8 +61,30 @@ typedef struct
 
 	RVC_Gpi_t airPositive;
 	RVC_Gpi_t airNegative;
-	RVC_Gpi_t brakePressureOn;
+	RVC_Gpi_t 	brakePressureOn;
 	RVC_Gpi_t brakeSwitch;
+
+	struct 
+	{
+		boolean bp1;
+		boolean bp2;
+		boolean tot;
+	} brakeOn;
+
+	struct 
+	{
+		float32 value;
+		float32 limit;
+		float32 currentLimit;
+	}power;
+
+	struct 
+	{
+		float32 value;
+		float32 margin;
+		float32 setValue;
+		boolean isLimited;
+	}currentLimit;
 
 
 	struct 
