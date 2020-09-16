@@ -18,16 +18,16 @@
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
 /*FIXME Temporary values*/
-#define A0END		85.2f
-#define A0STT		76.9f
+#define A0END		44.6f
+#define A0STT		36.9f
 #define A0DDZ		5
 
-#define A1END		83.8f	//FIXME: Temporary average value
-#define A1STT		75.9f	//FIXME: Temparary average value
+#define A1END		91.5f	//FIXME: Temporary value
+#define A1STT		83.3f	//FIXME: Temparary value
 #define A1DDZ		5
 
-#define A2END		82.4f
-#define A2STT		74.9f
+#define A2END		91.5f
+#define A2STT		83.3f
 #define A2DDZ		5
 
 #define B0STT		78.2f	//FIXME
