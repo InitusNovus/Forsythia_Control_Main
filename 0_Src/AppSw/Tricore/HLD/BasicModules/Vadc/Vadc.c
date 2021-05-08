@@ -49,7 +49,7 @@ HLD_Vadc_Channel_In HLD_Vadc_AN20_G1CH8_X103_36 = {HLD_Vadc_GroupId_1, HLD_Vadc_
 HLD_Vadc_Channel_In HLD_Vadc_AN21_G1CH9_X103_35 = {HLD_Vadc_GroupId_1, HLD_Vadc_ChannelId_9};
 
 #elif HLD_BOARD == HLD_BOARD_SB275
-
+HLD_Vadc_Channel_In HLD_Vadc_P32_3_G4CH7_AD0 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_7};
 #endif
 
 

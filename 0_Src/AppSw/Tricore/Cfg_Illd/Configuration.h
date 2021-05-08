@@ -80,6 +80,8 @@
 #define GTMTIM9						IfxGtm_TIM2_6_TIN100_P11_11_IN	//WSS3
 
 
+
+
 /*Led port macros*/
 #define LED_ONBOARD					IfxPort_P10_2
 

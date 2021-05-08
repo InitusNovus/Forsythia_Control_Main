@@ -10,6 +10,7 @@
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
 #include "SDP.h"
+#include "AdcSensor.h"
 #include "PedalBox.h"
 #include "GtmTim.h"
 #include <math.h>
@@ -17,38 +18,52 @@
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
+#define ADC			0
+#define PWM			1
+#define APPSMODE 	ADC
+
 /*FIXME Temporary values*/
-#define A0END		44.6f
-#define A0STT		36.9f
+#define A0END		27.6
+#define A0STT		20.7
 #define A0DDZ		5
 
-#define A1END		91.5f	//FIXME: Temporary value
-#define A1STT		83.3f	//FIXME: Temparary value
+#define A1END		23.3
+#define A1STT		15.8
 #define A1DDZ		5
 
-#define A2END		91.5f
-#define A2STT		83.3f
+#define A2END		25.3
+#define A2STT		18.3
 #define A2DDZ		5
 
-#define B0STT		78.2f	//FIXME
-#define B0END		83.7f	//FIXME
+#define B0STT		78.2
+#define B0END		83.7
 #define B0DDZ		5
 
-#define B1STT		42.6f	//FIXME
-#define B1END		47.6f	//FIXME
+#define B1STT		42.6
+#define B1END		47.6
 #define B1DDZ		5
+
+#define V0_CONST_A 		-9.2980636458f
+#define V0_CONST_B		100.7315829998f
 
 #define PBERRORLIMIT	10
 
 
 
-#define	APPS0		HLD_GtmTim.ch[0].data
-#define	APPS1		HLD_GtmTim.ch[1].data
-#define	APPS2		HLD_GtmTim.ch[2].data
+#if APPSMODE == PWM
+	#define	APPS0		HLD_GtmTim.ch[0].data
+	#define	APPS1		HLD_GtmTim.ch[1].data
+	#define	APPS2		HLD_GtmTim.ch[2].data
+#elif APPSMODE ==ADC
+	AdcSensor APPS0;
+	AdcSensor APPS1;
+#endif
+
 #define	BPPS0		HLD_GtmTim.ch[3].data
 #define	BPPS1		HLD_GtmTim.ch[4].data
 
 #define ERRLIM		SDP_PedalBox_errorLimit
+
 
 
 /******************************************************************************/
@@ -94,26 +109,48 @@ void SDP_PedalBox_init(void)
 {
 	SDP_PedalBox_sensorConfig_config config;
 
-	SDP_PedalBox_initSensorConfig(&config);
-	config.start = A0STT;
-	config.end = A0END;
-	config.percentDeadzone = A0DDZ;
-	config.reversed = FALSE;
-	SDP_PedalBox_initSensor(&SDP_PedalBox_pps.apps0, &config);
+	#if APPSMODE == PWM 
+		SDP_PedalBox_initSensorConfig(&config);
+		config.start = A0STT;
+		config.end = A0END;
+		config.percentDeadzone = A0DDZ;
+		config.reversed = TRUE;
+		SDP_PedalBox_initSensor(&SDP_PedalBox_pps.apps0, &config);
 
-	SDP_PedalBox_initSensorConfig(&config);
-	config.start = A1STT;
-	config.end = A1END;
-	config.percentDeadzone = A1DDZ;
-	config.reversed = FALSE;
-	SDP_PedalBox_initSensor(&SDP_PedalBox_pps.apps1, &config);
+		SDP_PedalBox_initSensorConfig(&config);
+		config.start = A1STT;
+		config.end = A1END;
+		config.percentDeadzone = A1DDZ;
+		config.reversed = TRUE;
+		SDP_PedalBox_initSensor(&SDP_PedalBox_pps.apps1, &config);
 
-	SDP_PedalBox_initSensorConfig(&config);
-	config.start = A2STT;
-	config.end = A2END;
-	config.percentDeadzone = A2DDZ;
-	config.reversed = FALSE;
-	SDP_PedalBox_initSensor(&SDP_PedalBox_pps.apps2, &config);
+		SDP_PedalBox_initSensorConfig(&config);
+		config.start = A2STT;
+		config.end = A2END;
+		config.percentDeadzone = A2DDZ;
+		config.reversed = TRUE;
+		SDP_PedalBox_initSensor(&SDP_PedalBox_pps.apps2, &config);
+	#elif APPSMODE == ADC
+		// HLD_Vadc_init();
+
+		AdcSensor_Config config_adc;
+		// HLD_Vadc_initChannelConfig(&config_adc.adcConfig);
+
+		config_adc.adcConfig.lpf.config.cutOffFrequency = 1/(2.0*IFX_PI*0.05
+		);		//FIXME: Adjust time constant
+		config_adc.adcConfig.lpf.config.gain = 1;
+		config_adc.adcConfig.lpf.config.samplingTime = 0.001;
+		config_adc.adcConfig.lpf.activated = TRUE;
+
+		config_adc.adcConfig.channelIn = &HLD_Vadc_P32_3_G4CH7_AD0;
+		config_adc.tfConfig.a = 25.0;
+		config_adc.tfConfig.b = -0.5*25.0;
+
+		config_adc.isOvervoltageProtected = TRUE;
+
+		AdcSensor_initSensor(&APPS0, &config_adc);
+		HLD_AdcForceStart(APPS0.adcChannel.channel.group);
+	#endif
 
 	SDP_PedalBox_initSensorConfig(&config);
 	config.start = B0STT;
@@ -137,6 +174,7 @@ IFX_STATIC void SDP_PedalBox_initSensorConfig(SDP_PedalBox_sensorConfig_config* 
 	config->percentDeadzone = 0;
 	config->reversed = FALSE;
 }
+
 
 IFX_STATIC void SDP_PedalBox_initSensor(SDP_PedalBox_sensor_t* sensor, SDP_PedalBox_sensorConfig_config* config)
 {
@@ -187,10 +225,12 @@ IFX_STATIC void SDP_PedalBox_initSensor(SDP_PedalBox_sensor_t* sensor, SDP_Pedal
 
 }
 
+
 IFX_STATIC float32 SDP_PedalBox_getPedalLinear(SDP_PedalBox_sensor_t *sensor, HLD_GtmTim_dataPulse_t *tim)
 {
 /*FIXME unnecessary local variables -> to data which are initialized once at first.*/
 	float32 value = tim->dutyRatio_percent;
+
 	float32 result;
 
 
@@ -247,6 +287,8 @@ IFX_STATIC float32 SDP_PedalBox_getPedalLinear(SDP_PedalBox_sensor_t *sensor, HL
 }
 
 
+
+
 IFX_STATIC void SDP_PedalBox_updatePPS(SDP_PedalBox_sensor_t *data_out, HLD_GtmTim_dataPulse_t *data_in)
 {
 	data_out->pedalPercent = data_out->config.reversed
@@ -254,6 +296,12 @@ IFX_STATIC void SDP_PedalBox_updatePPS(SDP_PedalBox_sensor_t *data_out, HLD_GtmT
 					:SDP_PedalBox_getPedalLinear(data_out, data_in);
 }
 
+IFX_STATIC void SDP_PedalBox_updatePPS_AN(SDP_PedalBox_sensor_t *data_out, AdcSensor *data_in)
+{
+	AdcSensor_getData(data_in);
+	data_out->pedalPercent = data_out->config.reversed
+			?(float32)100.0 - data_in.value : data_in.value;
+}
 
 IFX_STATIC void SDP_PedalBox_checkErrorState_fromTwo(SDP_PedalBox_sensor_t *data1, SDP_PedalBox_sensor_t *data2)
 {
@@ -374,18 +422,26 @@ IFX_STATIC void SDP_PedalBox_updateAPPS(void)
 	uint8 	okCount = 0;
 	float32 sum = 0;
 
+	#if APPSMODE == PWM
 	SDP_PedalBox_updatePPS(&SDP_PedalBox_pps.apps0, &APPS0);
 	SDP_PedalBox_updatePPS(&SDP_PedalBox_pps.apps1, &APPS1);
 	SDP_PedalBox_updatePPS(&SDP_PedalBox_pps.apps2, &APPS2);
 
 	SDP_PedalBox_checkErrorState_fromThree(&SDP_PedalBox_pps.apps0, &SDP_PedalBox_pps.apps1, &SDP_PedalBox_pps.apps2);
 
+	#elif APPSMODE == ADC
 
-	if(SDP_PedalBox_pps.apps0.isValueOk)
-	{
-		sum += SDP_PedalBox_pps.apps0.pedalPercent;
-		okCount++;
-	}
+	SDP_PedalBox_updatePPS_AN(&SDP_PedalBox_pps.apps0, &APPS0);
+	SDP_PedalBox_updatePPS(&SDP_PedalBox_pps.apps1, &APPS1);
+	#endif
+
+
+
+	// if(SDP_PedalBox_pps.apps0.isValueOk)
+	// {
+	// 	sum += SDP_PedalBox_pps.apps0.pedalPercent;
+	// 	okCount++;
+	// }
 	if(SDP_PedalBox_pps.apps1.isValueOk)
 	{
 		sum += SDP_PedalBox_pps.apps1.pedalPercent;
@@ -413,7 +469,7 @@ IFX_STATIC void SDP_PedalBox_updateAPPS(void)
 
 void SDP_PedalBox_run_1ms(void)
 {
-	SDP_PedalBox_updateBPPS();
+	// SDP_PedalBox_updateBPPS();
 	SDP_PedalBox_updateAPPS();
 }
 
