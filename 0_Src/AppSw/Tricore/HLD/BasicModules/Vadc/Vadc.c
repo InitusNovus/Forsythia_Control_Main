@@ -50,6 +50,11 @@ HLD_Vadc_Channel_In HLD_Vadc_AN21_G1CH9_X103_35 = {HLD_Vadc_GroupId_1, HLD_Vadc_
 
 #elif HLD_BOARD == HLD_BOARD_SB275
 HLD_Vadc_Channel_In HLD_Vadc_P32_3_G4CH7_AD0 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_7};
+HLD_Vadc_Channel_In HLD_Vadc_P32_4_G4CH6_AD1 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_6};
+HLD_Vadc_Channel_In HLD_Vadc_P32_1_G4CH5_AD2 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_5};
+HLD_Vadc_Channel_In HLD_Vadc_P23_2_G4CH4_AD3 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_4};
+HLD_Vadc_Channel_In HLD_Vadc_P10_7_G4CH5_AD4 = {HLD_Vadc_group3, HLD_Vadc_ChannelId_1};
+HLD_Vadc_Channel_In HLD_Vadc_P10_0_G4CH4_AD5 = {HLD_Vadc_group3, HLD_Vadc_ChannelId_0};
 #endif
 
 

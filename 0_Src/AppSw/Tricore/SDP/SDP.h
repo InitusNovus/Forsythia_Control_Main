@@ -32,6 +32,7 @@
 #include "SteeringAngle.h"
 #include "WheelSpeed.h"
 #include "AccumulatorManager_master.h"
+#include "ShockValue.h"
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/

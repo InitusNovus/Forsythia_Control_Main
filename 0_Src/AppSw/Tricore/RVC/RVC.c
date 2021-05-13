@@ -250,7 +250,7 @@ IFX_STATIC void RVC_initAdcSensor(void)
 	adcConfig.linCalConfig.d = LVBAT_LINCAL_D;
 	adcConfig.tfConfig.a = (20.0f+8.2f)/8.2f;
 	adcConfig.tfConfig.b = 0.0f;
-
+	
 	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
 	HLD_AdcForceStart(RVC.LvBattery_Voltage.adcChannel.channel.group);
 

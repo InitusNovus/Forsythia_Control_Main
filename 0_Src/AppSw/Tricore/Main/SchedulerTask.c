@@ -167,6 +167,7 @@ void Task_init (void)
 		SDP_PedalBox_init();
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
+		SDP_ShockValue_init();
 	}
 	/* Hmm... */
 	{
@@ -233,6 +234,8 @@ void Task_IsrCb_1ms (void)
 		SDP_PedalBox_run_1ms();
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
+		SDP_ShockValue_run_1ms();
+		
 	}
 	{
 		RVC_run_1ms();
