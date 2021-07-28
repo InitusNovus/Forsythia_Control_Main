@@ -5,12 +5,12 @@
  *      Author: Dua
  */
 
-
+#ifndef PedalBox_H
+#define PedalBox_H
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
 #include "SDP.h"
-#include "AdcSensor.h"
 #include "PedalBox.h"
 #include "GtmTim.h"
 #include <math.h>
@@ -18,9 +18,6 @@
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
-#define ADC			0
-#define PWM			1
-#define PPSMODE 	ADC
 
 /*FIXME Temporary values*/
 #define A0END		27.6
@@ -49,7 +46,6 @@
 #define PBERRORLIMIT	10
 
 
-
 #if PPSMODE == PWM
 	#define	APPS0		HLD_GtmTim.ch[0].data
 	#define	APPS1		HLD_GtmTim.ch[1].data
@@ -65,6 +61,8 @@
 	AdcSensor BPPS0;
 	AdcSensor BPPS1;
 #endif
+
+
 
 
 
@@ -154,15 +152,14 @@ void SDP_PedalBox_init(void)
 	#elif PPSMODE == ADC
 		AdcSensor_Config config_adc;
 		//APPS0
-		config_adc.adcConfig.lpf.config.cutOffFrequency = 1/(2.0*IFX_PI*0.05
-		);		//FIXME: Adjust time constant
+		config_adc.adcConfig.lpf.config.cutOffFrequency = 10000/(2.0*IFX_PI*0.05);		//FIXME: Adjust time constant
 		config_adc.adcConfig.lpf.config.gain = 1;
 		config_adc.adcConfig.lpf.config.samplingTime = 0.001;
 		config_adc.adcConfig.lpf.activated = TRUE;
 
 		config_adc.adcConfig.channelIn = &HLD_Vadc_P32_3_G4CH7_AD0;
-		config_adc.tfConfig.a = 25.0;
-		config_adc.tfConfig.b = -0.5*25.0;
+		config_adc.tfConfig.a = 19.65;
+		config_adc.tfConfig.b = 2.64;
 
 		config_adc.isOvervoltageProtected = TRUE;
 
@@ -171,13 +168,15 @@ void SDP_PedalBox_init(void)
 
 		//APPS1
 		config_adc.adcConfig.channelIn = &HLD_Vadc_P32_4_G4CH6_AD1;
+		config_adc.tfConfig.a = 19.65;
+		config_adc.tfConfig.b = 2.64;
 		AdcSensor_initSensor(&APPS1, &config_adc);
 		HLD_AdcForceStart(APPS1.adcChannel.channel.group);
 		
 		//BPPS0
 		config_adc.adcConfig.lpf.activated = TRUE;
 		config_adc.adcConfig.lpf.config.gain = 1;
-		config_adc.adcConfig.lpf.config.cutOffFrequency = 1/(2*IFX_PI*(1e-2f));
+		config_adc.adcConfig.lpf.config.cutOffFrequency = 10000/(2*IFX_PI*(1e-2f));
 		config_adc.adcConfig.lpf.config.samplingTime = 10.0e-3;
 		config_adc.isOvervoltageProtected = FALSE;
 		config_adc.linCalConfig.isAct = FALSE;
@@ -510,8 +509,9 @@ IFX_STATIC void SDP_PedalBox_updateAPPS(void)
 
 void SDP_PedalBox_run_1ms(void)
 {
-	SDP_PedalBox_updateBPPS();
+	// SDP_PedalBox_updateBPPS();
 	SDP_PedalBox_updateAPPS();
 }
 
 
+#endif

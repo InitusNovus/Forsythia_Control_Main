@@ -97,10 +97,10 @@ void SteeringWheel_run_xms_c2(void)
 	SteeringWheel.canMsg2.S.lvBatteryVoltage = (uint16)(SteeringWheel_public.data.lvBatteryVoltage*100);
 	SteeringWheel.canMsg2.S.accumulatorVoltage = OrionBms2.msg1.packVoltage;
 
-	SteeringWheel.canMsg3.S.inverter1Temp = kelly8080ips1.msg2.conTemp;
-	SteeringWheel.canMsg3.S.motor1Temp = kelly8080ips1.msg2.motTemp;
-	SteeringWheel.canMsg3.S.inverter2Temp = kelly8080ips2.msg2.conTemp;
-	SteeringWheel.canMsg3.S.motor2Temp = kelly8080ips2.msg2.motTemp;
+	// SteeringWheel.canMsg3.S.inverter1Temp = kelly8080ips1.msg2.conTemp;
+	// SteeringWheel.canMsg3.S.motor1Temp = kelly8080ips1.msg2.motTemp;
+	// SteeringWheel.canMsg3.S.inverter2Temp = kelly8080ips2.msg2.conTemp;
+	// SteeringWheel.canMsg3.S.motor2Temp = kelly8080ips2.msg2.motTemp;
 
 	/* Set the messages */
 	CanCommunication_setMessageData(SteeringWheel.canMsg1.U[0], SteeringWheel.canMsg1.U[1], &SteeringWheel.msgObj1);

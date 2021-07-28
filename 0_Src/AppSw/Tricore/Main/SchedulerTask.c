@@ -17,7 +17,7 @@
 #include "CanCommunication.h"
 #include "AccumulatorManager_master.h"
 #include "RVC.h"
-#include "kelly8080ips_can.h"
+#include "AmkInverter_can.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
 
@@ -136,7 +136,7 @@ IFX_STATIC void Task_startButtonRoutine(void)
 /******************************************************************************/
 /*------------------------Private Variables/Constants-------------------------*/
 /******************************************************************************/
-
+int Throttle = 0;
 /******************************************************************************/
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
@@ -172,7 +172,7 @@ void Task_init (void)
 	/* Hmm... */
 	{
 		// AccumulatorManager_master_init();
-		kelly8080ips_can_init();
+		AmkInverter_can_init();
 		OrionBms2_init();
 		RVC_init();
 		SteeringWheel_init();
@@ -234,8 +234,8 @@ void Task_IsrCb_1ms (void)
 		SDP_PedalBox_run_1ms();
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
-		SDP_ShockValue_run_1ms();
-		
+		// SDP_ShockValue_run_1ms();
+
 	}
 	{
 		RVC_run_1ms();

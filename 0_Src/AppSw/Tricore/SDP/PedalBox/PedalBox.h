@@ -13,11 +13,14 @@
 /******************************************************************************/
 #include "GtmTim.h"
 #include "SDP.h"
-
+#include "AdcSensor.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
 
+#define ADC			0
+#define PWM			1
+#define PPSMODE 	ADC
 
 
 /*
@@ -98,6 +101,11 @@ typedef struct
 /******************************************************************************/
 IFX_EXTERN SDP_PedalBox_t 		SDP_PedalBox;
 IFX_EXTERN SDP_PedalBox_pps_t	SDP_PedalBox_pps;
+// IFX_EXTERN AdcSensor APPS0;
+// IFX_EXTERN AdcSensor APPS1;
+
+// IFX_EXTERN	AdcSensor BPPS0;
+// IFX_EXTERN	AdcSensor BPPS1;
 
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/

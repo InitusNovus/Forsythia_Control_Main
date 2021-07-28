@@ -10,9 +10,11 @@
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
 #include "SchedulerTask_Cpu2.h"
-#include "kelly8080ips_can.h"
+#include "AmkInverter_can.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
+#include "AdcSensor.h"
+#include "PedalBox.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
@@ -38,6 +40,8 @@ uint64 stm_buf_c2 = 0;
 uint64 stm_buf_c2_delay = 0;
 uint64 ticToc_1ms_c2 = 0;
 uint64 delay_1ms_c2 = 0;
+
+extern AdcSensor APPS0;
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
@@ -59,7 +63,10 @@ void Task_core2_1ms(void)
 	stm_buf_c2 = IfxStm_get(&MODULE_STM0);
 
 	// AccumulatorManager_master_run_1ms_c2();
-	kelly8080ips_can_run_1ms_c2();
+	// kelly8080ips_can_run_1ms_c2();
+	AmkInverter_can_Run();
+	writeMessage((int)APPS0.value,(int)APPS0.value);
+	writeMessage2((int)APPS0.value,(int)APPS0.value);
 	OrionBms2_run_1ms_c2();
 	SteeringWheel_run_xms_c2();
 

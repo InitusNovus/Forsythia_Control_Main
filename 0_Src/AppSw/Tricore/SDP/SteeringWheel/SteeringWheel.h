@@ -9,7 +9,7 @@
 #include "HLD.h"
 #include "CanCommunication.h"
 #include "RVC.h"
-#include "kelly8080ips_can.h"
+#include "AmkInverter_can.h"
 #include "OrionBms2.h"
 
 #include "SteeringWheel_canMessage.h"
