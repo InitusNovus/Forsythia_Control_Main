@@ -23,11 +23,7 @@ CanCommunication_Message R_Inverter1_2;
 CanCommunication_Message R_Inverter2_2;
 CanCommunication_Message R_Inverter3_2;
 CanCommunication_Message R_Inverter4_2;
-CanCommunication_Message T_TC237_1;
-CanCommunication_Message T_TC237_2;
-CanCommunication_Message T_TC237_3;
-CanCommunication_Message T_TC237_4;
-CanCommunication_Message STM32A;
+
 
 amkActualValues1 INV1_AMK_Actual_Values1;
 amkActualValues1 INV2_AMK_Actual_Values1;
@@ -48,10 +44,10 @@ void AmkInverter_can_init(void);
 void AmkInverter_can_Run(void);
 void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
 
-void setPointInit(amkSetpoint1 *setpoint);
+static void setPointInit(amkSetpoint1 *setpoint);
 
-void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node);
-void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node);
+static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node);
+static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node);
 void writeMessage(uint16 Value1, uint16 Value2);
 void writeMessage2(uint16 Value1, uint16 Value2);
 
@@ -237,7 +233,7 @@ void writeMessage2(uint16 Value1, uint16 Value2)
 
 }
 
-void setPointInit(amkSetpoint1 *setpoint){
+static void setPointInit(amkSetpoint1 *setpoint){
     setpoint->S.AMK_bInverterOn = FALSE;
     setpoint->S.AMK_bDcOn = FALSE;
     setpoint->S.AMK_bEnable = FALSE;
@@ -246,7 +242,7 @@ void setPointInit(amkSetpoint1 *setpoint){
     setpoint->S.AMK_TorqueLimitNegativ = 0;
 }
 
-void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node){
+static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node){
 
     CanCommunication_Message_Config config_Message_Recive;
     config_Message_Recive.messageId        =   ID;
@@ -266,7 +262,7 @@ void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node){
 
 }
 
-void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node){
+static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node){
 
     CanCommunication_Message_Config config_Message_Transmit;
     config_Message_Transmit.messageId        =   ID;
