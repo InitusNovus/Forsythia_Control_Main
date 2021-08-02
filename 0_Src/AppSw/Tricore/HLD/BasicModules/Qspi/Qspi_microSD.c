@@ -1,15 +1,15 @@
 /*
- * Qspi_Mpu9250.c
+ * Qspi_microSD.c
  *
- *  Created on: 2019. 6. 24.
- *      Author: bigbi_000
+ *  Created on: 2020. 3. 30.
+ *      Author: Hohyon_Choi
  */
 
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
-#include "Qspi_Mpu9250.h"
+#include "Qspi_microSD.h"
 #include "Bsp.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -28,6 +28,7 @@
 /******************************************************************************/
 /*------------------------------Global variables------------------------------*/
 /******************************************************************************/
+
 IFX_EXTERN Qspi_t g_Qspi;
 
 /******************************************************************************/
@@ -44,33 +45,63 @@ IFX_EXTERN Qspi_t g_Qspi;
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
 
-void HLD_Qspi_Mpu9250_writeReg(uint8 address, uint8 value)
+void HLD_microSD_slaveSelect(void)
 {
-	uint8 tx[2]={address,value};
-	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
-	// send/receive new stream
-	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, tx, NULL_PTR, 2);
+#ifdef SCOPETEST_
+	IfxPort_setPinLow(QSPI2_SLSO0.pin.port, QSPI2_SLSO0.pin.pinIndex);
+#else
+	IfxPort_setPinLow(QSPI2_SLSO9.pin.port, QSPI2_SLSO9.pin.pinIndex);
+#endif
+
+	//
+
 }
 
-uint8 HLD_Qspi_Mpu9250_readReg(uint8 address)
+void HLD_microSD_slaveDeselect(void)
 {
-	uint8 tx[2]={(0b10000000|address),0x00};
 
-	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, tx, g_Qspi.rx, 2);
+#ifdef SCOPETEST_
+	IfxPort_setPinHigh(QSPI2_SLSO0.pin.port, QSPI2_SLSO0.pin.pinIndex);
+#else
+	IfxPort_setPinHigh(QSPI2_SLSO9.pin.port, QSPI2_SLSO9.pin.pinIndex);
+#endif
+	//
 
-	waitTime(TimeConst_10us*2);
-//	while(IfxQspi_getReceiveFifoLevel(g_Qspi.drivers.spiMaster.qspi)<2);
-	//	return g_Qspi.rx[0];
-	return g_Qspi.rx[1];
 }
 
-sint16 HLD_Qspi_Mpu9250_getSint16(uint8 addressLow,uint8 addressHigh)
+void HLD_microSD_TxByte(uint8 data)
 {
-	uint8 lowbyte;
-	uint8 highbyte;
-	lowbyte=HLD_Qspi_readReg(addressLow);
-	highbyte=HLD_Qspi_readReg(addressHigh);
-	return (sint16)((uint16)(highbyte<<8)|lowbyte);
+	//uint8 dummy;
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers1.spiMasterChannel) == SpiIf_Status_busy );
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers1.spiMasterChannel, &data, NULL_PTR, 1);
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers1.spiMasterChannel) == SpiIf_Status_busy );
+	//waitTime(TimeConst_10us*3);
+
 }
 
+void HLD_microSD_TxBuffer(uint8 *buffer, uint16 len)
+{
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers1.spiMasterChannel) == SpiIf_Status_busy );
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers1.spiMasterChannel, buffer, NULL_PTR, len);
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers1.spiMasterChannel) == SpiIf_Status_busy );
+}
 
+uint8 HLD_microSD_RxByte(void)
+{
+	uint8 data, dummy = 0xFF;
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers1.spiMasterChannel) == SpiIf_Status_busy );
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers1.spiMasterChannel, &dummy, &data, 1);
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers1.spiMasterChannel) == SpiIf_Status_busy );
+	//waitTime(TimeConst_10us*3);
+	//rxbyte = data;
+	return data;
+}
+
+void HLD_microSD_RxBytePtr(uint8 *buff)
+{
+	*buff = HLD_microSD_RxByte();
+}
+
+void HLD_microSD_setBaudRate_fastmode(){
+	IfxQspi_SpiMaster_setChannelBaudrate(&g_Qspi.drivers1.spiMasterChannel, 20000000);
+}

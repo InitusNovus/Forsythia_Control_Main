@@ -4,8 +4,6 @@
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
-const uint32 STM32ID = 0x32F103A;
-const uint32 STM32ID2 = 0x32F103B;
 const uint32 TC237 = 0x237;
 
 ID_set Inverter1;
@@ -13,7 +11,11 @@ ID_set Inverter2;
 ID_set Inverter3;
 ID_set Inverter4;
 
-Stm32_canMsg2_t canMsg2;
+
+CanCommunication_Message T_TC237_1;
+CanCommunication_Message T_TC237_2;
+CanCommunication_Message T_TC237_3;
+CanCommunication_Message T_TC237_4;
 
 CanCommunication_Message R_Inverter1_1;
 CanCommunication_Message R_Inverter2_1;
@@ -88,7 +90,7 @@ struct Monitor{
 };
 struct Monitor Monitor;//
 struct setSwitch SWITCH = {0,0,0,0,0,0};
-void SET_ID(ID_set *IN, int node)
+static void SET_ID(ID_set *IN, int node)
 {
 	IN->ID_AMK_Ac1 = 0x282 + node;
 	IN->ID_AMK_Ac2 = 0x284 + node;

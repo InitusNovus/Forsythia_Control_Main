@@ -1,47 +1,30 @@
 /*
- * Qspi.h
+ * MicroSD_Demo.h
  *
- *  Created on: 2018. 5. 27.
- *      Author: bigbi_000
+ *  Created on: 2020. 4. 14.
+ *      Author: Hohyon_Choi
  */
 
-#ifndef QSPI_H_
-#define QSPI_H_
+#ifndef _MICROSD_DEMO_H_
+#define _MICROSD_DEMO_H_
+
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
-#include <Ifx_Types.h>
-#include "Configuration.h"
-#include "ConfigurationIsr.h"
-#include "Qspi/SpiMaster/IfxQspi_SpiMaster.h"
+#include "HLD.h"
+#include "microSD.h"
+#include "ff.h"
+#include "diskio.h"
 
-#include "Qspi_Mpu9250.h"
-#include "Qspi_microSD.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
-#define QSPI_DEFAULT_NONE		0
-#define QSPI_DEFAULT_MPU9250 	1
 
-#define QSPI_DEFAULT QSPI_DEFAULT_MPU9250
 /******************************************************************************/
 /*------------------------------Type Definitions------------------------------*/
 /******************************************************************************/
 
-
-typedef struct{
-	struct{
-        IfxQspi_SpiMaster         spiMaster;        /**< \brief Spi Master handle */
-        IfxQspi_SpiMaster_Channel spiMasterChannel;
-	}drivers1;
-
-	struct{
-        IfxQspi_SpiMaster         spiMaster;        /**< \brief Spi Master handle */
-        IfxQspi_SpiMaster_Channel spiMasterChannel;
-	}drivers2;
-	uint8 rx[2];
-}Qspi_t;
 /******************************************************************************/
 /*--------------------------------Enumerations--------------------------------*/
 /******************************************************************************/
@@ -53,25 +36,31 @@ typedef struct{
 /******************************************************************************/
 /*------------------------------Global variables------------------------------*/
 /******************************************************************************/
+typedef union {
+    struct{
+        uint32_t reserve : 4;
+        uint32_t ms : 10;
+        uint32_t sec : 8;
+        uint32_t min : 10;
+    }__attribute__((aligned(1),packed)) time;
+    uint32_t dataTime;
+}recordTime_t;
 
+extern recordTime_t recordTime;
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
-/*
- * QSPI initialization function
- * */
-IFX_EXTERN void HLD_Qspi_init(void);
 
 /*
- * Compatibility layer.
- * QSPI Default functions.
- * Conditionally compiled according to QSPI_DEFAULT macro.
+ * MicroSD demo functions
+ * more descriptions are in the functions
  */
-IFX_EXTERN void HLD_Qspi_writeReg(uint8 address, uint8 value);
-IFX_EXTERN uint8 HLD_Qspi_readReg(uint8 address);
-IFX_EXTERN sint16 HLD_Qspi_getSint16(uint8 addressLow,uint8 addressHigh);
 
 
+IFX_EXTERN void MicroSD_Demo_initSD();
+IFX_EXTERN void MicroSD_Demo_run();
+IFX_EXTERN void MicroSD_Demo_stop();
+IFX_EXTERN void MicroSD_Demo_addData(uint32_t ID, uint32_t data[2]);
 
 
 /******************************************************************************/
@@ -80,4 +69,4 @@ IFX_EXTERN sint16 HLD_Qspi_getSint16(uint8 addressLow,uint8 addressHigh);
 
 
 
-#endif /* QSPI_H_ */
+#endif /* 0_SRC_APPSW_TRICORE_DEMO_MICROSD_MICROSD_DEMO_H_ */
