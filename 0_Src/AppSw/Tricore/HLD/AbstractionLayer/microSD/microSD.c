@@ -103,14 +103,14 @@ static void HLD_microSD_PowerOn(void)
 
 
 	/* transmit bytes to wake up */
-	HLD_microSD_slaveDeselect();
+	// HLD_microSD_slaveDeselect();
 	for(ctest = 0; ctest < 10; ctest++)
 	{
 		HLD_microSD_TxByte(0xFF);
 	}
 
 	/* slave select */
-	HLD_microSD_slaveSelect();
+	// HLD_microSD_slaveSelect();
 
 	/* make idle state */
 	args[0] = CMD0;		/* CMD0:GO_IDLE_STATE */
@@ -137,7 +137,7 @@ static void HLD_microSD_PowerOn(void)
 
 	cnt11 = cnt;
 
-	HLD_microSD_slaveDeselect();
+	// HLD_microSD_slaveDeselect();
 	HLD_microSD_TxByte(0XFF);
 
 	g_microSD.powerFlag = 1;

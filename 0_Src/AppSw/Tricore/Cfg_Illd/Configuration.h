@@ -58,11 +58,11 @@
 #define QSPI2_SCLK					IfxQspi2_SCLK_P15_6_OUT
 #define QSPI2_MTSR					IfxQspi2_MTSR_P15_5_OUT
 #define QSPI2_MRST					IfxQspi2_MRSTA_P15_4_IN
-#define QSPI2_SLSO9					IfxQspi2_SLSO5_P15_1_OUT
-#define QSPI2_SLSO10_DUMMY          IfxQspi2_SLSO9_P20_3_OUT
+#define QSPI2_SLSO5					IfxQspi2_SLSO5_P15_1_OUT
+#define QSPI2_SLSO10_DUMMY          IfxQspi2_SLSO12_P32_6_OUT
 
 /*GtmTom macros*/
-#define BEEPER                      IfxGtm_TOM0_3_TOUT80_P14_0_OUT//IfxGtm_TOM0_4_TOUT22_P33_0_OUT
+#define BEEPER                      IfxGtm_TOM0_4_TOUT22_P33_0_OUT //IfxGtm_TOM0_3_TOUT80_P14_0_OUT
 #define PWMACCR						IfxGtm_TOM0_15_TOUT17_P00_8_OUT
 #define PWMACCL						IfxGtm_TOM0_9_TOUT10_P00_1_OUT
 #define PWMDCCR						IfxGtm_TOM1_0_TOUT18_P00_9_OUT

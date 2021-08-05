@@ -67,7 +67,7 @@ int core0_main(void)
     Stm_init();
     HLD_SharedPinFix();
     Task_init();
-
+    
     printf("Initialization done\n");
     /* background endless loop */
     printf("Background loop started\n");

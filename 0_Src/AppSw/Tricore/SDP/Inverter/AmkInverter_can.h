@@ -53,12 +53,12 @@ typedef union
 typedef union
 {
 	uint32 RecievedData[2];
-	    struct{
-			int AMK_TempMotor : 16;
-	        int AMK_TempInverter : 16;
-	        unsigned int AMK_ErrorInfo : 16;
-	        int AMK_TempIGBT : 16;
-	    }S;
+	struct{
+		int AMK_TempMotor : 16;
+		int AMK_TempInverter : 16;
+		unsigned int AMK_ErrorInfo : 16;
+		int AMK_TempIGBT : 16;
+	}S;
 }amkActualValues2;
 
 typedef union

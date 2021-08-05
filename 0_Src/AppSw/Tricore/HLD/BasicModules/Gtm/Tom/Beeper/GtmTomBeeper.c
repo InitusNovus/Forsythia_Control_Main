@@ -86,7 +86,7 @@ note_t Beep_pattern7[] = {TD5L,TB5L,TG6L,ENDING};
 note_t Beep_pattern8[] = {SA6L,ENDING};
 note_t Beep_pattern9[] = {SAS5L,ENDING};
 note_t Beep_pattern10[] = {SF5L,ENDING};
-
+note_t NewStartSound[] = {SG5L,SRES,SG5L,SRES,SG5L,SRES,SG5L,SC5L,SE5L,SA5L,SC6L,ENDING};
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/

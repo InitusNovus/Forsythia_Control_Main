@@ -15,7 +15,7 @@
 
 #include "HLD.h"
 
-#define DMA_
+// #define DMA_
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
@@ -55,28 +55,28 @@ IFX_INTERRUPT(ISR_qspi2_Er, 0, ISR_PRIORITY_QSPI2_ER);
 IFX_INTERRUPT(ISR_dma_ch3, 0, ISR_PRIORITY_DMA_CH3);
 IFX_INTERRUPT(ISR_dma_ch4, 0, ISR_PRIORITY_DMA_CH4);
 
-void ISR_qspi1_Er(void)
-{
-	IfxCpu_enableInterrupts();
-	IfxQspi_SpiMaster_isrError(&g_Qspi.drivers1.spiMaster);
-	// HLD_GtmTomBeeper_start(Beep_pattern3);
-}
+// void ISR_qspi1_Er(void)
+// {
+// 	IfxCpu_enableInterrupts();
+// 	IfxQspi_SpiMaster_isrError(&g_Qspi.drivers2.spiMaster);
+// 	// HLD_GtmTomBeeper_start(Beep_pattern3);
+// }
 
-void ISR_dma_ch1(void)
-{
-	IfxCpu_enableInterrupts();
-	IfxQspi_SpiMaster_isrDmaTransmit(&g_Qspi.drivers1.spiMaster);
-	//	HLD_GtmTomBeeper_start(Beep_pattern1);
-	// QspiTest1 ++;
-}
+// void ISR_dma_ch1(void)
+// {
+// 	IfxCpu_enableInterrupts();
+// 	IfxQspi_SpiMaster_isrDmaTransmit(&g_Qspi.drivers2.spiMaster);
+// 	//	HLD_GtmTomBeeper_start(Beep_pattern1);
+// 	// QspiTest1 ++;
+// }
 
-void ISR_dma_ch2(void)
-{
-	IfxCpu_enableInterrupts();
-	IfxQspi_SpiMaster_isrDmaReceive(&g_Qspi.drivers1.spiMaster);
-	//	HLD_GtmTomBeeper_start(Beep_pattern2);
-	// QspiTest2 ++;
-}
+// void ISR_dma_ch2(void)
+// {
+// 	IfxCpu_enableInterrupts();
+// 	IfxQspi_SpiMaster_isrDmaReceive(&g_Qspi.drivers2.spiMaster);
+// 	//	HLD_GtmTomBeeper_start(Beep_pattern2);
+// 	// QspiTest2 ++;
+// }
 void ISR_qspi2_Er(void)
 {
 	IfxCpu_enableInterrupts();
@@ -100,24 +100,24 @@ void ISR_dma_ch4(void)
 	// QspiTest2 ++;
 }
 #else
-IFX_INTERRUPT(ISR_qspi1_Tx, 0, ISR_PRIORITY_QSPI1_TX);
-IFX_INTERRUPT(ISR_qspi1_Rx, 0, ISR_PRIORITY_QSPI1_RX);
-IFX_INTERRUPT(ISR_qspi1_Er, 0, ISR_PRIORITY_QSPI1_ER);
-void ISR_qspi1_Tx(void)
-{
-	IfxCpu_enableInterrupts();
-	IfxQspi_SpiMaster_isrTransmit(&g_Qspi.drivers1.spiMaster);
-}
-void ISR_qspi1_Rx(void)
-{
-	IfxCpu_enableInterrupts();
-	IfxQspi_SpiMaster_isrReceive(&g_Qspi.drivers1.spiMaster);
-}
-void ISR_qspi1_Er(void)
-{
-	IfxCpu_enableInterrupts();
-	IfxQspi_SpiMaster_isrError(&g_Qspi.drivers1.spiMaster);
-}
+// IFX_INTERRUPT(ISR_qspi1_Tx, 0, ISR_PRIORITY_QSPI1_TX);
+// IFX_INTERRUPT(ISR_qspi1_Rx, 0, ISR_PRIORITY_QSPI1_RX);
+// IFX_INTERRUPT(ISR_qspi1_Er, 0, ISR_PRIORITY_QSPI1_ER);
+// void ISR_qspi1_Tx(void)
+// {
+// 	IfxCpu_enableInterrupts();
+// 	IfxQspi_SpiMaster_isrTransmit(&g_Qspi.drivers2.spiMaster);
+// }
+// void ISR_qspi1_Rx(void)
+// {
+// 	IfxCpu_enableInterrupts();
+// 	IfxQspi_SpiMaster_isrReceive(&g_Qspi.drivers2.spiMaster);
+// }
+// void ISR_qspi1_Er(void)
+// {
+// 	IfxCpu_enableInterrupts();
+// 	IfxQspi_SpiMaster_isrError(&g_Qspi.drivers2.spiMaster);
+// }
 
 IFX_INTERRUPT(ISR_qspi2_Tx, 0, ISR_PRIORITY_QSPI2_TX);
 IFX_INTERRUPT(ISR_qspi2_Rx, 0, ISR_PRIORITY_QSPI2_RX);
@@ -187,7 +187,7 @@ static void HLD_Qspi2Module_init(void)
 				//				&QSPI2_MRST,  IfxPort_InputMode_pullDown,  /* MRST */
 				&QSPI2_MRST,  IfxPort_InputMode_pullUp,  /* MRST */
 				//				&QSPI2_MRST,  IfxPort_InputMode_noPullDevice,  /* MRST */
-				IfxPort_PadDriver_cmosAutomotiveSpeed3                   /* pad driver mode */
+				IfxPort_PadDriver_ttlSpeed3                   /* pad driver mode */
 		};
 		spiMasterConfig.pins = &pins;
 
@@ -212,12 +212,13 @@ static void HLD_Qspi2Module_init(void)
 		spiMasterChannelConfig.base.baudrate = 300000;
 		//		spiMasterChannelConfig.base.baudrate = 500000;
 		spiMasterChannelConfig.channelBasedCs  = IfxQspi_SpiMaster_ChannelBasedCs_disabled;
+		// spiMasterChannelConfig.channelBasedCs  = IfxQspi_SpiMaster_ChannelBasedCs_disabled;
 		// spiMasterChannelConfig.base.mode.shiftClock = SpiIf_ShiftClock_shiftTransmitDataOnLeadingEdge;
 		spiMasterChannelConfig.base.mode.shiftClock = SpiIf_ShiftClock_shiftTransmitDataOnTrailingEdge;
 		// spiMasterChannelConfig.base.mode.clockPolarity = SpiIf_ClockPolarity_idleHigh;
 		spiMasterChannelConfig.base.mode.clockPolarity = SpiIf_ClockPolarity_idleLow;
 
-		const IfxQspi_SpiMaster_Output slsOutput = {&QSPI2_SLSO10_DUMMY,
+		const IfxQspi_SpiMaster_Output slsOutput = {&QSPI2_SLSO5,
 				IfxPort_OutputMode_pushPull,
 				IfxPort_PadDriver_cmosAutomotiveSpeed1};
 		//				IfxPort_PadDriver_cmosAutomotiveSpeed3};
@@ -231,7 +232,7 @@ static void HLD_Qspi2Module_init(void)
 				&spiMasterChannelConfig);
 	}
 	printf("QspiModule initialized\n");
-	IfxPort_setPinMode(QSPI2_SLSO9.pin.port, QSPI2_SLSO9.pin.pinIndex, IfxPort_OutputMode_pushPull);
+	// IfxPort_setPinMode(QSPI2_SLSO5.pin.port, QSPI2_SLSO5.pin.pinIndex, IfxPort_OutputMode_pushPull);
 }
 
 
@@ -248,6 +249,9 @@ void HLD_Qspi_init(void)
 	printf("Qspi initialized\n");
 	/* enable interrupts again */
 	IfxCpu_restoreInterrupts(interruptState);
+	uint8 data = 0xFF;
+	uint8 dest = 0x55;
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, &data, &dest, 1);
 }
 
 

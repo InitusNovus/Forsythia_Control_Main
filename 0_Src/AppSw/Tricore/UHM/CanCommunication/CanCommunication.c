@@ -86,7 +86,7 @@ void CanCommunication_initMessage(CanCommunication_Message* ccMsg, CanCommunicat
 	canMsgObjConfig.acceptanceMask	= 0x7FFFFFFFUL;
 	canMsgObjConfig.frame			=config->frameType;
 	canMsgObjConfig.control.messageLen		= config->dataLen;
-	canMsgObjConfig.control.extendedFrame	= FALSE;
+	canMsgObjConfig.control.extendedFrame	= TRUE;
 	canMsgObjConfig.control.messageLen		= TRUE;
 	IfxMultican_Can_MsgObj_init(obj, &canMsgObjConfig);
 
