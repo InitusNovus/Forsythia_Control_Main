@@ -46,7 +46,7 @@
 #define HLD_FOURTH_CANNODE	FALSE
 
 /*GPIO macros*/		//FIXME: Specify Port Init source file
-#define START_BTN					IfxPort_P11_9
+// #define START_BTN					IfxPort_P11_9
 #define R2DOUT 						IfxPort_P21_0
 #define FWD_OUT						IfxPort_P21_3
 #define AIR_P_IN					IfxPort_P00_6
@@ -149,7 +149,7 @@
 
 
 /*UserInterface macros*/
-//#define START_BTN					IfxPort_P00_1
+#define START_BTN					IfxPort_P00_1
 #define UI_BTN1						IfxPort_P00_9
 #define UI_BTN2						IfxPort_P00_2
 #define UI_BTN3						IfxPort_P00_3
@@ -171,6 +171,16 @@
 #define UI_LED1						IfxPort_P33_2
 #define UI_LED2						IfxPort_P00_6
 #define UI_LED3						IfxPort_P33_1
+
+#define TEMP1_LED                   IfxPort_P33_2
+#define TEMP2_LED                   IfxPort_P00_7
+#define RTD_LED                     IfxPort_P00_6
+#define SDC_LED                     IfxPort_P00_5
+#define ECU_LED                     IfxPort_P00_11
+#define BSPD_LED                    IfxPort_P00_4
+#define IMD_LED                     IfxPort_P00_10
+#define AMS_LED                     IfxPort_P00_3
+
 
 
 

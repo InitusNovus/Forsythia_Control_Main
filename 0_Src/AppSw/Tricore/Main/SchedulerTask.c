@@ -177,7 +177,7 @@ void Task_init (void)
 		RVC_init();
 		SteeringWheel_init();
 
-		//MicroSD_Demo_initSD();
+		// MicroSD_Demo_initSD();
 
 	}
 	{
@@ -241,7 +241,11 @@ void Task_IsrCb_1ms (void)
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
 		// SDP_ShockValue_run_1ms();
-
+		SDP_DashBoardLed_init();
+		SDP_TEMP1_LED_ON();
+		SDP_TEMP2_LED_ON();
+		SDP_SDC_LED_ON();
+		SDP_BSPD_LED_ON();
 	}
 	{
 		// RVC_run_1ms();

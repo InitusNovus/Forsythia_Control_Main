@@ -1,5 +1,5 @@
 #include "AmkInverter_can.h"
-#include "HLD.h"
+
 
 
 const float Inverter_peak_current = 107.2;
@@ -11,6 +11,11 @@ ID_set Inverter2;
 ID_set Inverter3;
 ID_set Inverter4;
 
+
+CanCommunication_Message T_TC237_1;
+CanCommunication_Message T_TC237_2;
+CanCommunication_Message T_TC237_3;
+CanCommunication_Message T_TC237_4;
 
 CanCommunication_Message T_TC237_1;
 CanCommunication_Message T_TC237_2;

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "Multican.h"
 #include "CanCommunication.h"
-
+#include "HLD.h"
 
 typedef struct
 {
