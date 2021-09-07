@@ -22,9 +22,6 @@ void AdcSensor_initSensor(AdcSensor* sensor, AdcSensor_Config* config)
     sensor->tf.a = config->tfConfig.a;
     sensor->tf.b = config->tfConfig.b;
 
-    if(config->isOvervoltageProtected)
-        sensor->isOvervoltageProtected = config->isOvervoltageProtected;
-
     sensor->linCal.a = 1;
     sensor->linCal.b = 0;
     sensor->linCal.d = 0;
@@ -36,7 +33,15 @@ void AdcSensor_initSensor(AdcSensor* sensor, AdcSensor_Config* config)
         sensor->linCal.isAct = config->linCalConfig.isAct;
     }
 
-    sensor->status = AdcSensor_Status_ok;
+    sensor->OvervoltageLimit.limHi = ADCSENSOR_OVP_HI;
+	sensor->OvervoltageLimit.limLo = ADCSENSOR_OVP_LO;
+	if(config->isOvervoltageProtected)
+	{
+        sensor->OvervoltageLimit.limHi = config->OvervoltageLimit.limHi;
+        sensor->OvervoltageLimit.limLo = config->OvervoltageLimit.limLo;
+		sensor->isOvervoltageProtected = config->isOvervoltageProtected;
+	}
+	sensor->status = AdcSensor_Status_ok;
 }
 
 
@@ -69,9 +74,9 @@ float32 AdcSensor_getData(AdcSensor* sensor)
 
     if(sensor->isOvervoltageProtected)
     {
-        if(voltage > ADCSENSOR_OVP_HI)
+        if(voltage > sensor->OvervoltageLimit.limHi)
             sensor->status |= AdcSensor_Status_errorTooHigh;
-        else if(voltage < ADCSENSOR_OVP_LO)
+        else if(voltage < sensor->OvervoltageLimit.limLo)
             sensor->status |= AdcSensor_Status_errorTooLow;
         else
             sensor->status = AdcSensor_Status_ok;
