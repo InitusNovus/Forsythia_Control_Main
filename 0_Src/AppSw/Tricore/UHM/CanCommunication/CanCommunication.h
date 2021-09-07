@@ -38,6 +38,7 @@ typedef struct
 	uint32 messageId;
 	IfxMultican_Frame frameType;
 	IfxMultican_DataLengthCode dataLen;
+	boolean isStandardId;
 }CanCommunication_Message_Config;
 
 
