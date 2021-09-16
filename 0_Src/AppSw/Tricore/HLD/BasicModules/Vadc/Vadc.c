@@ -53,8 +53,19 @@ HLD_Vadc_Channel_In HLD_Vadc_P32_3_G4CH7_AD0 = {HLD_Vadc_group4, HLD_Vadc_Channe
 HLD_Vadc_Channel_In HLD_Vadc_P32_4_G4CH6_AD1 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_6};
 HLD_Vadc_Channel_In HLD_Vadc_P32_1_G4CH5_AD2 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_5};
 HLD_Vadc_Channel_In HLD_Vadc_P23_2_G4CH4_AD3 = {HLD_Vadc_group4, HLD_Vadc_ChannelId_4};
-HLD_Vadc_Channel_In HLD_Vadc_P10_7_G4CH5_AD4 = {HLD_Vadc_group3, HLD_Vadc_ChannelId_1};
-HLD_Vadc_Channel_In HLD_Vadc_P10_0_G4CH4_AD5 = {HLD_Vadc_group3, HLD_Vadc_ChannelId_0};
+HLD_Vadc_Channel_In HLD_Vadc_P10_0_G3CH1_AD4 = {HLD_Vadc_group3, HLD_Vadc_ChannelId_1};
+HLD_Vadc_Channel_In HLD_Vadc_P10_7_G3CH0_AD5 = {HLD_Vadc_group3, HLD_Vadc_ChannelId_0};
+HLD_Vadc_Channel_In HLD_Vadc_P23_3_G2CH5_AD6 = {HLD_Vadc_group2, HLD_Vadc_ChannelId_5};
+HLD_Vadc_Channel_In HLD_Vadc_P20_6_G2CH4_AD7 = {HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
+HLD_Vadc_Channel_In HLD_Vadc_P33_6_G0CH3_AD8 = {HLD_Vadc_group0, HLD_Vadc_ChannelId_3};
+HLD_Vadc_Channel_In HLD_Vadc_P22_2_G0CH2_AD9 = {HLD_Vadc_group0, HLD_Vadc_ChannelId_2};
+HLD_Vadc_Channel_In HLD_Vadc_P23_5_G0CH1_AD10 = {HLD_Vadc_group0, HLD_Vadc_ChannelId_1};
+HLD_Vadc_Channel_In HLD_Vadc_P23_4_G0CH0_AD11 = {HLD_Vadc_group0, HLD_Vadc_ChannelId_0};
+HLD_Vadc_Channel_In HLD_Vadc_P33_10_G5CH4_DA0 = {HLD_Vadc_group5, HLD_Vadc_ChannelId_4};
+HLD_Vadc_Channel_In HLD_Vadc_P33_11_G5CH5_DA1 = {HLD_Vadc_group5, HLD_Vadc_ChannelId_5};
+HLD_Vadc_Channel_In HLD_Vadc_P20_7_G5CH6_CANRX0 = {HLD_Vadc_group5, HLD_Vadc_ChannelId_6};
+HLD_Vadc_Channel_In HLD_Vadc_P20_8_G5CH7_CANTX0 = {HLD_Vadc_group5, HLD_Vadc_ChannelId_7};
+
 #endif
 
 
