@@ -41,6 +41,7 @@ uint64 stm_buf_c2_delay = 0;
 uint64 ticToc_1ms_c2 = 0;
 uint64 delay_1ms_c2 = 0;
 
+//FIXME: To Suprhimp, Plz eliminate extern decleration in .c files
 extern AdcSensor APPS0;
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
@@ -65,6 +66,7 @@ void Task_core2_1ms(void)
 	// AccumulatorManager_master_run_1ms_c2();
 	// kelly8080ips_can_run_1ms_c2();
 	AmkInverter_can_Run();
+	//FIXME: To test?
 	writeMessage((int)APPS0.value,(int)APPS0.value);
 	writeMessage2((int)APPS0.value,(int)APPS0.value);
 	OrionBms2_run_1ms_c2();
