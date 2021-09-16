@@ -41,7 +41,7 @@ void CanCommunication_init(void)
 	IfxMultican_Can_NodeConfig canNodeConfig;
 	IfxMultican_Can_Node_initConfig(&canNodeConfig, &CanCommunication_canModule);
 
-	canNodeConfig.baudrate 	= 1000000;		//1Mbps
+	canNodeConfig.baudrate 	= 500000;		//1Mbps
 	canNodeConfig.nodeId	= IfxMultican_NodeId_0;
 	canNodeConfig.rxPin		= &CAN0NODE0IN;
 	canNodeConfig.rxPinMode	= IfxPort_InputMode_pullUp;
@@ -86,10 +86,8 @@ void CanCommunication_initMessage(CanCommunication_Message* ccMsg, CanCommunicat
 	canMsgObjConfig.acceptanceMask	= 0x7FFFFFFFUL;
 	canMsgObjConfig.frame			=config->frameType;
 	canMsgObjConfig.control.messageLen		= config->dataLen;
-	canMsgObjConfig.control.extendedFrame	= TRUE;	//Default: extended address
-	if(config->isStandardId)
-		canMsgObjConfig.control.extendedFrame = FALSE;
-	canMsgObjConfig.control.messageLen		= TRUE;	//TODO: standard ID range check
+	canMsgObjConfig.control.extendedFrame	= FALSE;
+	canMsgObjConfig.control.messageLen		= TRUE;
 	IfxMultican_Can_MsgObj_init(obj, &canMsgObjConfig);
 
 	ccMsg->isUpdated = FALSE;
