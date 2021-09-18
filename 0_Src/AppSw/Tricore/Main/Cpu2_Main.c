@@ -55,12 +55,13 @@ void core2_main(void)
     /** - Background loop */
     while (TRUE)
     {
-		boolean flag;
-		while(IfxCpu_acquireMutex(&Task_core2.mutex));
+		boolean flag = FALSE;
+		while(IfxCpu_acquireMutex(&Task_core2.mutex));	//Wait for flag mutex
 		{
 			flag = Task_core2.flag;
 			IfxCpu_releaseMutex(&Task_core2.mutex);
 		}
+		Task_core2_primaryService();
 		if(flag)
 		{
 			Task_core2_1ms();
@@ -71,5 +72,6 @@ void core2_main(void)
 				IfxCpu_releaseMutex(&Task_core2.mutex);
             }
 		}
+		Task_core2_backgroundService();
 	}
 }
