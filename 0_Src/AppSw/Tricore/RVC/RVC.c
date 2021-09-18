@@ -69,8 +69,13 @@ TODO:
 #define PEDAL_BRAKE_ON_THRESHOLD 10
 #define REGEN_MUL	1	//2
 
+#if VEHICLE == VEHICLE_RH
 #define POWER_LIM				40000	//40kW
 #define CURRENT_LIM_SET_VAL		10		//10A
+#elif VEHICLE == VEHICLE_HAN
+#define POWER_LIM				80000	//80kW
+#define CURRENT_LIM_SET_VAL		5		//5A
+#endif
 
 #define TV1PGAIN 0.001
 
@@ -85,10 +90,10 @@ TODO:
 #define THROTLE_5V
 
 #define BRAKE_ON_BP
-#define BRAKE_ON_TH_BP1	3.3f
-#define BRAKE_ON_TH_BP2 5.6f
+#define BRAKE_ON_TH_BP1	3.3f	//FIXME: calibration needed
+#define BRAKE_ON_TH_BP2 5.6f	//FIXME: calibration needed
 
-#define BMS_PDL_ERROR	TRUE
+#define BMS_PDL_ERROR	FALSE
 
 /*********************** Global Variables ****************************/
 RVC_t RVC = 
@@ -122,6 +127,7 @@ IFX_STATIC void RVC_initAdcSensor(void);
 IFX_STATIC void RVC_initPwm(void);
 IFX_STATIC void RVC_initGpio(void);
 IFX_STATIC void RVC_r2d(void);
+IFX_STATIC void RVC_r2dCan(void);
 IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi);
 
 IFX_INLINE void RVC_updateReadyToDriveSignal(void);
@@ -144,7 +150,9 @@ void RVC_init(void)
 	RVC.tcMode = RVC_TractionControl_modeNone;
 	RVC_PedalMap_lut_setMode(0);
 
+#if VEHICLE == VEHICLE_RH
 	RVC_initPwm();
+#endif
 
 	RVC_initGpio();
 
@@ -170,7 +178,7 @@ void RVC_run_1ms(void)
 	else
 		RVC.brakeOn.bp2 = FALSE;
 
-	RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2 | RVC.brakePressureOn.value;
+	RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2 | RVC.brakePressureOn.value;	//TODO: Independent brake thrshld
 
 	/* TODO: Torque limit: Traction control */
 
@@ -194,11 +202,15 @@ void RVC_run_1ms(void)
 
 void RVC_run_10ms(void)
 {
+#if VEHICLE == VEHICLE_RH
 	RVC_pollGpi(&RVC.airPositive);
 	RVC_pollGpi(&RVC.airNegative);
 	RVC_pollGpi(&RVC.brakePressureOn);
 	RVC_pollGpi(&RVC.brakeSwitch);
 	RVC_r2d();
+#elif VEHICLE == VEHICLE_HAN
+	RVC_r2dCan();
+#endif
 	AdcSensor_getData(&RVC.LvBattery_Voltage);
 	AdcSensor_getData(&RVC.BrakePressure1);
 	AdcSensor_getData(&RVC.BrakePressure2);
@@ -235,8 +247,8 @@ IFX_STATIC void RVC_initAdcSensor(void)
 {
 	AdcSensor_Config adcConfig;
 
-	/* LV battery voltage */
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
+	/* LV battery voltage */	//FIXME: LV voltage sensor calibration	
+	adcConfig.adcConfig.channelIn = &HLD_Vadc_P20_7_G5CH6_CANRX0;
 
 	adcConfig.adcConfig.lpf.activated = TRUE;
 	adcConfig.adcConfig.lpf.config.gain = 1;
@@ -254,7 +266,12 @@ IFX_STATIC void RVC_initAdcSensor(void)
 	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
 	HLD_AdcForceStart(RVC.LvBattery_Voltage.adcChannel.channel.group);
 
-	/* Brake Pressure*/
+	/*Inverter supply voltage*/
+	//TODO
+	//24V_0: HLD_Vadc_P20_8_G5CH7_CANTX0
+	//24V_1: HLD_Vadc_P10_0_G3CH1_AD4
+
+	/* Brake Pressure*/	//FIXME: Brake sensor calibration 
 	adcConfig.adcConfig.lpf.activated = TRUE;
 	adcConfig.adcConfig.lpf.config.gain = 1;
 	adcConfig.adcConfig.lpf.config.cutOffFrequency = 1/(2*IFX_PI*(1e-2f));
@@ -265,14 +282,13 @@ IFX_STATIC void RVC_initAdcSensor(void)
 	adcConfig.tfConfig.a = 50;
 	adcConfig.tfConfig.b = -25;
 
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_2};
+	adcConfig.adcConfig.channelIn = &HLD_Vadc_P23_2_G4CH4_AD3;
 	AdcSensor_initSensor(&RVC.BrakePressure1, &adcConfig);
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_1};
+	adcConfig.adcConfig.channelIn = &HLD_Vadc_P22_2_G0CH2_AD9;
 	AdcSensor_initSensor(&RVC.BrakePressure2, &adcConfig);
 	HLD_AdcForceStart(RVC.BrakePressure1.adcChannel.channel.group);
 
-	/* Steering Angle Analog (Backup function) */
-	//TODO
+	//TODO: 
 }
 
 IFX_STATIC void RVC_initPwm(void)
@@ -303,6 +319,7 @@ IFX_STATIC void RVC_initPwm(void)
 
 IFX_STATIC void RVC_initGpio(void)
 {
+#if VEHICLE == VEHICLE_RH
 	/* FWD output config */
 	IfxPort_setPinMode(FWD_OUT.port, FWD_OUT.pinIndex, IfxPort_OutputMode_pushPull);
 	IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
@@ -333,6 +350,15 @@ IFX_STATIC void RVC_initGpio(void)
 	Gpio_Debounce_initInput(&RVC.brakePressureOn.debounce, &gpioInputConfig);
 	gpioInputConfig.port = &BSW_IN;
 	Gpio_Debounce_initInput(&RVC.brakeSwitch.debounce, &gpioInputConfig);
+#elif VEHICLE == VEHICLE_HAN
+	Gpio_Debounce_inputConfig gpioInputConfig;
+	Gpio_Debounce_initInputConfig(&gpioInputConfig);
+	/*Brake light signal config*/
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &BP_IN;
+	Gpio_Debounce_initInput(&RVC.brakePressureOn.debounce, &gpioInputConfig);
+#endif
 }
 
 /* TODO: 
@@ -482,6 +508,10 @@ IFX_STATIC void RVC_r2d(void)
 
 #endif // R2D_TEST
 }
+IFX_STATIC void RVC_r2dCan(void)
+{
+	//TODO: R2D via CAN routine
+}
 
 IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi)
 {
@@ -491,6 +521,7 @@ IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi)
 /***************** Inline Function Implementation ******************/
 IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 {
+#if VEHICLE == VEHICLE_RH
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
 		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
@@ -501,6 +532,9 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
 		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
+#elif VEHICLE == VEHICLE_HAN
+	//TODO: RTD routine from CAN data
+#endif
 }
 
 IFX_INLINE void RVC_slipComputation(void)
@@ -649,7 +683,7 @@ IFX_INLINE void RVC_torqueDistrobution(void)
 }
 
 IFX_INLINE void RVC_torqueSignalGeneration(void)
-{
+{	//FIXME TODO: Torque signal -> AmkInverter
 #ifdef THROTLE_5V
 	// 0~100% maped to 0~5V ( = 0.0~1.0 duty)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)

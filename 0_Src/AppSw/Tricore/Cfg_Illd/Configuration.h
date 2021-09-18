@@ -46,13 +46,36 @@
 #define HLD_FOURTH_CANNODE	FALSE
 
 /*GPIO macros*/		//FIXME: Specify Port Init source file
-#define START_BTN					IfxPort_P11_9
-#define R2DOUT 						IfxPort_P21_0
-#define FWD_OUT						IfxPort_P21_3
-#define AIR_P_IN					IfxPort_P00_6
-#define AIR_N_IN					IfxPort_P00_7
-#define BP_IN						IfxPort_P14_1
-#define BSW_IN						IfxPort_P00_0
+// #define START_BTN					IfxPort_P11_9
+// #define R2DOUT 						IfxPort_P21_0
+// #define FWD_OUT						IfxPort_P21_3
+// #define AIR_P_IN					IfxPort_P00_6
+// #define AIR_N_IN					IfxPort_P00_7
+// #define BP_IN						IfxPort_P14_1
+// #define BSW_IN						IfxPort_P00_0
+#define BP_IN						IfxPort_P10_5
+#define BP_HB						IfxPort_P02_7
+#define BP_ERR						IfxPort_P02_6
+
+#define BSPD_CS_IN					IfxPort_P10_3
+
+#define SDC_SEN_BSDP_5V_IN			IfxPort_P00_5
+#define SDC_SEN_IMD_5V_IN			IfxPort_P00_4
+#define SDC_SEN_BMS_5V_IN			IfxPort_P00_3
+#define SDC_SEN_FINAL_5V_IN			IfxPort_P00_2
+
+#define BMS_OK_BUF_IN				IfxPort_P00_1
+#define IMD_OK_BUF_IN				IfxPort_P00_0
+#define BSPD_OK_BUF_IN				IfxPort_P14_1
+
+#define TSAL_RED_ON_5V_IN			IfxPort_P33_0
+
+#define BMS_MPO_5V_IN				IfxPort_P33_1
+#define CHARGE_EN_IN				IfxPort_P33_2
+
+#define LED1_OUT					IfxPort_P13_2
+#define LED2_OUT					IfxPort_P13_1
+#define RTDS_ON_OUT					IfxPort_P21_0
 
 /*Qspi2 macros*/
 #define QSPI2_SCLK					IfxQspi2_SCLK_P15_6_OUT

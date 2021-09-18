@@ -11,6 +11,7 @@
 #include "HLD.h"
 #include "Gpio_Debounce.h"
 #include "AdcSensor.h"
+#include "RVC.h"
 
 /****************************** Enumerations *********************************/
 typedef enum
@@ -56,7 +57,8 @@ typedef struct
 
 	RVC_TorqueVectoring_mode_t tvMode;
 	RVC_TractionControl_mode_t tcMode;
-	
+
+#if VEHICLE == VEHICLE_RH
 	Gpio_Debounce_input startButton;
 
 	RVC_Gpi_t airPositive;
@@ -64,6 +66,34 @@ typedef struct
 	RVC_Gpi_t 	brakePressureOn;
 	RVC_Gpi_t brakeSwitch;
 
+#elif VEHICLE == VEHICLE_HAN
+	RVC_Gpi_t brakePressureOn;
+	RVC_Gpi_t brakePressureHard;
+	RVC_Gpi_t brakePressureError;
+
+	RVC_Gpi_t bspdCurrent5kw;
+
+	struct 
+	{
+		struct
+		{
+			RVC_Gpi_t bms;
+			RVC_Gpi_t imd;
+			RVC_Gpi_t bspd;
+		}signal;
+		struct
+		{
+			RVC_Gpi_t bms;
+			RVC_Gpi_t imd;
+			RVC_Gpi_t bspd;
+			RVC_Gpi_t final;
+		}sense;
+	}sdc;
+
+	RVC_Gpi_t tsalRed;
+	RVC_Gpi_t bmsMpo;
+	RVC_Gpi_t chargeEnable;
+#endif
 	struct 
 	{
 		boolean bp1;
@@ -98,7 +128,10 @@ typedef struct
 	{
 		float32 desired;
 		float32 controlled;
-
+#if VEHICLE == VEHICLE_HAN
+		float32 frontLeft;
+		float32 frontRight;
+#endif
 		float32 rearLeft;
 		float32 rearRight;
 
@@ -106,7 +139,7 @@ typedef struct
 
 		boolean isRegenOn;
 	} torque;
-
+#if VEHICLE == VEHICLE_RH
 	struct
 	{
 		HLD_GtmTom_Pwm accel_rearLeft;
@@ -130,7 +163,9 @@ typedef struct
 		float32 rearLeftDec;
 		float32 rearRightDec;
 	} pwmDuty;
+#elif VEHICLE == VEHICLE_HAN
 
+#endif
 	struct
 	{
 		float32 axle;
