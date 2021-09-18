@@ -16,6 +16,13 @@ ID_set Inverter4;
 
 Stm32_canMsg2_t canMsg2;    //FIXME: It looks unnecessary.
 
+/*BEGIN: For depressing build errors*/
+CanCommunication_Message T_TC237_1;
+CanCommunication_Message T_TC237_2;
+CanCommunication_Message T_TC237_3;
+CanCommunication_Message T_TC237_4;
+/*END: For depressing build errors*/
+
 CanCommunication_Message R_Inverter1_1;
 CanCommunication_Message R_Inverter2_1;
 CanCommunication_Message R_Inverter3_1;
