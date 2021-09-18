@@ -49,15 +49,15 @@ amkSetpoint1 INV3_AMK_Setpoint1;
 amkSetpoint1 INV4_AMK_Setpoint1;
 
 void AmkInverter_can_init(void);
-void AmkInverter_can_Run(void);
+void AmkInverter_run_pService(void);
 void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
 
 static void setPointInit(amkSetpoint1 *setpoint);
 
 static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node);
 static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node);
-void writeMessage(uint16 Value1, uint16 Value2);
-void writeMessage2(uint16 Value1, uint16 Value2);
+static void writeMessage(uint16 Value1, uint16 Value2);
+static void writeMessage2(uint16 Value1, uint16 Value2);
 
 struct setSwitch{
     uint8 DCon;
@@ -96,6 +96,23 @@ struct Monitor{
 };
 struct Monitor Monitor;//
 struct setSwitch SWITCH = {0,0,0,0,0,0};
+
+typedef enum
+{
+    invNone  = 0b00000000,
+    inv1Act1 = 0b00000001,
+    inv1Act2 = 0b00000010,
+    inv2Act1 = 0b00000100,
+    inv2Act2 = 0b00001000,
+    inv3Act1 = 0b00010000,
+    inv3Act2 = 0b00100000,
+    inv4Act1 = 0b01000000,
+    inv4Act2 = 0b10000000,
+}allUpdatedInternal;
+
+AmkInverter_public_t AmkInverter_public;
+allUpdatedInternal updated = invNone;
+
 void SET_ID(ID_set *IN, int node)
 {
 	IN->ID_AMK_Ac1 = 0x282 + node;
@@ -145,50 +162,83 @@ void AmkInverter_can_init(void)
 
 }
 
-void AmkInverter_can_Run(void)
+void AmkInverter_run_pService(void)
 {
     if(CanCommunication_receiveMessage(&R_Inverter1_1))
     {
     	INV1_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter1_1.msg.data[0];
     	INV1_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter1_1.msg.data[1];
+        updated |= inv1Act1;
     }
     if(CanCommunication_receiveMessage(&R_Inverter1_2))
     {
         INV1_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter1_2.msg.data[0];
         INV1_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter1_2.msg.data[1];
+        updated |= inv1Act2;
     }
     if(CanCommunication_receiveMessage(&R_Inverter2_1))
     {
         INV2_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter2_1.msg.data[0];
         INV2_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter2_1.msg.data[1];
+        updated |= inv2Act1;
     }
     if(CanCommunication_receiveMessage(&R_Inverter2_2))
     {
         INV2_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter2_2.msg.data[0];
         INV2_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter2_2.msg.data[1];
+        updated |= inv2Act2;
     }
     if(CanCommunication_receiveMessage(&R_Inverter3_1))
     {
     	INV3_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter3_1.msg.data[0];
     	INV3_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter3_1.msg.data[1];
+        updated |= inv3Act1;
     }
     if(CanCommunication_receiveMessage(&R_Inverter3_2))
     {
         INV3_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter3_2.msg.data[0];
         INV3_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter3_2.msg.data[1];
+        updated |= inv3Act2;
     }
     if(CanCommunication_receiveMessage(&R_Inverter4_1))
     {
         INV4_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter4_1.msg.data[0];
         INV4_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter4_1.msg.data[1];
+        updated |= inv4Act1;
     }
     if(CanCommunication_receiveMessage(&R_Inverter4_2))
     {
         INV4_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter4_2.msg.data[0];
         INV4_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter4_2.msg.data[1];
+        updated |= inv4Act2;
+    }
+    if(updated == 0b11111111)   //FIXME: When some inverter value is not updated?
+    {
+        while(IfxCpu_acquireMutex(&AmkInverter_public.mutex));   //Wait for mutex
+        {
+            AmkInverter_public.inv1.actualValue1.RecievedData[0] = INV1_AMK_Actual_Values1.RecievedData[0];
+            AmkInverter_public.inv1.actualValue1.RecievedData[1] = INV1_AMK_Actual_Values1.RecievedData[1];
+            AmkInverter_public.inv1.actualValue2.RecievedData[0] = INV1_AMK_Actual_Values2.RecievedData[0];
+            AmkInverter_public.inv1.actualValue2.RecievedData[1] = INV1_AMK_Actual_Values2.RecievedData[1];
+            AmkInverter_public.inv2.actualValue1.RecievedData[0] = INV2_AMK_Actual_Values1.RecievedData[0];
+            AmkInverter_public.inv2.actualValue1.RecievedData[1] = INV2_AMK_Actual_Values1.RecievedData[1];
+            AmkInverter_public.inv2.actualValue2.RecievedData[0] = INV2_AMK_Actual_Values2.RecievedData[0];
+            AmkInverter_public.inv2.actualValue2.RecievedData[1] = INV2_AMK_Actual_Values2.RecievedData[1];
+            AmkInverter_public.inv3.actualValue1.RecievedData[0] = INV3_AMK_Actual_Values1.RecievedData[0];
+            AmkInverter_public.inv3.actualValue1.RecievedData[1] = INV3_AMK_Actual_Values1.RecievedData[1];
+            AmkInverter_public.inv3.actualValue2.RecievedData[0] = INV3_AMK_Actual_Values2.RecievedData[0];
+            AmkInverter_public.inv3.actualValue2.RecievedData[1] = INV3_AMK_Actual_Values2.RecievedData[1];
+            AmkInverter_public.inv4.actualValue1.RecievedData[0] = INV4_AMK_Actual_Values1.RecievedData[0];
+            AmkInverter_public.inv4.actualValue1.RecievedData[1] = INV4_AMK_Actual_Values1.RecievedData[1];
+            AmkInverter_public.inv4.actualValue2.RecievedData[0] = INV4_AMK_Actual_Values2.RecievedData[0];
+            AmkInverter_public.inv4.actualValue2.RecievedData[1] = INV4_AMK_Actual_Values2.RecievedData[1];
+			AmkInverter_public.allUpdated = TRUE;
+            updated = invNone;
+            IfxCpu_releaseMutex(&AmkInverter_public.mutex);
+		}
     }
 
-    Monitor.InverterErrorState.error_1 = INV1_AMK_Actual_Values1.S.AMK_bSError;
+/*     Monitor.InverterErrorState.error_1 = INV1_AMK_Actual_Values1.S.AMK_bSError;
     Monitor.InverterErrorState.error_2 = INV2_AMK_Actual_Values1.S.AMK_bSError;
     Monitor.InverterErrorState.error_3 = INV3_AMK_Actual_Values1.S.AMK_bSError;
     Monitor.InverterErrorState.error_4 = INV4_AMK_Actual_Values1.S.AMK_bSError;
@@ -202,8 +252,18 @@ void AmkInverter_can_Run(void)
     Monitor.MotorTemp.temp_2 = INV2_AMK_Actual_Values1.S.AMK_ActualVelocity;
     Monitor.MotorTemp.temp_3 = INV3_AMK_Actual_Values1.S.AMK_ActualVelocity;
     Monitor.MotorTemp.temp_4 = INV4_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.InverterTemp = INV1_AMK_Actual_Values2.S.AMK_TempInverter;
+    Monitor.InverterTemp = INV1_AMK_Actual_Values2.S.AMK_TempInverter; */
 
+    /*Transsmit Torque command at the end of Inverter routine*/
+    while(IfxCpu_acquireMutex(&AmkInverter_public.mutex));   //Wait for mutex
+	{
+		if(AmkInverter_public.rtd == TRUE)
+		{
+			writeMessage((sint32)AmkInverter_public.inv1.torqueCommand, (sint32)AmkInverter_public.inv2.torqueCommand);
+			writeMessage2((sint32)AmkInverter_public.inv3.torqueCommand, (sint32)AmkInverter_public.inv4.torqueCommand);
+		}
+		IfxCpu_releaseMutex(&AmkInverter_public.mutex);
+	}
 }
 
 
@@ -227,14 +287,14 @@ void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint1
 
 }
 
-void writeMessage(uint16 Value1, uint16 Value2)
+static void writeMessage(uint16 Value1, uint16 Value2)
 {
 
     AmkInverter_can_write(&INV1_AMK_Setpoint1,T_TC237_1,Value1);
     AmkInverter_can_write(&INV2_AMK_Setpoint1,T_TC237_2,Value2);
 
 }
-void writeMessage2(uint16 Value1, uint16 Value2)
+static void writeMessage2(uint16 Value1, uint16 Value2)
 {    
 
     AmkInverter_can_write(&INV3_AMK_Setpoint1,T_TC237_3,Value1);
