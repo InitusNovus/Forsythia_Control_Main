@@ -1,19 +1,20 @@
 #include "AmkInverter_can.h"
 #include "HLD.h"
 
+//FIXME: Plz rename ID and delete unnecessary values.
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
-const uint32 STM32ID = 0x32F103A;
-const uint32 STM32ID2 = 0x32F103B;
-const uint32 TC237 = 0x237;
+const uint32 STM32ID = 0x32F103A;   //FIXME: It looks unnecessary.
+const uint32 STM32ID2 = 0x32F103B;  //FIXME: It looks unnecessary.
+const uint32 TC237 = 0x237;         //FIXME: Plz rename it.
 
 ID_set Inverter1;
 ID_set Inverter2;
 ID_set Inverter3;
 ID_set Inverter4;
 
-Stm32_canMsg2_t canMsg2;
+Stm32_canMsg2_t canMsg2;    //FIXME: It looks unnecessary.
 
 CanCommunication_Message R_Inverter1_1;
 CanCommunication_Message R_Inverter2_1;
@@ -105,6 +106,7 @@ void AmkInverter_can_init(void)
 	SET_ID(&Inverter4,6);
 
     /**************************************Transmit***************************************************/
+    //FIXME: Plz rename message object and define correctly.
     setTransmitMessage(Inverter1.ID_AMK_Set, &T_TC237_1,2);
     setTransmitMessage(Inverter2.ID_AMK_Set, &T_TC237_2,1);
     setTransmitMessage(Inverter3.ID_AMK_Set, &T_TC237_3,1);
