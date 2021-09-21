@@ -5,7 +5,7 @@
  *      Author: Dua
  */
 
-
+//TODO: Wheel Speed from Inverter
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
@@ -17,6 +17,11 @@
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
+#define WSS_MODE_PULSE	0
+#define WSS_MODE_INV	1
+#define WSS_MODE		WSS_MODE_INV
+
+
 #define WSSFL		HLD_GtmTim.ch[6].data
 #define WSSFR		HLD_GtmTim.ch[7].data
 #define WSSRL		HLD_GtmTim.ch[8].data
@@ -56,10 +61,11 @@ IFX_STATIC void SDP_WheelSpeed_getSensorValue(SDP_WheelSpeed_sensor_t* sensor, H
 
 
 /******************************************************************************/
-/*-------------------------Function Implementations---------------------------*/
+/*------------------Private Inline Function Implementations-------------------*/
 /******************************************************************************/
 void SDP_WheelSpeed_init(void)
 {
+#if WSS_MODE == WSS_MODE_PULSE
 	SDP_WheelSpeed_sensorConfig_config config;
 	SDP_WheelSpeed_initSensorConfig(&config);
 	config.gearRatio = GR;
@@ -69,6 +75,9 @@ void SDP_WheelSpeed_init(void)
 	SDP_WheelSpeed_initSensor(&SDP_WheelSpeed.wssFR, &config);
 	SDP_WheelSpeed_initSensor(&SDP_WheelSpeed.wssRL, &config);
 	SDP_WheelSpeed_initSensor(&SDP_WheelSpeed.wssRR, &config);
+#elif WSS_MODE == WSS_MODE_INV
+	//TODO: Wheel speed from the inverter
+#endif
 }
 
 void SDP_WheelSpeed_run_1ms(void)
@@ -104,6 +113,7 @@ IFX_STATIC void SDP_WheelSpeed_initSensor(SDP_WheelSpeed_sensor_t* sensor, SDP_W
 
 IFX_STATIC void SDP_WheelSpeed_update(void)
 {
+#if WSS_MODE == WSS_MODE_PULSE
 	SDP_WheelSpeed_getSensorValue(&SDP_WheelSpeed.wssFL, &WSSFL);
 	SDP_WheelSpeed_getSensorValue(&SDP_WheelSpeed.wssFR, &WSSFR);
 	SDP_WheelSpeed_getSensorValue(&SDP_WheelSpeed.wssRL, &WSSRL);
@@ -111,6 +121,9 @@ IFX_STATIC void SDP_WheelSpeed_update(void)
 	SDP_WheelSpeed.velocity.frontAxle = AVG2(SDP_WheelSpeed.wssFL.wheelLinearVelocity, SDP_WheelSpeed.wssFR.wheelLinearVelocity);
 	SDP_WheelSpeed.velocity.rearAxle = AVG2(SDP_WheelSpeed.wssRL.wheelLinearVelocity, SDP_WheelSpeed.wssRR.wheelLinearVelocity);
 	SDP_WheelSpeed.velocity.chassis = AVG2(SDP_WheelSpeed.velocity.frontAxle, SDP_WheelSpeed.velocity.rearAxle);
+#elif WSS_MODE == WSS_MODE_INV
+	//TODO: Wheel speed from the inverter update(parsing) routine
+#endif
 }
 
 IFX_STATIC void SDP_WheelSpeed_getSensorValue(SDP_WheelSpeed_sensor_t* sensor, HLD_GtmTim_dataPulse_t* tim)

@@ -7,6 +7,10 @@
 #ifndef RVC_H_
 #define RVC_H_
 
+#define VEHICLE_RH 0
+#define VEHICLE_HAN 1
+#define VEHICLE VEHICLE_HAN
+
 /* Includes */
 #include "SDP.h"
 

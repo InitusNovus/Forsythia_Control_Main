@@ -54,6 +54,11 @@ typedef struct
         //y = a*(x-d) + b
         //post-calibration after tf value
     }linCal;
+    struct
+    P{
+        float32 limHi;
+        float32 limLo;
+    }overvoltageLimit;
 }AdcSensor;
 
 typedef struct
@@ -72,6 +77,11 @@ typedef struct
         float32 b;
         float32 d;
     }linCalConfig;
+    struct
+    {
+        float32 limHi;
+        float32 limLo;
+    }overvoltageLimitConfig;
 }AdcSensor_Config;
 
 /* Function Prototypes */

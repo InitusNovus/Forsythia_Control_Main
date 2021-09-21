@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "Multican.h"
 #include "CanCommunication.h"
+#include "HLD.h"
 typedef union 
 {
 	struct 
@@ -112,8 +113,28 @@ typedef struct
 	uint16 ID_AMK_Set;
 }ID_set;
 
-IFX_EXTERN Stm32_canMsg1_t canMsg1;
-IFX_EXTERN Stm32_canMsg2_t canMsg2;
+typedef struct 
+{
+	amkActualValues1 actualValue1;
+	amkActualValues2 actualValue2;
+	sint16 torqueCommand;	//[0.1%]
+}AmkInverter_public_inv_t;
+
+typedef struct
+{
+	boolean rtd;
+	AmkInverter_public_inv_t inv1;
+	AmkInverter_public_inv_t inv2;
+	AmkInverter_public_inv_t inv3;
+	AmkInverter_public_inv_t inv4;
+	boolean allUpdated;
+	IfxCpu_mutexLock mutex;
+}AmkInverter_public_t;
+
+// IFX_EXTERN Stm32_canMsg1_t canMsg1;
+// IFX_EXTERN Stm32_canMsg2_t canMsg2;
+
+IFX_EXTERN AmkInverter_public_t AmkInverter_public;
 
 IFX_EXTERN amkActualValues1 INV1_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV2_AMK_Actual_Values1;
@@ -136,9 +157,9 @@ IFX_EXTERN ID_set Inverter3;
 IFX_EXTERN ID_set Inverter4;
 
 IFX_EXTERN void AmkInverter_can_init(void);
-IFX_EXTERN void AmkInverter_can_Run(void);
+IFX_EXTERN void AmkInverter_run_pService(void);
 IFX_EXTERN void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
-IFX_EXTERN void writeMessage(uint16 Value1, uint16 Value2);
-IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
+// IFX_EXTERN void writeMessage(uint16 Value1, uint16 Value2);
+// IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
 
 #endif /* MULTICANCOMUNICATE_H */
