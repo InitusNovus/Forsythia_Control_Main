@@ -131,6 +131,17 @@ typedef struct
 	IfxCpu_mutexLock mutex;
 }AmkInverter_public_t;
 
+typedef union{
+	uint32_t TransmitData[2];
+	struct{
+		uint16_t EFon;
+		uint16_t BE1on;
+		uint16_t BE2on;
+		uint16_t Remain;
+	}B;
+}Inv_switch_msg_t;
+
+IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
 // IFX_EXTERN Stm32_canMsg1_t canMsg1;
 // IFX_EXTERN Stm32_canMsg2_t canMsg2;
 

@@ -5,8 +5,8 @@
  *      Author: Dua
  */
 //TODO: Steering Angle analog sensor
-//STA0: HLD_Vadc_P10_7_G3CH0_AD5
-//STA1: HLD_Vadc_P22_2_G0CH2_AD9
+// STA0: HLD_Vadc_P10_7_G3CH0_AD5
+// STA1: HLD_Vadc_P22_2_G0CH2_AD9
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/

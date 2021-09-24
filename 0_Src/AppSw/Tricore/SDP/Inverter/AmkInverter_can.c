@@ -8,6 +8,7 @@ const float Nominal_torque = 9.8;
 const uint32 STM32ID = 0x32F103A;   //FIXME: It looks unnecessary.
 const uint32 STM32ID2 = 0x32F103B;  //FIXME: It looks unnecessary.
 const uint32 TC237 = 0x237;         //FIXME: Plz rename it.
+const uint32 InverterControlSTM = 0x405D;
 
 ID_set Inverter1;
 ID_set Inverter2;
@@ -21,6 +22,7 @@ CanCommunication_Message T_TC237_1;
 CanCommunication_Message T_TC237_2;
 CanCommunication_Message T_TC237_3;
 CanCommunication_Message T_TC237_4;
+CanCommunication_Message T_CTRINV;
 /*END: For depressing build errors*/
 
 CanCommunication_Message R_Inverter1_1;
@@ -48,9 +50,12 @@ amkSetpoint1 INV2_AMK_Setpoint1;
 amkSetpoint1 INV3_AMK_Setpoint1;
 amkSetpoint1 INV4_AMK_Setpoint1;
 
+Inv_switch_msg_t Inv_switch_msg;
+
 void AmkInverter_can_init(void);
 void AmkInverter_run_pService(void);
 void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
+void AmkInverter_control(boolean EF, boolean BE1, boolean BE2);
 
 static void setPointInit(amkSetpoint1 *setpoint);
 
@@ -60,12 +65,16 @@ static void writeMessage(uint16 Value1, uint16 Value2);
 static void writeMessage2(uint16 Value1, uint16 Value2);
 
 struct setSwitch{
+    boolean EF;
+    boolean BE1;
+    boolean BE2;
     uint8 DCon;
     uint8 Enable;
     uint8 inverter;
     uint16 posTorquelimit;
     int16_t negTorquelimit;
     uint8 ErrorReset;
+    uint32 Checker;
 };
 struct Monitor{
     int InverterTemp;
@@ -135,6 +144,7 @@ void AmkInverter_can_init(void)
     setTransmitMessage(Inverter2.ID_AMK_Set, &T_TC237_2,1);
     setTransmitMessage(Inverter3.ID_AMK_Set, &T_TC237_3,1);
     setTransmitMessage(Inverter4.ID_AMK_Set, &T_TC237_4,2);
+    setTransmitMessage(InverterControlSTM,&T_CTRINV,1);
 
     /**************************************Receive***************************************************/
     setReceiveMessage(Inverter1.ID_AMK_Ac1, &R_Inverter1_1,2);
@@ -259,9 +269,12 @@ void AmkInverter_run_pService(void)
 	{
 		if(AmkInverter_public.rtd == TRUE)
 		{
+            SWITCH.Checker +=1;
+            AmkInverter_control(SWITCH.EF,SWITCH.BE1,SWITCH.BE2);
 			writeMessage((sint32)AmkInverter_public.inv1.torqueCommand, (sint32)AmkInverter_public.inv2.torqueCommand);
 			writeMessage2((sint32)AmkInverter_public.inv3.torqueCommand, (sint32)AmkInverter_public.inv4.torqueCommand);
-		}
+		
+        }
 		IfxCpu_releaseMutex(&AmkInverter_public.mutex);
 	}
 }
@@ -286,6 +299,16 @@ void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint1
     CanCommunication_transmitMessage(&TC);
 
 }
+
+void AmkInverter_control(boolean EF, boolean BE1, boolean BE2){
+    Inv_switch_msg.B.EFon = EF;
+    Inv_switch_msg.B.BE1on = BE1;
+    Inv_switch_msg.B.BE2on = BE2;
+
+    CanCommunication_setMessageData(Inv_switch_msg.TransmitData[0],Inv_switch_msg.TransmitData[1],&T_CTRINV);
+    CanCommunication_transmitMessage(&T_CTRINV);
+}
+
 
 static void writeMessage(uint16 Value1, uint16 Value2)
 {

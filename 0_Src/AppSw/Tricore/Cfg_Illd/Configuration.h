@@ -171,7 +171,7 @@
 
 
 /*UserInterface macros*/
-//#define START_BTN					IfxPort_P00_1
+#define START_BTN					IfxPort_P00_1
 #define UI_BTN1						IfxPort_P00_9
 #define UI_BTN2						IfxPort_P00_2
 #define UI_BTN3						IfxPort_P00_3

@@ -16,7 +16,7 @@
 
 #include "CanCommunication.h"
 #include "AccumulatorManager_master.h"
-#include "RVC.h"
+// #include "RVC.h"
 #include "AmkInverter_can.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
@@ -174,7 +174,7 @@ void Task_init (void)
 		// AccumulatorManager_master_init();
 		AmkInverter_can_init();
 		OrionBms2_init();
-		RVC_init();
+		// RVC_init();
 		SteeringWheel_init();
 	}
 
@@ -238,7 +238,7 @@ void Task_IsrCb_1ms (void)
 
 	}
 	{
-		RVC_run_1ms();
+		// RVC_run_1ms();
 	}
 	HLD_GtmTomBeeper_run_1ms();
 
@@ -252,7 +252,7 @@ void Task_10ms (void)			//Slot 0
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_10ms();
 
-	RVC_run_10ms();
+	// RVC_run_10ms();
 
 	// HLD_UserInterface_run_10ms();
 
