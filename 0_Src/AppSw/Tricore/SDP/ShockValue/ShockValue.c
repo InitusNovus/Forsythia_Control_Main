@@ -1,10 +1,11 @@
 #include "ShockValue.h"
 
-#define SHOCK_CAN_MSG_0     0x32F405AUL
-#define SHOCK_CAN_MSG_1     0x32F405BUL
+#define SHOCK_CAN_MSG_0     0x405A
+#define SHOCK_CAN_MSG_1     0x405B
 
 ShockCanMsg_data_t ShockCanMsgFront;
 ShockCanMsg_data_t ShockCanMsgRear;
+struct ShockValue ShockValue;
 
 CanCommunication_Message ShockCanMsg0;
 CanCommunication_Message ShockCanMsg1;
@@ -43,4 +44,9 @@ void SDP_ShockValue_run_1ms(void){
         ShockCanMsgRear.RecievedData[0]      =   ShockCanMsg1.msg.data[0];
         ShockCanMsgRear.RecievedData[1]      =   ShockCanMsg1.msg.data[1];
     }
+
+    ShockValue.frontHeave = (float)(ShockCanMsgFront.S.Heave/10);
+    ShockValue.frontRoll = (float)(ShockCanMsgFront.S.Roll/10);
+    ShockValue.rearHeave = (float)(ShockCanMsgRear.S.Heave/10);
+    ShockValue.Roll = (float)(ShockCanMsgRear.S.Roll/10);
 }

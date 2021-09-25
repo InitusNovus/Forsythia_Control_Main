@@ -4,16 +4,19 @@
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
-const uint32 STM32ID = 0x32F103A;
-const uint32 STM32ID2 = 0x32F103B;
-const uint32 TC237 = 0x237;
+const uint32 InvCtr = 0x405D;
 
 ID_set Inverter1;
 ID_set Inverter2;
 ID_set Inverter3;
 ID_set Inverter4;
 
-Stm32_canMsg2_t canMsg2;
+
+CanCommunication_Message T_TC237_1;
+CanCommunication_Message T_TC237_2;
+CanCommunication_Message T_TC237_3;
+CanCommunication_Message T_TC237_4;
+CanCommunication_Message T_InvCtr;
 
 CanCommunication_Message R_Inverter1_1;
 CanCommunication_Message R_Inverter2_1;
@@ -39,6 +42,7 @@ amkSetpoint1 INV1_AMK_Setpoint1;
 amkSetpoint1 INV2_AMK_Setpoint1;
 amkSetpoint1 INV3_AMK_Setpoint1;
 amkSetpoint1 INV4_AMK_Setpoint1;
+Inv_switch_msg_t Inv_switch_msg;
 
 void AmkInverter_can_init(void);
 void AmkInverter_can_Run(void);
@@ -58,6 +62,10 @@ struct setSwitch{
     uint16 posTorquelimit;
     int16_t negTorquelimit;
     uint8 ErrorReset;
+    uint32 Checker;
+    boolean BE1;
+    boolean BE2;
+    boolean EF;
 };
 struct Monitor{
     int InverterTemp;
@@ -109,6 +117,7 @@ void AmkInverter_can_init(void)
     setTransmitMessage(Inverter2.ID_AMK_Set, &T_TC237_2,1);
     setTransmitMessage(Inverter3.ID_AMK_Set, &T_TC237_3,1);
     setTransmitMessage(Inverter4.ID_AMK_Set, &T_TC237_4,2);
+    setTransmitMessage(InvCtr,&T_InvCtr,1);
 
     /**************************************Receive***************************************************/
     setReceiveMessage(Inverter1.ID_AMK_Ac1, &R_Inverter1_1,2);
@@ -189,12 +198,12 @@ void AmkInverter_can_Run(void)
     Monitor.MotorTemp.temp_3 = INV3_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
     Monitor.MotorTemp.temp_4 = INV4_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
 
-    Monitor.MotorTemp.temp_1 = INV1_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorTemp.temp_2 = INV2_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorTemp.temp_3 = INV3_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorTemp.temp_4 = INV4_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_1 = INV1_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_2 = INV2_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_3 = INV3_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_4 = INV4_AMK_Actual_Values1.S.AMK_ActualVelocity;
     Monitor.InverterTemp = INV1_AMK_Actual_Values2.S.AMK_TempInverter;
-
+    SWITCH.Checker+=1;
 }
 
 
@@ -218,11 +227,23 @@ void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint1
 
 }
 
+void InverterControlSet(){
+    Inv_switch_msg.B.EFon = SWITCH.EF;
+    Inv_switch_msg.B.BE1on = SWITCH.BE1;
+    Inv_switch_msg.B.BE2on = SWITCH.BE2;
+    CanCommunication_setMessageData(Inv_switch_msg.TransmitData[0],Inv_switch_msg.TransmitData[1], &T_InvCtr);
+
+    CanCommunication_transmitMessage(&T_InvCtr);
+}
+
 void writeMessage(uint16 Value1, uint16 Value2)
 {
 
     AmkInverter_can_write(&INV1_AMK_Setpoint1,T_TC237_1,Value1);
     AmkInverter_can_write(&INV2_AMK_Setpoint1,T_TC237_2,Value2);
+    if (!(Inv_switch_msg.B.BE1on&&Inv_switch_msg.B.BE2on&&Inv_switch_msg.B.EFon)){
+        InverterControlSet();
+    }
 
 }
 void writeMessage2(uint16 Value1, uint16 Value2)
@@ -232,6 +253,8 @@ void writeMessage2(uint16 Value1, uint16 Value2)
     AmkInverter_can_write(&INV4_AMK_Setpoint1,T_TC237_4,Value2);        
 
 }
+
+
 
 static void setPointInit(amkSetpoint1 *setpoint){
     setpoint->S.AMK_bInverterOn = FALSE;
@@ -248,6 +271,7 @@ static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 no
     config_Message_Recive.messageId        =   ID;
     config_Message_Recive.frameType        =   IfxMultican_Frame_receive;
     config_Message_Recive.dataLen          =   IfxMultican_DataLengthCode_8;
+    config_Message_Recive.isStandardId     =   TRUE;
     if (node == 0){
         config_Message_Recive.node             =   &CanCommunication_canNode0;
     }
@@ -268,6 +292,7 @@ static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 n
     config_Message_Transmit.messageId        =   ID;
     config_Message_Transmit.frameType        =   IfxMultican_Frame_transmit;
     config_Message_Transmit.dataLen          =   IfxMultican_DataLengthCode_8;
+    config_Message_Recive.isStandardId       =   TRUE;
         if (node == 0){
         config_Message_Transmit.node             =   &CanCommunication_canNode0;
     }

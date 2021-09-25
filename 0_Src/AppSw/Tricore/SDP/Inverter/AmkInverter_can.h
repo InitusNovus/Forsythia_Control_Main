@@ -105,6 +105,17 @@ typedef union
 	    }S;
 }amkSetpoint1;
 
+typedef union{
+	uint32 TransmitData[2];
+	struct{
+		uint16_t EFon;
+		uint16_t BE1on;
+		uint16_t BE2on;
+		uint16_t Remain;
+	}B;
+}Inv_switch_msg_t;
+
+
 typedef struct
 {
 	uint16 ID_AMK_Ac1;
@@ -112,6 +123,7 @@ typedef struct
 	uint16 ID_AMK_Set;
 }ID_set;
 
+IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
 IFX_EXTERN Stm32_canMsg1_t canMsg1;
 IFX_EXTERN Stm32_canMsg2_t canMsg2;
 
