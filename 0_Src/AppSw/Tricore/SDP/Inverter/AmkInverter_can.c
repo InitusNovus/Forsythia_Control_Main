@@ -292,7 +292,7 @@ static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 n
     config_Message_Transmit.messageId        =   ID;
     config_Message_Transmit.frameType        =   IfxMultican_Frame_transmit;
     config_Message_Transmit.dataLen          =   IfxMultican_DataLengthCode_8;
-    config_Message_Recive.isStandardId       =   TRUE;
+    config_Message_Transmit.isStandardId       =   TRUE;
         if (node == 0){
         config_Message_Transmit.node             =   &CanCommunication_canNode0;
     }

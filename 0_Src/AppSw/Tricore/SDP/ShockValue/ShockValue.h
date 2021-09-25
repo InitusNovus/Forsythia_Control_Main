@@ -26,14 +26,14 @@ typedef union
     uint32 RecievedData[2];
 }ShockCanMsg_data_t;
 
-struct{
+typedef struct{
     float frontRoll;
     float frontHeave;
     float rearRoll;
     float rearHeave;
-}ShockValue;
+}ShockValue_t;
 
-IFX_EXTERN struct ShockValue ShockValue;
+IFX_EXTERN ShockValue_t shockValue;
 IFX_EXTERN ShockCanMsg_data_t ShockCanMsgFront;
 IFX_EXTERN ShockCanMsg_data_t ShockCanMsgRear;
 

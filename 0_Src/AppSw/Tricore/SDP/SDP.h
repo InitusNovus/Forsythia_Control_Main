@@ -33,6 +33,7 @@
 #include "WheelSpeed.h"
 #include "AccumulatorManager_master.h"
 #include "ShockValue.h"
+#include "Cooling.h"
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/

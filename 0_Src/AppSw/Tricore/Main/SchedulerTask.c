@@ -168,6 +168,7 @@ void Task_init (void)
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
+		SDP_Cooling_init();
 	}
 	/* Hmm... */
 	{
@@ -192,7 +193,7 @@ void Task_init (void)
 			IfxCpu_releaseMutex(&Task_core2.mutex);
 		}
 
-		HLD_GtmTomBeeper_start(Beep_pattern4);
+		HLD_GtmTomBeeper_start(NewStartPattern);
 		//HLD_GtmTomBeeper_start(KartRider);
 		//HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
 	}
@@ -234,6 +235,7 @@ void Task_IsrCb_1ms (void)
 		SDP_PedalBox_run_1ms();
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
+		SDP_Cooling_run_1ms();
 		// SDP_ShockValue_run_1ms();
 
 	}

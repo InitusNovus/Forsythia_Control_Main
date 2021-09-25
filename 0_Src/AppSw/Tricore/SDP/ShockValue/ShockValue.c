@@ -5,7 +5,7 @@
 
 ShockCanMsg_data_t ShockCanMsgFront;
 ShockCanMsg_data_t ShockCanMsgRear;
-struct ShockValue ShockValue;
+ShockValue_t shockValue;
 
 CanCommunication_Message ShockCanMsg0;
 CanCommunication_Message ShockCanMsg1;
@@ -39,14 +39,14 @@ void SDP_ShockValue_run_1ms(void){
     	ShockCanMsgFront.RecievedData[0]      =   ShockCanMsg0.msg.data[0];
     	ShockCanMsgFront.RecievedData[1]      =   ShockCanMsg0.msg.data[1];
     }
-    else if(CanCommunication_receiveMessage(&ShockCanMsg1))
+    if(CanCommunication_receiveMessage(&ShockCanMsg1))
     {
         ShockCanMsgRear.RecievedData[0]      =   ShockCanMsg1.msg.data[0];
         ShockCanMsgRear.RecievedData[1]      =   ShockCanMsg1.msg.data[1];
     }
 
-    ShockValue.frontHeave = (float)(ShockCanMsgFront.S.Heave/10);
-    ShockValue.frontRoll = (float)(ShockCanMsgFront.S.Roll/10);
-    ShockValue.rearHeave = (float)(ShockCanMsgRear.S.Heave/10);
-    ShockValue.Roll = (float)(ShockCanMsgRear.S.Roll/10);
+    shockValue.frontHeave = (float)(ShockCanMsgFront.S.Heave/10);
+    shockValue.frontRoll = (float)(ShockCanMsgFront.S.Roll/10);
+    shockValue.rearHeave = (float)(ShockCanMsgRear.S.Heave/10);
+    shockValue.rearRoll = (float)(ShockCanMsgRear.S.Roll/10);
 }

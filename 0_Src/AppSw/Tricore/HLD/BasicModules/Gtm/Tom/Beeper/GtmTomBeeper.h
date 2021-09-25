@@ -80,6 +80,7 @@ IFX_EXTERN note_t Beep_pattern7[];
 IFX_EXTERN note_t Beep_pattern8[];
 IFX_EXTERN note_t Beep_pattern9[];
 IFX_EXTERN note_t Beep_pattern10[];
+IFX_EXTERN note_t NewStartPattern[];
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
