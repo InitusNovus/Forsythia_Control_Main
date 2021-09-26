@@ -152,5 +152,6 @@ IFX_EXTERN void AmkInverter_can_Run(void);
 IFX_EXTERN void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
 IFX_EXTERN void writeMessage(uint16 Value1, uint16 Value2);
 IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
+IFX_EXTERN void InverterControlSet();
 
 #endif /* MULTICANCOMUNICATE_H */

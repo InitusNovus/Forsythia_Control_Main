@@ -9,6 +9,7 @@ Cooling_switch_t Cooling_switch;
 Cooling_order_t Cooling_order;
 
 CanCommunication_Message CoolingCanMsg;
+CanCommunication_Message CoolingSwitch;
 // CanCommunication_Message ShockCanMsg1;
 
 void SDP_Cooling_init(void);
@@ -24,14 +25,14 @@ void SDP_Cooling_init(void){
         config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&CoolingCanMsg, &config);
 	}
-	// {
-	// 	CanCommunication_Message_Config config;
-    //     config.messageId		=	SHOCK_CAN_MSG_1;
-    //     config.frameType		=	IfxMultican_Frame_receive;
-    //     config.dataLen			=	IfxMultican_DataLengthCode_8;
-    //     config.node				=	&CanCommunication_canNode0;
-    //     CanCommunication_initMessage(&ShockCanMsg1, &config);
-	// }
+	{
+		CanCommunication_Message_Config config;
+        config.messageId		=	COOLING_SWITCH_MSG;
+        config.frameType		=	IfxMultican_Frame_transmit;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode0;
+        CanCommunication_initMessage(&CoolingSwitch, &config);
+	}
 }
 
 void SDP_Cooling_run_1ms(void){
@@ -45,4 +46,11 @@ void SDP_Cooling_run_1ms(void){
     //     ShockCanMsgRear.RecievedData[0]      =   ShockCanMsg1.msg.data[0];
     //     ShockCanMsgRear.RecievedData[1]      =   ShockCanMsg1.msg.data[1];
     // }
+
+}
+void SDP_Cooling_Switch(void){
+    Cooling_switch.B.AutoMode_ON = 1;
+    CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+
+    CanCommunication_transmitMessage(&CoolingSwitch);
 }

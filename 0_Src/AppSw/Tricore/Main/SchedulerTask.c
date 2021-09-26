@@ -236,7 +236,7 @@ void Task_IsrCb_1ms (void)
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
 		SDP_Cooling_run_1ms();
-		// SDP_ShockValue_run_1ms();
+		SDP_ShockValue_run_1ms();
 
 	}
 	{
@@ -274,6 +274,8 @@ void Task_10ms_slot1 (void)
 void Task_100ms (void)
 {
 	Task_counter_service_100ms();
+	// SDP_Cooling_Switch();
+
 	if(Task.counter_100ms%2 == 0)
 	{
 
