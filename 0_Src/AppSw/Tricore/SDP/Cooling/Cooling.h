@@ -33,7 +33,7 @@ typedef union{
 typedef union{
 	uint32 TxData[2];
 	struct{
-		uint8 AutoMode_ON : 1;
+		uint8 manualMode_ON : 1;
 		uint8 WaterPump0_ON : 1;
 		uint8 WaterPump1_ON : 1;
 		uint8 Radiator0_ON : 1;
@@ -71,5 +71,5 @@ IFX_EXTERN Cooling_order_t Cooling_order;
 
 IFX_EXTERN void SDP_Cooling_init(void);
 IFX_EXTERN void SDP_Cooling_run_1ms(void);
-
+IFX_EXTERN void SDP_Cooling_Switch(void);
 #endif /* COOLING_H */

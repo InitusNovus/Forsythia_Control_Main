@@ -169,6 +169,7 @@ void Task_init (void)
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
 		SDP_Cooling_init();
+		SDP_SteeringAngleAdc_init();
 	}
 	/* Hmm... */
 	{
@@ -237,7 +238,7 @@ void Task_IsrCb_1ms (void)
 		SDP_WheelSpeed_run_1ms();
 		SDP_Cooling_run_1ms();
 		SDP_ShockValue_run_1ms();
-
+		SDP_SteeringAngleAdc_run();
 	}
 	{
 		RVC_run_1ms();
@@ -314,6 +315,7 @@ void Task_100ms_slot5(void)
 /**********************************************************************/
 void Task_1000ms (void)
 {
+	SDP_Cooling_Switch();
 	Task_counter_service_1000ms();
 }
 void Task_1000ms_slot3 (void)

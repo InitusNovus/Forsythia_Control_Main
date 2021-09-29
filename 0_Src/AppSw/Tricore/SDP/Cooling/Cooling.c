@@ -14,6 +14,7 @@ CanCommunication_Message CoolingSwitch;
 
 void SDP_Cooling_init(void);
 void SDP_Cooling_run_1ms(void);
+void SDP_Cooling_Switch(void);
 
 void SDP_Cooling_init(void){
     /* CAN message init */
@@ -49,7 +50,7 @@ void SDP_Cooling_run_1ms(void){
 
 }
 void SDP_Cooling_Switch(void){
-    Cooling_switch.B.AutoMode_ON = 1;
+    // Cooling_switch.B.manualMode_ON = 1;
     CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
 
     CanCommunication_transmitMessage(&CoolingSwitch);
