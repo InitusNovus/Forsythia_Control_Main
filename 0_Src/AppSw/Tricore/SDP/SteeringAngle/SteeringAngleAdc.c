@@ -48,6 +48,7 @@ IFX_STATIC void SDP_SteeringAngleAdc_updateSTA_AN(SDP_SteeringAngleAdc_sensor_t 
 	AdcSensor_getData(data_in);
 	// data_out->pedalPercent = data_out->config.reversed
 			// ?(float32)100.0 - data_in->value : data_in->value;
+	data_out->Percent = data_in->value * data_out->ratio;
 }
 
 void SDP_SteeringAngleAdc_run(){

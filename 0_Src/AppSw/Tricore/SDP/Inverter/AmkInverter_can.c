@@ -5,6 +5,7 @@
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
 const uint16 InvCtr = 0x160;
+boolean alreadyOn=0;
 
 ID_set Inverter_FL;
 ID_set Inverter_RL;
@@ -55,6 +56,7 @@ static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 n
 void writeMessage(uint16 Value1, uint16 Value2);
 void writeMessage2(uint16 Value1, uint16 Value2);
 void InverterControlSet();
+void AmkInverterStart();
 
 struct setSwitch{
     uint8 DCon;
@@ -258,7 +260,39 @@ void writeMessage2(uint16 Value1, uint16 Value2)
 
 }
 
-
+void AmkInverterStart(){
+    if (alreadyOn==0){
+        if(!(INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady&
+            INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady&
+            INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady&
+            INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady)){
+                return ;
+            }
+           
+        SWITCH.negTorquelimit = 0;
+        SWITCH.posTorquelimit = 0;
+        SWITCH.DCon = 1;
+        if(INV_FL_AMK_Actual_Values1.S.AMK_bDcOn&
+            INV_FR_AMK_Actual_Values1.S.AMK_bDcOn&
+            INV_RL_AMK_Actual_Values1.S.AMK_bDcOn&
+            INV_RR_AMK_Actual_Values1.S.AMK_bDcOn){
+                SWITCH.EF = 1;
+                SWITCH.BE1 = 1;
+                SWITCH.Enable =1;
+                SWITCH.inverter = 1;
+                if (INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn){
+                        SWITCH.BE2 = 1;
+                        SWITCH.posTorquelimit = 2143;
+                        // SWITCH.negTorquelimit = 
+                        alreadyOn = TRUE;
+                    }
+            }
+    }
+    
+}
 
 static void setPointInit(amkSetpoint1 *setpoint){
     setpoint->S.AMK_bInverterOn = FALSE;
