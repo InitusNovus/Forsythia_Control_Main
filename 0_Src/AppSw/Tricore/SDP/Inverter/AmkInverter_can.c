@@ -248,7 +248,9 @@ void writeMessage(uint16 Value1, uint16 Value2)
     AmkInverter_can_write(&INV_FL_AMK_Setpoint1,T_TC275_FL,Value1);
     AmkInverter_can_write(&INV_FR_AMK_Setpoint1,T_TC275_FR,Value2);
     // if (Inv_switch_msg.B.BE1on||Inv_switch_msg.B.BE2on||Inv_switch_msg.B.EFon){
+    if(alreadyOn != 0){
         InverterControlSet();
+    }    
     // }
 
 }
@@ -283,7 +285,11 @@ void AmkInverterStart(){
                 if (INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn&
                     INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn&
                     INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn&
-                    INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn){
+                    INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
+                    INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
+                    INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
+                    INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn){
                         SWITCH.BE2 = 1;
                         SWITCH.posTorquelimit = 2143;
                         // SWITCH.negTorquelimit = 

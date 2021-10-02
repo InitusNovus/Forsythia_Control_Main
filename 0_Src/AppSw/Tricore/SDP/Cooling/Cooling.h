@@ -70,6 +70,6 @@ IFX_EXTERN Cooling_order_t Cooling_order;
 
 
 IFX_EXTERN void SDP_Cooling_init(void);
-IFX_EXTERN void SDP_Cooling_run_1ms(void);
+IFX_EXTERN void SDP_Cooling_run_10ms(void);
 IFX_EXTERN void SDP_Cooling_Switch(void);
 #endif /* COOLING_H */

@@ -13,7 +13,7 @@ CanCommunication_Message CoolingSwitch;
 // CanCommunication_Message ShockCanMsg1;
 
 void SDP_Cooling_init(void);
-void SDP_Cooling_run_1ms(void);
+void SDP_Cooling_run_10ms(void);
 void SDP_Cooling_Switch(void);
 
 void SDP_Cooling_init(void){
@@ -36,7 +36,7 @@ void SDP_Cooling_init(void){
 	}
 }
 
-void SDP_Cooling_run_1ms(void){
+void SDP_Cooling_run_10ms(void){
     if(CanCommunication_receiveMessage(&CoolingCanMsg))
     {
     	Cooling_msg.RecievedData[0]      =   CoolingCanMsg.msg.data[0];
@@ -47,7 +47,7 @@ void SDP_Cooling_run_1ms(void){
     //     ShockCanMsgRear.RecievedData[0]      =   ShockCanMsg1.msg.data[0];
     //     ShockCanMsgRear.RecievedData[1]      =   ShockCanMsg1.msg.data[1];
     // }
-
+    
 }
 void SDP_Cooling_Switch(void){
     // Cooling_switch.B.manualMode_ON = 1;

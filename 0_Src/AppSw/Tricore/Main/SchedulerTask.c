@@ -236,7 +236,7 @@ void Task_IsrCb_1ms (void)
 		SDP_PedalBox_run_1ms();
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
-		SDP_Cooling_run_1ms();
+		
 		SDP_ShockValue_run_1ms();
 		SDP_SteeringAngleAdc_run();
 	}
@@ -264,7 +264,7 @@ void Task_10ms (void)			//Slot 0
 void Task_10ms_slot1 (void)
 {
 	stm_buf = IfxStm_get(&MODULE_STM0);
-
+	SDP_Cooling_run_10ms();
 	//	HLD_Imu_run_10ms_s1();
 
 	ticToc_10ms_s1 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));

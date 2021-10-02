@@ -13,6 +13,7 @@ typedef struct
 {
 	// SDP_PedalBox_sensorConfig_t	config;
 	float32						ratio;
+	float32						Percent;
 	float32						angle;
 	boolean						isValueOk;
 }SDP_SteeringAngleAdc_sensor_t;
