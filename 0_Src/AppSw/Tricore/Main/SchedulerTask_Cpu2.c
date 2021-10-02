@@ -55,6 +55,11 @@ extern AdcSensor APPS0;
 /******************************************************************************/
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
+void Task_core2_primaryService(void)
+{
+
+}
+
 void Task_core2_1ms(void)
 {
 	stm_buf_c2_delay = IfxStm_get(&MODULE_STM0);
@@ -71,4 +76,9 @@ void Task_core2_1ms(void)
 	SteeringWheel_run_xms_c2();
 
 	ticToc_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2) * 1000000 / (IfxStm_getFrequency(&MODULE_STM0));
+}
+
+void Task_core2_backgroundService(void)
+{
+
 }
