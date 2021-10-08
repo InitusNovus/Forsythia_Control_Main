@@ -6,7 +6,35 @@
 #include <stdint.h>
 #include "Multican.h"
 #include "CanCommunication.h"
-#include "HLD.h"
+typedef union 
+{
+	struct 
+	{
+		uint8  RrShock;	
+        uint8  RlShock;	
+        uint8  FrShock;	
+        uint8  FlShock;	
+        uint8  FhShock;	
+        uint8  Adc1;	
+        uint8  Adc2;	
+        uint8  Adc3;
+	}S;
+	uint32 U[2];
+}Stm32_canMsg1_t;
+
+typedef union 
+{
+    uint32 RecievedData[2];
+    struct{
+        unsigned int VADC0 : 12; 
+        unsigned int VADC1 : 12;
+        unsigned int VADC2 : 12;
+        unsigned int VADC3 : 12;
+        unsigned int VADC4 : 12;
+        unsigned int Temp  : 4;        
+    }S;
+
+}Stm32_canMsg2_t;
 
 typedef struct
 {
@@ -53,12 +81,12 @@ typedef union
 typedef union
 {
 	uint32 RecievedData[2];
-	struct{
-		int AMK_TempMotor : 16;
-		int AMK_TempInverter : 16;
-		unsigned int AMK_ErrorInfo : 16;
-		int AMK_TempIGBT : 16;
-	}S;
+	    struct{
+			int AMK_TempMotor : 16;
+	        int AMK_TempInverter : 16;
+	        unsigned int AMK_ErrorInfo : 16;
+	        int AMK_TempIGBT : 16;
+	    }S;
 }amkActualValues2;
 
 typedef union
@@ -77,6 +105,17 @@ typedef union
 	    }S;
 }amkSetpoint1;
 
+typedef union{
+	uint32 TransmitData[2];
+	struct{
+		uint16_t EFon;
+		uint16_t BE1on;
+		uint16_t BE2on;
+		uint16_t Remain;
+	}B;
+}Inv_switch_msg_t;
+
+
 typedef struct
 {
 	uint16 ID_AMK_Ac1;
@@ -84,6 +123,9 @@ typedef struct
 	uint16 ID_AMK_Set;
 }ID_set;
 
+IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
+IFX_EXTERN Stm32_canMsg1_t canMsg1;
+IFX_EXTERN Stm32_canMsg2_t canMsg2;
 
 IFX_EXTERN amkActualValues1 INV1_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV2_AMK_Actual_Values1;
@@ -110,5 +152,7 @@ IFX_EXTERN void AmkInverter_can_Run(void);
 IFX_EXTERN void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
 IFX_EXTERN void writeMessage(uint16 Value1, uint16 Value2);
 IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
+IFX_EXTERN void InverterControlSet();
+IFX_EXTERN void AmkInverterStart();
 
 #endif /* MULTICANCOMUNICATE_H */

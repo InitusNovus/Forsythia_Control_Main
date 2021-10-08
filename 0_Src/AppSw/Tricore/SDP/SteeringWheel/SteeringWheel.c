@@ -36,6 +36,10 @@ const uint32 StWhlMsgId3 = 0x00101F02UL;
 SteeringWheel_t SteeringWheel;
 SteeringWheel_public_t SteeringWheel_public;
 
+amkActualValues2 INV_FL_AMK_Actual_Values2;
+amkActualValues2 INV_RL_AMK_Actual_Values2;
+amkActualValues2 INV_RR_AMK_Actual_Values2;
+amkActualValues2 INV_FR_AMK_Actual_Values2;
 /******************* Private Function Prototypes *********************/
 
 
@@ -97,15 +101,19 @@ void SteeringWheel_run_xms_c2(void)
 	SteeringWheel.canMsg2.S.lvBatteryVoltage = (uint16)(SteeringWheel_public.data.lvBatteryVoltage*100);
 	SteeringWheel.canMsg2.S.accumulatorVoltage = OrionBms2.msg1.packVoltage;
 
-	// SteeringWheel.canMsg3.S.inverter1Temp = kelly8080ips1.msg2.conTemp;
-	// SteeringWheel.canMsg3.S.motor1Temp = kelly8080ips1.msg2.motTemp;
-	// SteeringWheel.canMsg3.S.inverter2Temp = kelly8080ips2.msg2.conTemp;
-	// SteeringWheel.canMsg3.S.motor2Temp = kelly8080ips2.msg2.motTemp;
+	SteeringWheel.canMsg3.S.inverterFLTemp = INV_FL_AMK_Actual_Values2.S.AMK_TempInverter;
+	SteeringWheel.canMsg3.S.motorFLTemp = INV_FL_AMK_Actual_Values2.S.AMK_TempMotor;
+	SteeringWheel.canMsg3.S.inverterRLTemp = INV_RL_AMK_Actual_Values2.S.AMK_TempInverter;
+	SteeringWheel.canMsg3.S.motorRLTemp = INV_RL_AMK_Actual_Values2.S.AMK_TempMotor;
+	SteeringWheel.canMsg3.S.inverterRRTemp = INV_RR_AMK_Actual_Values2.S.AMK_TempInverter;
+	SteeringWheel.canMsg3.S.motorRRTemp = INV_RR_AMK_Actual_Values2.S.AMK_TempMotor;
+	SteeringWheel.canMsg3.S.inverterFRTemp = INV_FR_AMK_Actual_Values2.S.AMK_TempInverter;
+	SteeringWheel.canMsg3.S.motorFRTemp = INV_FR_AMK_Actual_Values2.S.AMK_TempMotor;
 
 	/* Set the messages */
 	CanCommunication_setMessageData(SteeringWheel.canMsg1.U[0], SteeringWheel.canMsg1.U[1], &SteeringWheel.msgObj1);
 	CanCommunication_setMessageData(SteeringWheel.canMsg2.U[0], SteeringWheel.canMsg2.U[1], &SteeringWheel.msgObj2);
-	CanCommunication_setMessageData(SteeringWheel.canMsg3.U, 0, &SteeringWheel.msgObj3);
+	CanCommunication_setMessageData(SteeringWheel.canMsg3.U[0], SteeringWheel.canMsg3.U[1], &SteeringWheel.msgObj3);
 
 	/* Transmit the messages */
 	CanCommunication_transmitMessage(&SteeringWheel.msgObj1);

@@ -1,51 +1,49 @@
 #include "AmkInverter_can.h"
-
+#include "HLD.h"
 
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
-const uint32 TC237 = 0x237;
+const uint16 InvCtr = 0x160;
+boolean alreadyOn=0;
 
-ID_set Inverter1;
-ID_set Inverter2;
-ID_set Inverter3;
-ID_set Inverter4;
-
-
-CanCommunication_Message T_TC237_1;
-CanCommunication_Message T_TC237_2;
-CanCommunication_Message T_TC237_3;
-CanCommunication_Message T_TC237_4;
-
-CanCommunication_Message T_TC237_1;
-CanCommunication_Message T_TC237_2;
-CanCommunication_Message T_TC237_3;
-CanCommunication_Message T_TC237_4;
-
-CanCommunication_Message R_Inverter1_1;
-CanCommunication_Message R_Inverter2_1;
-CanCommunication_Message R_Inverter3_1;
-CanCommunication_Message R_Inverter4_1;
-CanCommunication_Message R_Inverter1_2;
-CanCommunication_Message R_Inverter2_2;
-CanCommunication_Message R_Inverter3_2;
-CanCommunication_Message R_Inverter4_2;
+ID_set Inverter_FL;
+ID_set Inverter_RL;
+ID_set Inverter_RR;
+ID_set Inverter_FR;
 
 
-amkActualValues1 INV1_AMK_Actual_Values1;
-amkActualValues1 INV2_AMK_Actual_Values1;
-amkActualValues1 INV3_AMK_Actual_Values1;
-amkActualValues1 INV4_AMK_Actual_Values1;
+CanCommunication_Message T_TC275_FL;
+CanCommunication_Message T_TC275_RL;
+CanCommunication_Message T_TC275_RR;
+CanCommunication_Message T_TC275_FR;
+CanCommunication_Message T_InvCtr;
 
-amkActualValues2 INV1_AMK_Actual_Values2;
-amkActualValues2 INV2_AMK_Actual_Values2;
-amkActualValues2 INV3_AMK_Actual_Values2;
-amkActualValues2 INV4_AMK_Actual_Values2;
+CanCommunication_Message R_Inverter_FL_1;
+CanCommunication_Message R_Inverter_RL_1;
+CanCommunication_Message R_Inverter_RR_1;
+CanCommunication_Message R_Inverter_FR_1;
+CanCommunication_Message R_Inverter_FL_2;
+CanCommunication_Message R_Inverter_RL_2;
+CanCommunication_Message R_Inverter_RR_2;
+CanCommunication_Message R_Inverter_FR_2;
 
-amkSetpoint1 INV1_AMK_Setpoint1;
-amkSetpoint1 INV2_AMK_Setpoint1;
-amkSetpoint1 INV3_AMK_Setpoint1;
-amkSetpoint1 INV4_AMK_Setpoint1;
+
+amkActualValues1 INV_FL_AMK_Actual_Values1;
+amkActualValues1 INV_RL_AMK_Actual_Values1;
+amkActualValues1 INV_RR_AMK_Actual_Values1;
+amkActualValues1 INV_FR_AMK_Actual_Values1;
+
+amkActualValues2 INV_FL_AMK_Actual_Values2;
+amkActualValues2 INV_RL_AMK_Actual_Values2;
+amkActualValues2 INV_RR_AMK_Actual_Values2;
+amkActualValues2 INV_FR_AMK_Actual_Values2;
+
+amkSetpoint1 INV_FL_AMK_Setpoint1;
+amkSetpoint1 INV_RL_AMK_Setpoint1;
+amkSetpoint1 INV_RR_AMK_Setpoint1;
+amkSetpoint1 INV_FR_AMK_Setpoint1;
+Inv_switch_msg_t Inv_switch_msg;
 
 void AmkInverter_can_init(void);
 void AmkInverter_can_Run(void);
@@ -57,6 +55,8 @@ static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 no
 static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node);
 void writeMessage(uint16 Value1, uint16 Value2);
 void writeMessage2(uint16 Value1, uint16 Value2);
+void InverterControlSet();
+void AmkInverterStart();
 
 struct setSwitch{
     uint8 DCon;
@@ -65,37 +65,41 @@ struct setSwitch{
     uint16 posTorquelimit;
     int16_t negTorquelimit;
     uint8 ErrorReset;
+    uint32 Checker;
+    boolean BE1;
+    boolean BE2;
+    boolean EF;
 };
 struct Monitor{
     int InverterTemp;
     struct {
-        uint16 error_1;
-        uint16 error_2;
-        uint16 error_3;
-        uint16 error_4;
+        uint16 error_FL;
+        uint16 error_RL;
+        uint16 error_RR;
+        uint16 error_FR;
     }InverterErrorState;
     struct {
-        uint16 temp_1;
-        uint16 temp_2;
-        uint16 temp_3;
-        uint16 temp_4;
+        uint16 temp_FL;
+        uint16 temp_RL;
+        uint16 temp_RR;
+        uint16 temp_FR;
     }MotorTemp;
     struct{
-        uint16 velocity_1;
-        uint16 velocity_2;
-        uint16 velocity_3;
-        uint16 velocity_4;
+        uint16 velocity_FL;
+        uint16 velocity_RL;
+        uint16 velocity_RR;
+        uint16 velocity_FR;
     } MotorVelocity;
     // struct MotorCurrent{
-    //     uint16 velocity_1;
-    //     uint16 velocity_2;
-    //     uint16 velocity_3;
-    //     uint16 velocity_4;
+    //     uint16 velocity_RL;
+    //     uint16 velocity_FL;
+    //     uint16 velocity_RR;
+    //     uint16 velocity_FR;
     // }
 };
 struct Monitor Monitor;//
 struct setSwitch SWITCH = {0,0,0,0,0,0};
-static void SET_ID(ID_set *IN, int node)
+void SET_ID(ID_set *IN, int node)
 {
 	IN->ID_AMK_Ac1 = 0x282 + node;
 	IN->ID_AMK_Ac2 = 0x284 + node;
@@ -106,26 +110,27 @@ void AmkInverter_can_init(void)
 {   
     
 
-	SET_ID(&Inverter1,1);
-	SET_ID(&Inverter2,2);
-	SET_ID(&Inverter3,5);
-	SET_ID(&Inverter4,6);
+	SET_ID(&Inverter_FL,1);
+	SET_ID(&Inverter_RL,2);
+	SET_ID(&Inverter_RR,5);
+	SET_ID(&Inverter_FR,6);
 
     /**************************************Transmit***************************************************/
-    setTransmitMessage(Inverter1.ID_AMK_Set, &T_TC237_1,2);
-    setTransmitMessage(Inverter2.ID_AMK_Set, &T_TC237_2,1);
-    setTransmitMessage(Inverter3.ID_AMK_Set, &T_TC237_3,1);
-    setTransmitMessage(Inverter4.ID_AMK_Set, &T_TC237_4,2);
+    setTransmitMessage(Inverter_FL.ID_AMK_Set, &T_TC275_FL,2);
+    setTransmitMessage(Inverter_RL.ID_AMK_Set, &T_TC275_RL,1);
+    setTransmitMessage(Inverter_RR.ID_AMK_Set, &T_TC275_RR,1);
+    setTransmitMessage(Inverter_FR.ID_AMK_Set, &T_TC275_FR,2);
+    setTransmitMessage(InvCtr,&T_InvCtr,1);
 
     /**************************************Receive***************************************************/
-    setReceiveMessage(Inverter1.ID_AMK_Ac1, &R_Inverter1_1,2);
-    setReceiveMessage(Inverter1.ID_AMK_Ac2, &R_Inverter1_2,2);
-    setReceiveMessage(Inverter2.ID_AMK_Ac1, &R_Inverter2_1,1);
-    setReceiveMessage(Inverter2.ID_AMK_Ac2, &R_Inverter2_2,1);
-    setReceiveMessage(Inverter3.ID_AMK_Ac1, &R_Inverter3_1,1);
-    setReceiveMessage(Inverter3.ID_AMK_Ac2, &R_Inverter3_2,1);
-    setReceiveMessage(Inverter4.ID_AMK_Ac1, &R_Inverter4_1,2);
-    setReceiveMessage(Inverter4.ID_AMK_Ac2, &R_Inverter4_2,2);
+    setReceiveMessage(Inverter_FL.ID_AMK_Ac1, &R_Inverter_FL_1,2);
+    setReceiveMessage(Inverter_FL.ID_AMK_Ac2, &R_Inverter_FL_2,2);
+    setReceiveMessage(Inverter_RL.ID_AMK_Ac1, &R_Inverter_RL_1,1);
+    setReceiveMessage(Inverter_RL.ID_AMK_Ac2, &R_Inverter_RL_2,1);
+    setReceiveMessage(Inverter_RR.ID_AMK_Ac1, &R_Inverter_RR_1,1);
+    setReceiveMessage(Inverter_RR.ID_AMK_Ac2, &R_Inverter_RR_2,1);
+    setReceiveMessage(Inverter_FR.ID_AMK_Ac1, &R_Inverter_FR_1,2);
+    setReceiveMessage(Inverter_FR.ID_AMK_Ac2, &R_Inverter_FR_2,2);
 
     // {
     //     CanCommunication_Message_Config config_Message8_Recive;
@@ -136,72 +141,72 @@ void AmkInverter_can_init(void)
     //     CanCommunication_initMessage(&STM32A, &config_Message8_Recive);
     // }
     /**************************************Initial setpoint***************************************************/ 
-    setPointInit(&INV1_AMK_Setpoint1);
-    setPointInit(&INV2_AMK_Setpoint1);
-    setPointInit(&INV3_AMK_Setpoint1);
-    setPointInit(&INV4_AMK_Setpoint1);
+    setPointInit(&INV_FL_AMK_Setpoint1);
+    setPointInit(&INV_RL_AMK_Setpoint1);
+    setPointInit(&INV_RR_AMK_Setpoint1);
+    setPointInit(&INV_FR_AMK_Setpoint1);
 
 }
 
 void AmkInverter_can_Run(void)
 {
-    if(CanCommunication_receiveMessage(&R_Inverter1_1))
+    if(CanCommunication_receiveMessage(&R_Inverter_FL_1))
     {
-    	INV1_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter1_1.msg.data[0];
-    	INV1_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter1_1.msg.data[1];
+    	INV_FL_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter_FL_1.msg.data[0];
+    	INV_FL_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter_FL_1.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter1_2))
+    if(CanCommunication_receiveMessage(&R_Inverter_FL_2))
     {
-        INV1_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter1_2.msg.data[0];
-        INV1_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter1_2.msg.data[1];
+        INV_FL_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter_FL_2.msg.data[0];
+        INV_FL_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter_FL_2.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter2_1))
+    if(CanCommunication_receiveMessage(&R_Inverter_RL_1))
     {
-        INV2_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter2_1.msg.data[0];
-        INV2_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter2_1.msg.data[1];
+        INV_RL_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter_RL_1.msg.data[0];
+        INV_RL_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter_RL_1.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter2_2))
+    if(CanCommunication_receiveMessage(&R_Inverter_RL_2))
     {
-        INV2_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter2_2.msg.data[0];
-        INV2_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter2_2.msg.data[1];
+        INV_RL_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter_RL_2.msg.data[0];
+        INV_RL_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter_RL_2.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter3_1))
+    if(CanCommunication_receiveMessage(&R_Inverter_RR_1))
     {
-    	INV3_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter3_1.msg.data[0];
-    	INV3_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter3_1.msg.data[1];
+    	INV_RR_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter_RR_1.msg.data[0];
+    	INV_RR_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter_RR_1.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter3_2))
+    if(CanCommunication_receiveMessage(&R_Inverter_RR_2))
     {
-        INV3_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter3_2.msg.data[0];
-        INV3_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter3_2.msg.data[1];
+        INV_RR_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter_RR_2.msg.data[0];
+        INV_RR_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter_RR_2.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter4_1))
+    if(CanCommunication_receiveMessage(&R_Inverter_FR_1))
     {
-        INV4_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter4_1.msg.data[0];
-        INV4_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter4_1.msg.data[1];
+        INV_FR_AMK_Actual_Values1.RecievedData[0]      =   R_Inverter_FR_1.msg.data[0];
+        INV_FR_AMK_Actual_Values1.RecievedData[1]      =   R_Inverter_FR_1.msg.data[1];
     }
-    if(CanCommunication_receiveMessage(&R_Inverter4_2))
+    if(CanCommunication_receiveMessage(&R_Inverter_FR_2))
     {
-        INV4_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter4_2.msg.data[0];
-        INV4_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter4_2.msg.data[1];
+        INV_FR_AMK_Actual_Values2.RecievedData[0]      =   R_Inverter_FR_2.msg.data[0];
+        INV_FR_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter_FR_2.msg.data[1];
     }
 
-    Monitor.InverterErrorState.error_1 = INV1_AMK_Actual_Values1.S.AMK_bSError;
-    Monitor.InverterErrorState.error_2 = INV2_AMK_Actual_Values1.S.AMK_bSError;
-    Monitor.InverterErrorState.error_3 = INV3_AMK_Actual_Values1.S.AMK_bSError;
-    Monitor.InverterErrorState.error_4 = INV4_AMK_Actual_Values1.S.AMK_bSError;
+    Monitor.InverterErrorState.error_RL = INV_RL_AMK_Actual_Values1.S.AMK_bSError;
+    Monitor.InverterErrorState.error_FL = INV_FL_AMK_Actual_Values1.S.AMK_bSError;
+    Monitor.InverterErrorState.error_RR = INV_RR_AMK_Actual_Values1.S.AMK_bSError;
+    Monitor.InverterErrorState.error_FR = INV_FR_AMK_Actual_Values1.S.AMK_bSError;
 
-    Monitor.MotorTemp.temp_1 = INV1_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
-    Monitor.MotorTemp.temp_2 = INV2_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
-    Monitor.MotorTemp.temp_3 = INV3_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
-    Monitor.MotorTemp.temp_4 = INV4_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
+    Monitor.MotorTemp.temp_RL = INV_RL_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
+    Monitor.MotorTemp.temp_FL = INV_FL_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
+    Monitor.MotorTemp.temp_RR = INV_RR_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
+    Monitor.MotorTemp.temp_FR = INV_FR_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
 
-    Monitor.MotorTemp.temp_1 = INV1_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorTemp.temp_2 = INV2_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorTemp.temp_3 = INV3_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorTemp.temp_4 = INV4_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.InverterTemp = INV1_AMK_Actual_Values2.S.AMK_TempInverter;
-
+    Monitor.MotorVelocity.velocity_RL = INV_RL_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_FL = INV_FL_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_RR = INV_RR_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.MotorVelocity.velocity_FR = INV_FR_AMK_Actual_Values1.S.AMK_ActualVelocity;
+    Monitor.InverterTemp = INV_RL_AMK_Actual_Values2.S.AMK_TempInverter;
+    SWITCH.Checker+=1;
 }
 
 
@@ -214,30 +219,85 @@ void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint1
     INV->S.AMK_bInverterOn = SWITCH.inverter;
     INV->S.AMK_TorqueLimitPositv  = SWITCH.posTorquelimit;
     INV->S.AMK_TorqueLimitNegativ = SWITCH.negTorquelimit;
-    if (SWITCH.ErrorReset){
+    // if (SWITCH.ErrorReset){
         INV->S.AMK_bErrorReset = SWITCH.ErrorReset;
-        SWITCH.ErrorReset = 0;
-        INV->S.AMK_bErrorReset = SWITCH.ErrorReset;
-    }
+        // SWITCH.ErrorReset = 0;
+    // }
+    // else{
+        // INV->S.AMK_bErrorReset = 0;
+    // }
     CanCommunication_setMessageData(INV->TransmitData[0],INV->TransmitData[1], &TC);
 
     CanCommunication_transmitMessage(&TC);
 
 }
 
+void InverterControlSet(){
+    Inv_switch_msg.B.EFon = SWITCH.EF;
+    Inv_switch_msg.B.BE1on = SWITCH.BE1;
+    Inv_switch_msg.B.BE2on = SWITCH.BE2;
+    Inv_switch_msg.B.Remain = 0x1231;
+    CanCommunication_setMessageData(Inv_switch_msg.TransmitData[0],Inv_switch_msg.TransmitData[1], &T_InvCtr);
+
+    CanCommunication_transmitMessage(&T_InvCtr);
+}
+
 void writeMessage(uint16 Value1, uint16 Value2)
 {
 
-    AmkInverter_can_write(&INV1_AMK_Setpoint1,T_TC237_1,Value1);
-    AmkInverter_can_write(&INV2_AMK_Setpoint1,T_TC237_2,Value2);
+    AmkInverter_can_write(&INV_FL_AMK_Setpoint1,T_TC275_FL,Value1);
+    AmkInverter_can_write(&INV_FR_AMK_Setpoint1,T_TC275_FR,Value2);
+    // if (Inv_switch_msg.B.BE1on||Inv_switch_msg.B.BE2on||Inv_switch_msg.B.EFon){
+    if(alreadyOn != 0){
+        InverterControlSet();
+    }    
+    // }
 
 }
 void writeMessage2(uint16 Value1, uint16 Value2)
 {    
 
-    AmkInverter_can_write(&INV3_AMK_Setpoint1,T_TC237_3,Value1);
-    AmkInverter_can_write(&INV4_AMK_Setpoint1,T_TC237_4,Value2);        
+    AmkInverter_can_write(&INV_RR_AMK_Setpoint1,T_TC275_RR,Value1);
+    AmkInverter_can_write(&INV_RL_AMK_Setpoint1,T_TC275_RL,Value2);        
 
+}
+
+void AmkInverterStart(){
+    if (alreadyOn==0){
+        if(!(INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady&
+            INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady&
+            INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady&
+            INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady)){
+                return ;
+            }
+           
+        SWITCH.negTorquelimit = 0;
+        SWITCH.posTorquelimit = 0;
+        SWITCH.DCon = 1;
+        if(INV_FL_AMK_Actual_Values1.S.AMK_bDcOn&
+            INV_FR_AMK_Actual_Values1.S.AMK_bDcOn&
+            INV_RL_AMK_Actual_Values1.S.AMK_bDcOn&
+            INV_RR_AMK_Actual_Values1.S.AMK_bDcOn){
+                SWITCH.EF = 1;
+                SWITCH.BE1 = 1;
+                SWITCH.Enable =1;
+                SWITCH.inverter = 1;
+                if (INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn&
+                    INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
+                    INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
+                    INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
+                    INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn){
+                        SWITCH.BE2 = 1;
+                        SWITCH.posTorquelimit = 2143;
+                        // SWITCH.negTorquelimit = 
+                        alreadyOn = TRUE;
+                    }
+            }
+    }
+    
 }
 
 static void setPointInit(amkSetpoint1 *setpoint){
@@ -255,6 +315,7 @@ static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 no
     config_Message_Recive.messageId        =   ID;
     config_Message_Recive.frameType        =   IfxMultican_Frame_receive;
     config_Message_Recive.dataLen          =   IfxMultican_DataLengthCode_8;
+    config_Message_Recive.isStandardId     =   TRUE;
     if (node == 0){
         config_Message_Recive.node             =   &CanCommunication_canNode0;
     }
@@ -275,7 +336,8 @@ static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 n
     config_Message_Transmit.messageId        =   ID;
     config_Message_Transmit.frameType        =   IfxMultican_Frame_transmit;
     config_Message_Transmit.dataLen          =   IfxMultican_DataLengthCode_8;
-        if (node == 0){
+    config_Message_Transmit.isStandardId       =   TRUE;
+    if (node == 0){
         config_Message_Transmit.node             =   &CanCommunication_canNode0;
     }
     else if (node == 1){
