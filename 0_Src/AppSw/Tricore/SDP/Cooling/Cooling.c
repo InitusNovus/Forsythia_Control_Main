@@ -10,6 +10,7 @@ Cooling_order_t Cooling_order;
 
 CanCommunication_Message CoolingCanMsg;
 CanCommunication_Message CoolingSwitch;
+CanCommunication_Message CoolingOrder;
 // CanCommunication_Message ShockCanMsg1;
 
 void SDP_Cooling_init(void);
@@ -34,6 +35,14 @@ void SDP_Cooling_init(void){
         config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&CoolingSwitch, &config);
 	}
+    	{
+		CanCommunication_Message_Config config;
+        config.messageId		=	COOLING_ORDER_MSG;
+        config.frameType		=	IfxMultican_Frame_transmit;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode0;
+        CanCommunication_initMessage(&CoolingOrder, &config);
+	}
 }
 
 void SDP_Cooling_run_10ms(void){
@@ -47,7 +56,10 @@ void SDP_Cooling_run_10ms(void){
     //     ShockCanMsgRear.RecievedData[0]      =   ShockCanMsg1.msg.data[0];
     //     ShockCanMsgRear.RecievedData[1]      =   ShockCanMsg1.msg.data[1];
     // }
-    
+    if (Cooling_msg.B.manualMode_isOn){
+        CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1],&CoolingOrder);
+        CanCommunication_transmitMessage(&CoolingOrder);
+    }
 }
 void SDP_Cooling_Switch(void){
     // Cooling_switch.B.manualMode_ON = 1;

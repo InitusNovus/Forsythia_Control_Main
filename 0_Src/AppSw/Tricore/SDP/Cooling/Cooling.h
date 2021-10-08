@@ -23,7 +23,7 @@ typedef union{
 		uint8 WaterPump1_IS;
 		uint8 Radiator0_IS;
 		uint8 Radiator1_IS;
-		uint8 WaterPump_P;
+		uint8 manualMode_isOn;
 		uint8 Radiator0_T;
 		uint8 Radiator1_T;
 	}B;
