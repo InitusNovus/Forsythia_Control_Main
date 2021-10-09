@@ -44,7 +44,6 @@ amkSetpoint1 INV_RL_AMK_Setpoint1;
 amkSetpoint1 INV_RR_AMK_Setpoint1;
 amkSetpoint1 INV_FR_AMK_Setpoint1;
 Inv_switch_msg_t Inv_switch_msg;
-
 void AmkInverter_can_init(void);
 void AmkInverter_can_Run(void);
 void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
@@ -98,7 +97,7 @@ struct Monitor{
     // }
 };
 struct Monitor Monitor;//
-struct setSwitch SWITCH = {0,0,0,0,0,0};
+struct setSwitch SWITCH = {0,0,0,0,0,0,0};
 void SET_ID(ID_set *IN, int node)
 {
 	IN->ID_AMK_Ac1 = 0x282 + node;
