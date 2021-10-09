@@ -34,10 +34,10 @@ amkActualValues1 INV_RL_AMK_Actual_Values1;
 amkActualValues1 INV_RR_AMK_Actual_Values1;
 amkActualValues1 INV_FR_AMK_Actual_Values1;
 
-amkActualValues2 INV_FL_AMK_Actual_Values2;
-amkActualValues2 INV_RL_AMK_Actual_Values2;
-amkActualValues2 INV_RR_AMK_Actual_Values2;
-amkActualValues2 INV_FR_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_FL_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_RL_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_RR_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_FR_AMK_Actual_Values2;
 
 amkSetpoint1 INV_FL_AMK_Setpoint1;
 amkSetpoint1 INV_RL_AMK_Setpoint1;

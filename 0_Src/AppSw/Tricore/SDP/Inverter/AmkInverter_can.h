@@ -1,5 +1,5 @@
-#ifndef MULTICANCOMUNICATE_H
-#define MULTICANCOMUNICATE_H
+#ifndef AMKINVERTERCAN_H
+#define AMKINVERTERCAN_H
 #include <Ifx_Types.h>
 #include "Configuration.h"
 #include "ConfigurationIsr.h"
@@ -132,10 +132,10 @@ IFX_EXTERN amkActualValues1 INV2_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV3_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV4_AMK_Actual_Values1;
 
-IFX_EXTERN amkActualValues2 INV1_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV2_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV3_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV4_AMK_Actual_Values2;
+// IFX_EXTERN amkActualValues2 INV1_AMK_Actual_Values2;
+// IFX_EXTERN amkActualValues2 INV2_AMK_Actual_Values2;
+// IFX_EXTERN amkActualValues2 INV3_AMK_Actual_Values2;
+// IFX_EXTERN amkActualValues2 INV4_AMK_Actual_Values2;
 
 IFX_EXTERN amkSetpoint1 INV1_AMK_Setpoint1;
 IFX_EXTERN amkSetpoint1 INV2_AMK_Setpoint1;
@@ -155,4 +155,4 @@ IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
 IFX_EXTERN void InverterControlSet();
 IFX_EXTERN void AmkInverterStart();
 
-#endif /* MULTICANCOMUNICATE_H */
+#endif /* AMKINVERTERCAN_H */
