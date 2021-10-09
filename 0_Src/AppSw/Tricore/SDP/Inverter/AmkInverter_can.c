@@ -15,6 +15,12 @@ ID_set Inverter4;
 
 Stm32_canMsg2_t canMsg2;
 
+CanCommunication_Message T_TC237_1;
+CanCommunication_Message T_TC237_2;
+CanCommunication_Message T_TC237_3;
+CanCommunication_Message T_TC237_4;
+
+
 CanCommunication_Message R_Inverter1_1;
 CanCommunication_Message R_Inverter2_1;
 CanCommunication_Message R_Inverter3_1;
@@ -58,6 +64,7 @@ struct setSwitch{
     uint16 posTorquelimit;
     int16_t negTorquelimit;
     uint8 ErrorReset;
+    uint32_t Counter;
 };
 struct Monitor{
     int InverterTemp;
@@ -87,7 +94,7 @@ struct Monitor{
     // }
 };
 struct Monitor Monitor;//
-struct setSwitch SWITCH = {0,0,0,0,0,0};
+struct setSwitch SWITCH = {0,0,0,0,0,0,0};
 void SET_ID(ID_set *IN, int node)
 {
 	IN->ID_AMK_Ac1 = 0x282 + node;
@@ -195,6 +202,7 @@ void AmkInverter_can_Run(void)
     Monitor.MotorTemp.temp_4 = INV4_AMK_Actual_Values1.S.AMK_ActualVelocity;
     Monitor.InverterTemp = INV1_AMK_Actual_Values2.S.AMK_TempInverter;
 
+    SWITCH.Counter+=1;
 }
 
 
