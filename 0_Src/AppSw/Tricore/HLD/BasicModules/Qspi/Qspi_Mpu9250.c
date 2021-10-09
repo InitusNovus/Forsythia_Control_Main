@@ -47,16 +47,16 @@ IFX_EXTERN Qspi_t g_Qspi;
 void HLD_Qspi_Mpu9250_writeReg(uint8 address, uint8 value)
 {
 	uint8 tx[2]={address,value};
-	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers.spiMasterChannel) == SpiIf_Status_busy );
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
 	// send/receive new stream
-	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers.spiMasterChannel, tx, NULL_PTR, 2);
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, tx, NULL_PTR, 2);
 }
 
 uint8 HLD_Qspi_Mpu9250_readReg(uint8 address)
 {
 	uint8 tx[2]={(0b10000000|address),0x00};
 
-	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers.spiMasterChannel, tx, g_Qspi.rx, 2);
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, tx, g_Qspi.rx, 2);
 
 	waitTime(TimeConst_10us*2);
 //	while(IfxQspi_getReceiveFifoLevel(g_Qspi.drivers.spiMaster.qspi)<2);

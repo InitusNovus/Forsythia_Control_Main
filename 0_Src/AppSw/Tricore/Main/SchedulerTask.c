@@ -23,6 +23,7 @@
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
+#include "CanGateway.h"
 
 
 /******************************************************************************/
@@ -147,12 +148,11 @@ void Task_init (void)
 		HLD_GtmTom_init();
 		HLD_GtmTim_init();
 		HLD_Qspi_init();
-		// HLD_Multican_init();
 		HLD_Vadc_init();
 	}
 	/*HLD_AbstractionLayer initialization*/
 	{
-		HLD_Imu_init();
+		// HLD_Imu_init();
 	}
 	/*HLD_Userinterface initialization*/
 	{
@@ -168,6 +168,8 @@ void Task_init (void)
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
+		SDP_MC_init();
+		CanGateway_init();
 	}
 	/* Hmm... */
 	{
@@ -176,6 +178,12 @@ void Task_init (void)
 		OrionBms2_init();
 		RVC_init();
 		SteeringWheel_init();
+
+		// MicroSD_Demo_initSD();
+
+	}
+	{
+
 	}
 
 	/*HLD initialization finished*/
@@ -192,9 +200,9 @@ void Task_init (void)
 			IfxCpu_releaseMutex(&Task_core2.mutex);
 		}
 
-		HLD_GtmTomBeeper_start(Beep_pattern4);
+		HLD_GtmTomBeeper_start(NewStartSound);
 		//HLD_GtmTomBeeper_start(KartRider);
-		//HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
+		// HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
 	}
 
 }
@@ -235,10 +243,15 @@ void Task_IsrCb_1ms (void)
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
 		// SDP_ShockValue_run_1ms();
-
+		SDP_DashBoardLed_init();
+		SDP_TEMP1_LED_ON();
+		SDP_TEMP2_LED_ON();
+		SDP_SDC_LED_ON();
+		SDP_BSPD_LED_ON();
+		CanGateway_run();
 	}
 	{
-		RVC_run_1ms();
+		// RVC_run_1ms();
 	}
 	HLD_GtmTomBeeper_run_1ms();
 

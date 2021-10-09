@@ -1,79 +1,72 @@
 /*
- * SchedulerTask_Cpu1.c
+ * MicroSD_Demo.h
  *
- *  Created on: 2019. 10. 16.
- *      Author: Dua
+ *  Created on: 2020. 4. 14.
+ *      Author: Hohyon_Choi
  */
+
+#ifndef _MICROSD_DEMO_H_
+#define _MICROSD_DEMO_H_
 
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
-#include "SchedulerTask_Cpu1.h"
+#include "HLD.h"
+#include "microSD.h"
+#include "ff.h"
+#include "diskio.h"
 
-void Task_core1_1ms();
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
+/******************************************************************************/
+
+/******************************************************************************/
+/*------------------------------Type Definitions------------------------------*/
 /******************************************************************************/
 
 /******************************************************************************/
 /*--------------------------------Enumerations--------------------------------*/
 /******************************************************************************/
 
-
 /******************************************************************************/
 /*-----------------------------Data Structures--------------------------------*/
 /******************************************************************************/
 
-
 /******************************************************************************/
 /*------------------------------Global variables------------------------------*/
 /******************************************************************************/
-Task_cpu1 Task_core1 =
-{
-		.flag = FALSE,
-};
-uint64 stm_buf_c1 = 0;
-uint64 stm_buf_c1_delay = 0;
-uint64 ticToc_1ms_c1 = 0;
-uint64 delay_1ms_c1 = 0;
+typedef union {
+    struct{
+        uint32_t reserve : 4;
+        uint32_t ms : 10;
+        uint32_t sec : 8;
+        uint32_t min : 10;
+    }__attribute__((aligned(1),packed)) time;
+    uint32_t dataTime;
+}recordTime_t;
 
-uint16 core1Count = 0;
+extern recordTime_t recordTime;
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
 
+/*
+ * MicroSD demo functions
+ * more descriptions are in the functions
+ */
+
+
+IFX_EXTERN void MicroSD_Demo_initSD();
+IFX_EXTERN void MicroSD_Demo_run();
+IFX_EXTERN void MicroSD_Demo_stop();
+IFX_EXTERN void MicroSD_Demo_addData(uint32_t ID, uint32_t data[2]);
+
 
 /******************************************************************************/
-/*------------------------Private Variables/Constants-------------------------*/
+/*---------------------Inline Function Implementations------------------------*/
 /******************************************************************************/
 
 
-/******************************************************************************/
-/*-------------------------Function Implementations---------------------------*/
-/******************************************************************************/
-void Task_core1_1ms (void)
-{
-	stm_buf_c1_delay = IfxStm_get(&MODULE_STM0);
 
-
-	delay_1ms_c1 = (IfxStm_get(&MODULE_STM0) - stm_buf_c1_delay)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
-	stm_buf_c1 = IfxStm_get(&MODULE_STM0);
-
-	// HLD_Imu_run_1ms_c1();
-	SDP_MC_run_1ms();
-
-	ticToc_1ms_c1 = (IfxStm_get(&MODULE_STM0) - stm_buf_c1)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
-	core1Count +=1;
-
-	if (core1Count ==1000){
-		Task_core1_1000ms();
-	}
-}
-
-void Task_core1_1000ms(void)
-{
-	MicroSD_Demo_f_sync();
-	core1Count = 0;
-}
-
+#endif /* 0_SRC_APPSW_TRICORE_DEMO_MICROSD_MICROSD_DEMO_H_ */

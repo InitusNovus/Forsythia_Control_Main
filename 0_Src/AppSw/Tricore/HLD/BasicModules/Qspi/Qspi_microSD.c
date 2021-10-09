@@ -1,17 +1,16 @@
 /*
- * SchedulerTask_Cpu1.c
+ * Qspi_microSD.c
  *
- *  Created on: 2019. 10. 16.
- *      Author: Dua
+ *  Created on: 2020. 3. 30.
+ *      Author: Hohyon_Choi
  */
 
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
-#include "SchedulerTask_Cpu1.h"
-
-void Task_core1_1ms();
+#include "Qspi_microSD.h"
+#include "Bsp.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
@@ -29,16 +28,9 @@ void Task_core1_1ms();
 /******************************************************************************/
 /*------------------------------Global variables------------------------------*/
 /******************************************************************************/
-Task_cpu1 Task_core1 =
-{
-		.flag = FALSE,
-};
-uint64 stm_buf_c1 = 0;
-uint64 stm_buf_c1_delay = 0;
-uint64 ticToc_1ms_c1 = 0;
-uint64 delay_1ms_c1 = 0;
 
-uint16 core1Count = 0;
+IFX_EXTERN Qspi_t g_Qspi;
+
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
@@ -52,28 +44,64 @@ uint16 core1Count = 0;
 /******************************************************************************/
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
-void Task_core1_1ms (void)
+
+void HLD_microSD_slaveSelect(void)
 {
-	stm_buf_c1_delay = IfxStm_get(&MODULE_STM0);
+#ifdef SCOPETEST_
+	IfxPort_setPinLow(QSPI2_SLSO0.pin.port, QSPI2_SLSO0.pin.pinIndex);
+#else
+	IfxPort_setPinLow(QSPI2_SLSO5.pin.port, QSPI2_SLSO5.pin.pinIndex);
+#endif
 
+	//
 
-	delay_1ms_c1 = (IfxStm_get(&MODULE_STM0) - stm_buf_c1_delay)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
-	stm_buf_c1 = IfxStm_get(&MODULE_STM0);
-
-	// HLD_Imu_run_1ms_c1();
-	SDP_MC_run_1ms();
-
-	ticToc_1ms_c1 = (IfxStm_get(&MODULE_STM0) - stm_buf_c1)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
-	core1Count +=1;
-
-	if (core1Count ==1000){
-		Task_core1_1000ms();
-	}
 }
 
-void Task_core1_1000ms(void)
+void HLD_microSD_slaveDeselect(void)
 {
-	MicroSD_Demo_f_sync();
-	core1Count = 0;
+
+#ifdef SCOPETEST_
+	IfxPort_setPinHigh(QSPI2_SLSO0.pin.port, QSPI2_SLSO0.pin.pinIndex);
+#else
+	IfxPort_setPinHigh(QSPI2_SLSO5.pin.port, QSPI2_SLSO5.pin.pinIndex);
+#endif
+	//
+
 }
 
+void HLD_microSD_TxByte(uint8 data)
+{
+	//uint8 dummy;
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, &data, NULL_PTR, 1);
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
+	//waitTime(TimeConst_10us*3);
+
+}
+
+void HLD_microSD_TxBuffer(uint8 *buffer, uint16 len)
+{
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, buffer, NULL_PTR, len);
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
+}
+
+uint8 HLD_microSD_RxByte(void)
+{
+	uint8 data, dummy = 0xFF;
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
+	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, &dummy, &data, 1);
+	while( IfxQspi_SpiMaster_getStatus(&g_Qspi.drivers2.spiMasterChannel) == SpiIf_Status_busy );
+	//waitTime(TimeConst_10us*3);
+	//rxbyte = data;
+	return data;
+}
+
+void HLD_microSD_RxBytePtr(uint8 *buff)
+{
+	*buff = HLD_microSD_RxByte();
+}
+
+void HLD_microSD_setBaudRate_fastmode(){
+	IfxQspi_SpiMaster_setChannelBaudrate(&g_Qspi.drivers2.spiMasterChannel, 20000000);
+}

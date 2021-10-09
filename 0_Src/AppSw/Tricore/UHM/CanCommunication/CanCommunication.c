@@ -53,7 +53,7 @@ void CanCommunication_init(void)
 	// IfxMultican_Can_NodeConfig canNodeConfig;
 	IfxMultican_Can_Node_initConfig(&canNodeConfig, &CanCommunication_canModule);
 
-	canNodeConfig.baudrate 	= 500000;		//500kbps
+	canNodeConfig.baudrate 	= 1000000;		//500kbps
 	canNodeConfig.nodeId	= IfxMultican_NodeId_1;
 	canNodeConfig.rxPin		= &CAN0NODE1IN;
 	canNodeConfig.rxPinMode	= IfxPort_InputMode_pullUp;
@@ -90,6 +90,7 @@ void CanCommunication_initMessage(CanCommunication_Message* ccMsg, CanCommunicat
 	if(config->isStandardId)
 		canMsgObjConfig.control.extendedFrame = FALSE;
 	canMsgObjConfig.control.messageLen		= TRUE;	//TODO: standard ID range check
+
 	IfxMultican_Can_MsgObj_init(obj, &canMsgObjConfig);
 
 	ccMsg->isUpdated = FALSE;
@@ -98,6 +99,34 @@ void CanCommunication_initMessage(CanCommunication_Message* ccMsg, CanCommunicat
 	numMsgObj++;
 }
 
+
+void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsg, CanCommunication_Message_Config* config){
+	IfxMultican_Can_MsgObj* obj 	= &ccMsg->obj;
+
+	IfxMultican_Can_MsgObjConfig canMsgObjConfig;
+	IfxMultican_Can_MsgObj_initConfig(&canMsgObjConfig, config->node);
+
+	canMsgObjConfig.msgObjId		= numMsgObj;
+	canMsgObjConfig.messageId		= config->messageId;
+	canMsgObjConfig.acceptanceMask	= 0x7FFFFFFFUL;
+	canMsgObjConfig.frame			=config->frameType;
+	canMsgObjConfig.control.messageLen		= config->dataLen;
+	canMsgObjConfig.control.extendedFrame	= TRUE;	//Default: extended address
+	if(config->isStandardId)
+		canMsgObjConfig.control.extendedFrame = FALSE;
+	canMsgObjConfig.gatewayTransfers 		= TRUE;
+	canMsgObjConfig.gatewayConfig.copyDataLengthCode = TRUE;
+	canMsgObjConfig.gatewayConfig.copyData			 = TRUE;
+	canMsgObjConfig.gatewayConfig.copyId			 = TRUE;
+	canMsgObjConfig.gatewayConfig.enableTransmit	 = TRUE;
+	canMsgObjConfig.gatewayConfig.gatewayDstObjId 	 = numMsgObj+1;
+	IfxMultican_Can_MsgObj_init(obj, &canMsgObjConfig);
+
+	ccMsg->isUpdated = FALSE;
+	IfxMultican_Message_init(&ccMsg->msg, config->messageId, 0xdeadbeef, 0xdeadbeef,config-> dataLen);
+
+	numMsgObj++;
+}
 
 
 
