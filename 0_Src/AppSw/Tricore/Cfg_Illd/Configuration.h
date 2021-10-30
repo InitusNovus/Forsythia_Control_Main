@@ -59,7 +59,7 @@
 #define QSPI2_MTSR					IfxQspi2_MTSR_P15_5_OUT
 #define QSPI2_MRST					IfxQspi2_MRSTA_P15_4_IN
 #define QSPI2_SLSO5					IfxQspi2_SLSO5_P15_1_OUT
-#define QSPI2_SLSO10_DUMMY          IfxQspi2_SLSO12_P32_6_OUT
+#define QSPI2_SLSO10_DUMMY          IfxQspi2_SLSO10_P34_3_OUT
 
 /*GtmTom macros*/
 #define BEEPER                      IfxGtm_TOM0_4_TOUT22_P33_0_OUT //IfxGtm_TOM0_3_TOUT80_P14_0_OUT
@@ -160,7 +160,7 @@
 
 
 #define LCD_EN						IfxPort_P15_0		//DIG14
-#define LCD_B4						IfxPort_P15_1		//DIG15
+// #define LCD_B4						IfxPort_P15_1		//DIG15
 #define	LCD_B5						IfxPort_P33_9		//DIG16
 #define LCD_B6						IfxPort_P33_8		//DIG17
 #define LCD_B7						IfxPort_P20_0		//DIG18

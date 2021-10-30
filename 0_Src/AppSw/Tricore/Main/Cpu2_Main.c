@@ -48,8 +48,10 @@ void core2_main(void)
 		}
 		if(start)
 		{
+
 			break;
 		}
+		
 	}
 
     /** - Background loop */

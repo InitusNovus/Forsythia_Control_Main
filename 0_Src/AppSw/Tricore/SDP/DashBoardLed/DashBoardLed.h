@@ -20,3 +20,22 @@ IFX_EXTERN void SDP_IMD_LED_ON();
 IFX_EXTERN void SDP_IMD_LED_OFF();
 IFX_EXTERN void SDP_AMS_LED_ON();
 IFX_EXTERN void SDP_AMS_LED_OFF();
+
+typedef struct{
+    Ifx_P module;
+    uint8 port;
+    boolean val;
+}indicator_t;
+
+typedef struct{
+    indicator_t TEMP1;
+    indicator_t TEMP2;
+    indicator_t RTD;
+    indicator_t SDC;
+    indicator_t ECU;
+    indicator_t BSPD;
+    indicator_t IMD;
+    indicator_t AMS;
+}DashBoardLed_t;
+
+IFX_EXTERN DashBoardLed_t DashBoardLed;

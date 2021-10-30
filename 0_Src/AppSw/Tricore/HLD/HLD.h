@@ -134,7 +134,11 @@
 #include "GtmTim.h"
 
 #include "Qspi.h"
-#include "Qspi_Mpu9250.h"
+#include "Qspi_microSD.h"
+// #include "Qspi_Mpu9250.h"
+
+
+
 
 #include "Vadc.h"
 #include "Multican.h"
@@ -143,9 +147,9 @@
 #include "IMU.h"
 
 #if HLD_BOARD == HLD_BOARD_SB275
-#include "UserInterface.h"
+// #include "UserInterface.h"
 #elif HLD_BOARD == HLD_BOARD_AK237
-#include "LcdInterface.h"
+// #include "LcdInterface.h"
 #endif
 
 /******************************************************************************/

@@ -20,6 +20,7 @@
 #include "AmkInverter_can.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
+#include "DashBoardLed.h"
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
@@ -94,6 +95,7 @@ uint64 ticToc_10ms_s1 = 0;
 uint64 ticToc_100ms_s4 = 0;
 uint64 ticToc_100ms_s14 = 0;
 
+DashBoardLed_t DashBoardLed;
 
 
 /******************************************************************************/
@@ -170,6 +172,7 @@ void Task_init (void)
 		SDP_ShockValue_init();
 		SDP_MC_init();
 		CanGateway_init();
+		SDP_DashBoardLed_init();
 	}
 	/* Hmm... */
 	{
@@ -179,7 +182,7 @@ void Task_init (void)
 		RVC_init();
 		SteeringWheel_init();
 
-		// MicroSD_Demo_initSD();
+		MicroSD_Demo_initSD();
 
 	}
 	{
@@ -243,17 +246,14 @@ void Task_IsrCb_1ms (void)
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
 		// SDP_ShockValue_run_1ms();
-		SDP_DashBoardLed_init();
-		SDP_TEMP1_LED_ON();
-		SDP_TEMP2_LED_ON();
-		SDP_SDC_LED_ON();
-		SDP_BSPD_LED_ON();
-		CanGateway_run();
+		SDP_DashBoardLed_run_1ms(DashBoardLed);
+
+		// CanGateway_run();
 	}
 	{
 		// RVC_run_1ms();
 	}
-	HLD_GtmTomBeeper_run_1ms();
+
 
 	ticToc_1ms = (IfxStm_get(&MODULE_STM0) - stm_buf_1ms)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
 }

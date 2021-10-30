@@ -16,7 +16,7 @@
 #include "ConfigurationIsr.h"
 #include "Qspi/SpiMaster/IfxQspi_SpiMaster.h"
 
-#include "Qspi_Mpu9250.h"
+// #include "Qspi_Mpu9250.h"
 #include "Qspi_microSD.h"
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -24,7 +24,7 @@
 #define QSPI_DEFAULT_NONE		0
 #define QSPI_DEFAULT_MPU9250 	1
 
-#define QSPI_DEFAULT QSPI_DEFAULT_MPU9250
+// #define QSPI_DEFAULT QSPI_DEFAULT_MPU9250
 /******************************************************************************/
 /*------------------------------Type Definitions------------------------------*/
 /******************************************************************************/

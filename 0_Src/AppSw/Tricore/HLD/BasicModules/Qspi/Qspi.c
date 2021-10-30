@@ -15,7 +15,7 @@
 
 #include "HLD.h"
 
-// #define DMA_
+#define DMA_
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
@@ -173,7 +173,7 @@ static void HLD_Qspi2Module_init(void)
 #endif
 		//		spiMasterConfig.txFifoMode		   = IfxQspi_FifoMode_singleMove;
 		//		spiMasterConfig.rxFifoMode		   = IfxQspi_FifoMode_singleMove;
-		spiMasterConfig.rxFifoThreshold = IfxQspi_RxFifoInt_1;
+		spiMasterConfig.rxFifoThreshold = IfxQspi_RxFifoInt_0;
 		/* pin configuration */
 		/*		const IfxQspi_SpiMaster_Pins pins = {&IfxQspi2_SCLK_P15_6_OUT,                                SCLK
 				IfxPort_OutputMode_pushPull,
@@ -187,7 +187,7 @@ static void HLD_Qspi2Module_init(void)
 				//				&QSPI2_MRST,  IfxPort_InputMode_pullDown,  /* MRST */
 				&QSPI2_MRST,  IfxPort_InputMode_pullUp,  /* MRST */
 				//				&QSPI2_MRST,  IfxPort_InputMode_noPullDevice,  /* MRST */
-				IfxPort_PadDriver_ttlSpeed3                   /* pad driver mode */
+				IfxPort_PadDriver_cmosAutomotiveSpeed3                   /* pad driver mode */
 		};
 		spiMasterConfig.pins = &pins;
 
@@ -218,7 +218,7 @@ static void HLD_Qspi2Module_init(void)
 		// spiMasterChannelConfig.base.mode.clockPolarity = SpiIf_ClockPolarity_idleHigh;
 		spiMasterChannelConfig.base.mode.clockPolarity = SpiIf_ClockPolarity_idleLow;
 
-		const IfxQspi_SpiMaster_Output slsOutput = {&QSPI2_SLSO5,
+		const IfxQspi_SpiMaster_Output slsOutput = {&QSPI2_SLSO10_DUMMY,
 				IfxPort_OutputMode_pushPull,
 				IfxPort_PadDriver_cmosAutomotiveSpeed1};
 		//				IfxPort_PadDriver_cmosAutomotiveSpeed3};
@@ -232,7 +232,7 @@ static void HLD_Qspi2Module_init(void)
 				&spiMasterChannelConfig);
 	}
 	printf("QspiModule initialized\n");
-	// IfxPort_setPinMode(QSPI2_SLSO5.pin.port, QSPI2_SLSO5.pin.pinIndex, IfxPort_OutputMode_pushPull);
+	IfxPort_setPinMode(QSPI2_SLSO5.pin.port, QSPI2_SLSO5.pin.pinIndex, IfxPort_OutputMode_pushPull);
 }
 
 
@@ -249,9 +249,9 @@ void HLD_Qspi_init(void)
 	printf("Qspi initialized\n");
 	/* enable interrupts again */
 	IfxCpu_restoreInterrupts(interruptState);
-	uint8 data = 0xFF;
-	uint8 dest = 0x55;
-	IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, &data, &dest, 1);
+	// uint8 data = 0xFF;
+	// uint8 dest = 0x55;
+	// IfxQspi_SpiMaster_exchange(&g_Qspi.drivers2.spiMasterChannel, &data, &dest, 1);
 }
 
 
