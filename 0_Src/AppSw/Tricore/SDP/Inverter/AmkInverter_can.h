@@ -6,35 +6,6 @@
 #include <stdint.h>
 #include "Multican.h"
 #include "CanCommunication.h"
-typedef union 
-{
-	struct 
-	{
-		uint8  RrShock;	
-        uint8  RlShock;	
-        uint8  FrShock;	
-        uint8  FlShock;	
-        uint8  FhShock;	
-        uint8  Adc1;	
-        uint8  Adc2;	
-        uint8  Adc3;
-	}S;
-	uint32 U[2];
-}Stm32_canMsg1_t;
-
-typedef union 
-{
-    uint32 RecievedData[2];
-    struct{
-        unsigned int VADC0 : 12; 
-        unsigned int VADC1 : 12;
-        unsigned int VADC2 : 12;
-        unsigned int VADC3 : 12;
-        unsigned int VADC4 : 12;
-        unsigned int Temp  : 4;        
-    }S;
-
-}Stm32_canMsg2_t;
 
 typedef struct
 {
@@ -124,18 +95,12 @@ typedef struct
 }ID_set;
 
 IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
-IFX_EXTERN Stm32_canMsg1_t canMsg1;
-IFX_EXTERN Stm32_canMsg2_t canMsg2;
+IFX_EXTERN amkActualValues1 INV_FL_AMK_Actual_Values1;
+IFX_EXTERN amkActualValues1 INV_RL_AMK_Actual_Values1;
+IFX_EXTERN amkActualValues1 INV_RR_AMK_Actual_Values1;
+IFX_EXTERN amkActualValues1 INV_FR_AMK_Actual_Values1;
 
-IFX_EXTERN amkActualValues1 INV1_AMK_Actual_Values1;
-IFX_EXTERN amkActualValues1 INV2_AMK_Actual_Values1;
-IFX_EXTERN amkActualValues1 INV3_AMK_Actual_Values1;
-IFX_EXTERN amkActualValues1 INV4_AMK_Actual_Values1;
 
-IFX_EXTERN amkActualValues2 INV1_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV2_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV3_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV4_AMK_Actual_Values2;
 
 IFX_EXTERN amkSetpoint1 INV1_AMK_Setpoint1;
 IFX_EXTERN amkSetpoint1 INV2_AMK_Setpoint1;

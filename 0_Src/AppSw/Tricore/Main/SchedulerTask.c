@@ -20,6 +20,7 @@
 #include "AmkInverter_can.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
+#include "DashBoardCan.h"
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
@@ -170,6 +171,7 @@ void Task_init (void)
 		SDP_ShockValue_init();
 		SDP_Cooling_init();
 		SDP_SteeringAngleAdc_init();
+		SDP_DashBoardCan_init();
 	}
 	/* Hmm... */
 	{
@@ -239,6 +241,7 @@ void Task_IsrCb_1ms (void)
 		
 		SDP_ShockValue_run_1ms();
 		SDP_SteeringAngleAdc_run();
+		SDP_DashBoardCan_run_10ms();
 	}
 	{
 		RVC_run_1ms();
@@ -265,6 +268,7 @@ void Task_10ms_slot1 (void)
 {
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	SDP_Cooling_run_10ms();
+
 	//	HLD_Imu_run_10ms_s1();
 
 	ticToc_10ms_s1 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));

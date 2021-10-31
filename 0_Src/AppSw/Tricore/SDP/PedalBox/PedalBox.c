@@ -158,8 +158,8 @@ void SDP_PedalBox_init(void)
 		config_adc.adcConfig.lpf.activated = TRUE;
 
 		config_adc.adcConfig.channelIn = &HLD_Vadc_P20_6_G2CH4_AD7;
-		config_adc.tfConfig.a = 19.65;
-		config_adc.tfConfig.b = 2.64;
+		config_adc.tfConfig.a = 28.0;
+		config_adc.tfConfig.b = 4.8;
 
 		config_adc.isOvervoltageProtected = TRUE;
 
@@ -168,8 +168,8 @@ void SDP_PedalBox_init(void)
 
 		//APPS1
 		config_adc.adcConfig.channelIn = &HLD_Vadc_P23_4_G0CH0_AD11;
-		config_adc.tfConfig.a = 19.65;
-		config_adc.tfConfig.b = 2.64;
+		config_adc.tfConfig.a = 42.5;
+		config_adc.tfConfig.b = 4.8;
 		AdcSensor_initSensor(&APPS1, &config_adc);
 		HLD_AdcForceStart(APPS1.adcChannel.channel.group);
 		
