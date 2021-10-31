@@ -20,7 +20,7 @@
 #include "AmkInverter_can.h"
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
-#include "DashBoardLed.h"
+#include "DashBoard.h"
 
 #include "SharedPinFix.h"
 #include "AdcForceStart.h"
@@ -95,7 +95,7 @@ uint64 ticToc_10ms_s1 = 0;
 uint64 ticToc_100ms_s4 = 0;
 uint64 ticToc_100ms_s14 = 0;
 
-DashBoardLed_t DashBoardLed;
+
 
 
 /******************************************************************************/
@@ -172,11 +172,11 @@ void Task_init (void)
 		SDP_ShockValue_init();
 		SDP_MC_init();
 		CanGateway_init();
-		SDP_DashBoardLed_init();
+	
 	}
 	/* Hmm... */
 	{
-		// AccumulatorManager_master_init();
+		AccumulatorManager_master_init();
 		AmkInverter_can_init();
 		OrionBms2_init();
 		RVC_init();
@@ -207,7 +207,7 @@ void Task_init (void)
 		//HLD_GtmTomBeeper_start(KartRider);
 		// HLD_GtmTomBeeper_start(GrandfathersElevenMonth);
 	}
-
+		SDP_DashBoardLed_init();
 }
 /**********************************************************************/
 /**********************************1ms*********************************/
@@ -246,7 +246,7 @@ void Task_IsrCb_1ms (void)
 		SDP_SteeringAngle_run_1ms();
 		SDP_WheelSpeed_run_1ms();
 		// SDP_ShockValue_run_1ms();
-		SDP_DashBoardLed_run_1ms(DashBoardLed);
+
 
 		// CanGateway_run();
 	}
@@ -266,7 +266,7 @@ void Task_10ms (void)			//Slot 0
 	Task_counter_service_10ms();
 
 	RVC_run_10ms();
-
+	SDP_DashBoardLed_run_10ms();
 	// HLD_UserInterface_run_10ms();
 
 	ticToc_10ms_s0 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
