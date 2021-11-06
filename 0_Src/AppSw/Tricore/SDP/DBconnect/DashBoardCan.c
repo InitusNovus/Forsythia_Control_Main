@@ -4,14 +4,16 @@
 
 #define STARTBTNPushedCanMSg 0x011
 
-#define STARTBTNMirrorCanMSg 0x012
+#define STARTBTNMirrorCanMSg 0x010
 
 StartBtnPushed_t StartBtnPushed;
 StartBtnPushed_t StartBtnMirror;
 
 CanCommunication_Message StartBtnPushedMsg;
 CanCommunication_Message StartBtnMirrorMsg;
-
+    
+boolean RTD_flag;
+boolean pastRTD_flag = 0;
 
 // CanCommunication_Message ShockCanMsg1;
 
@@ -46,12 +48,23 @@ void SDP_DashBoardCan_run_10ms(void){
     	StartBtnPushed.RxData[1]      =   StartBtnPushedMsg.msg.data[1];
     }
 
+    RTD_flag = StartBtnPushed.B.StartBtnPushed;
+
+    if(RTD_flag == 1 && pastRTD_flag ==0){
+        HLD_GtmTomBeeper_start(InvStartPattern);
+    }
+    else if(RTD_flag ==0 && pastRTD_flag == 1){
+        HLD_GtmTomBeeper_start(InvOffPattern);
+
+    }
+    
+
+
     if (StartBtnPushed.B.OFFvehicle || StartBtnPushed.B.StartBtnPushed ){
 
         CanCommunication_setMessageData(StartBtnPushed.RxData[0],StartBtnPushed.RxData[1], &StartBtnMirrorMsg);
 
         CanCommunication_transmitMessage(&StartBtnMirrorMsg);
     }
-
-
+    pastRTD_flag = RTD_flag;
 }

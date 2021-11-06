@@ -81,6 +81,8 @@ IFX_EXTERN note_t Beep_pattern8[];
 IFX_EXTERN note_t Beep_pattern9[];
 IFX_EXTERN note_t Beep_pattern10[];
 IFX_EXTERN note_t NewStartPattern[];
+IFX_EXTERN note_t InvStartPattern[];
+IFX_EXTERN note_t InvOffPattern[];
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/

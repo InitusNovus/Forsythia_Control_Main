@@ -87,6 +87,8 @@ note_t Beep_pattern8[] = {SA6L,ENDING};
 note_t Beep_pattern9[] = {SAS5L,ENDING};
 note_t Beep_pattern10[] = {SF5L,ENDING};
 note_t NewStartPattern[] = {SG5L,SRES,SG5L,SRES,SG5L,SRES,SG5L,SC5L,SE5L,SA5L,SC6L,ENDING};
+note_t InvStartPattern[] = {SC5L,SRES,SF5L,SRES,SA5L,SRES,SA5L,SRES,SA5L,ENDING};
+note_t InvOffPattern[] = {SA5L,SRES,SA5L,SRES,SA5L,SRES,SF5L,SRES,SC5L,ENDING};
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/

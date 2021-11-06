@@ -180,15 +180,15 @@ void SDP_PedalBox_init(void)
 		config_adc.adcConfig.lpf.config.samplingTime = 10.0e-3;
 		config_adc.isOvervoltageProtected = FALSE;
 		config_adc.linCalConfig.isAct = FALSE;
-		config_adc.tfConfig.a = 50;
-		config_adc.tfConfig.b = -25;
+		config_adc.tfConfig.a = 22.5;
+		config_adc.tfConfig.b = -6.25;
 		
-		config_adc.adcConfig.channelIn = &HLD_Vadc_P32_1_G4CH5_AD2;
+		config_adc.adcConfig.channelIn = &HLD_Vadc_P23_2_G4CH4_AD3;
 
 		AdcSensor_initSensor(&BPPS0, &config_adc);
 		HLD_AdcForceStart(BPPS0.adcChannel.channel.group);
 		//BPPS1		
-		config_adc.adcConfig.channelIn = &HLD_Vadc_P23_2_G4CH4_AD3;
+		config_adc.adcConfig.channelIn = &HLD_Vadc_P22_2_G0CH2_AD9;
 
 		AdcSensor_initSensor(&BPPS1, &config_adc);
 		HLD_AdcForceStart(BPPS1.adcChannel.channel.group);
@@ -509,7 +509,7 @@ IFX_STATIC void SDP_PedalBox_updateAPPS(void)
 
 void SDP_PedalBox_run_1ms(void)
 {
-	// SDP_PedalBox_updateBPPS();
+	SDP_PedalBox_updateBPPS();
 	SDP_PedalBox_updateAPPS();
 }
 

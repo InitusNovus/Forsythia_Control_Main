@@ -44,7 +44,7 @@ uint16_t task2_10ms_counter = 0;
 
 extern AdcSensor APPS0;
 uint16 tempPedal=0;
-boolean RTD_flag = 0;
+// boolean RTD_flag;
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
@@ -69,29 +69,34 @@ void Task_core2_1ms(void)
 
 	delay_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2_delay) * 1000000 / (IfxStm_getFrequency(&MODULE_STM0));
 	stm_buf_c2 = IfxStm_get(&MODULE_STM0);
+
+	SDP_PedalBox_run_1ms();
+	SDP_SteeringAngleAdc_run();
+
 	AmkInverter_can_Run();
 	// AccumulatorManager_master_run_1ms_c2();
-	// kelly8080ips_can_run_1ms_c2();
 
 	// OrionBms2_run_1ms_c2();
 	// SteeringWheel_run_xms_c2();
 	task2_10ms_counter+=1;
 	writeMessage(tempPedal,tempPedal);
 	writeMessage2(tempPedal,tempPedal);
-	// if (task2_10ms_counter == 10){
-		Task_core2_10ms_slot1();
-		// task2_10ms_counter = 0;
-	// }
+	
 	// else if (task2_10ms_counter ==15)
+	SDP_DashBoardCan_run_10ms();
 	if (RTD_flag)AmkInverterStart();
 	
-
+	if (task2_10ms_counter == 10){
+		Task_core2_10ms_slot1();
+		task2_10ms_counter = 0;
+	}
 	ticToc_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2) * 1000000 / (IfxStm_getFrequency(&MODULE_STM0));
 	
 }
 
 void Task_core2_10ms_slot1(void)
 {
+
 	/*
 	FIXME:
 	tempPedal to target torque value

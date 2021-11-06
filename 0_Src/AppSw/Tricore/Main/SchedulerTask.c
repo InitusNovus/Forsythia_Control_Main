@@ -210,6 +210,7 @@ void Task_init (void)
  * */
 void Task_1ms (void)
 {
+
 	/*
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_1ms();
@@ -235,13 +236,11 @@ void Task_IsrCb_1ms (void)
 		HLD_GtmTim_run_1ms();
 	}
 	{
-		SDP_PedalBox_run_1ms();
-		SDP_SteeringAngle_run_1ms();
-		SDP_WheelSpeed_run_1ms();
+
+		// SDP_WheelSpeed_run_1ms();
 		
 		SDP_ShockValue_run_1ms();
-		SDP_SteeringAngleAdc_run();
-		SDP_DashBoardCan_run_10ms();
+
 	}
 	{
 		RVC_run_1ms();
