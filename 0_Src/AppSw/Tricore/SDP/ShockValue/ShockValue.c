@@ -9,6 +9,7 @@ ShockCanMsg_data_t ShockCanMsgRear;
 CanCommunication_Message ShockCanMsg0;
 CanCommunication_Message ShockCanMsg1;
 
+
 void SDP_ShockValue_init(void);
 void SDP_ShockValue_run_1ms(void);
 

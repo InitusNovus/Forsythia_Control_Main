@@ -69,11 +69,11 @@ void Task_core2_1ms(void)
 
 	// AccumulatorManager_master_run_1ms_c2();
 	// kelly8080ips_can_run_1ms_c2();
-	AmkInverter_can_Run();
+	// AmkInverter_can_Run();
 	// writeMessage((int)APPS0.value,(int)APPS0.value);
 	// writeMessage2((int)APPS0.value,(int)APPS0.value);
-	OrionBms2_run_1ms_c2();
-	SteeringWheel_run_xms_c2();
+	// OrionBms2_run_1ms_c2();
+	// SteeringWheel_run_xms_c2();
 
 	ticToc_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2) * 1000000 / (IfxStm_getFrequency(&MODULE_STM0));
 }

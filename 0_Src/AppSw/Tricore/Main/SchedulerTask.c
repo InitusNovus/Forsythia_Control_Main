@@ -95,7 +95,7 @@ uint64 ticToc_10ms_s1 = 0;
 uint64 ticToc_100ms_s4 = 0;
 uint64 ticToc_100ms_s14 = 0;
 
-
+boolean DashBoardSendMessage;
 
 
 /******************************************************************************/
@@ -166,13 +166,14 @@ void Task_init (void)
 	}
 	/*SDP initialization*/
 	{
+		SDP_Dashboard_can_init();
 		SDP_PedalBox_init();
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
 		SDP_MC_init();
 		CanGateway_init();
-	
+
 	}
 	/* Hmm... */
 	{
@@ -182,7 +183,7 @@ void Task_init (void)
 		RVC_init();
 		SteeringWheel_init();
 
-		MicroSD_Demo_initSD();
+		// MicroSD_Demo_initSD();
 
 	}
 	{
@@ -217,6 +218,11 @@ void Task_init (void)
  * */
 void Task_1ms (void)
 {
+	// SDP_DashBoardMirrorCan();
+
+	// if (DashBoardSendMessage){
+
+	// }
 	/*
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_1ms();
@@ -238,13 +244,14 @@ void Task_IsrCb_1ms (void)
 		IfxCpu_releaseMutex(&Task_core2.mutex);
 	}
 
+
 	{
 		HLD_GtmTim_run_1ms();
 	}
 	{
-		SDP_PedalBox_run_1ms();
-		SDP_SteeringAngle_run_1ms();
-		SDP_WheelSpeed_run_1ms();
+		// SDP_PedalBox_run_1ms();
+		// SDP_SteeringAngle_run_1ms();
+		// SDP_WheelSpeed_run_1ms();
 		// SDP_ShockValue_run_1ms();
 
 
@@ -264,9 +271,9 @@ void Task_10ms (void)			//Slot 0
 {
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_10ms();
-
-	RVC_run_10ms();
-	SDP_DashBoardLed_run_10ms();
+	SDP_DashBoardCanSend();
+	// RVC_run_10ms();
+	// SDP_DashBoardLed_run_10ms();
 	// HLD_UserInterface_run_10ms();
 
 	ticToc_10ms_s0 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));

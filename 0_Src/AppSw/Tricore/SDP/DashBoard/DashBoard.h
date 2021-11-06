@@ -50,6 +50,11 @@ typedef union{
 
 }StartBtnPushed_t;
 
+IFX_EXTERN void SDP_Dashboard_can_init();
+
+// IFX_EXTERN boolean DashBoardSendMessage;
+
 IFX_EXTERN StartBtnPushed_t StartBtnPushed;
+IFX_EXTERN StartBtnPushed_t StartBtnMirror;
 
 IFX_EXTERN DashBoardLed_t DashBoardLed;

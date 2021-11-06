@@ -45,6 +45,9 @@ void SDP_MC_run_1ms(void){
     //     ShockCanMsgRear.RecievedData[0]      =   mcCanMsg1.msg.data[0];
     //     ShockCanMsgRear.RecievedData[1]      =   mcCanMsg1.msg.data[1];
     // }
+    MC_T_data.S.BE1_On = 1;
 
+    CanCommunication_setMessageData(MC_T_data.TransmitData[0],MC_T_data.TransmitData[1], &mcCanMsg1);
+    CanCommunication_transmitMessage(&mcCanMsg1);
 
 }

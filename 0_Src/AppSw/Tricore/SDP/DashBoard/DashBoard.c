@@ -1,14 +1,22 @@
 #include "DashBoard.h"
 
-#define STARTBTNPushedCanMSg 0x01111
+#define STARTBTNPushedCanMSg 0x011
+
+#define STARTBTNMirrorCanMSg 0x010
 // DashBoardLed_t DashBoardLed;
-CanCommunication_Message StartBtnPushedMsg;
+
 StartBtnPushed_t StartBtnPushed;
+CanCommunication_Message StartBtnPushedMsg;
+CanCommunication_Message StartBtnMirrorMsg;
+StartBtnPushed_t StartBtnMirror;
 
 DashBoardLed_t DashBoardLed;
 
 uint16 START_BTNCount = 0;
 boolean RTDon=0;
+IFX_EXTERN boolean DashBoardSendMessage;
+
+void SDP_Dashboard_can_init();
 
 static void SDP_DashBoardedLed_indicator_init(indicator_t *dashBoard,Ifx_P *Module, uint8 port){
     dashBoard->module=Module;
@@ -30,17 +38,27 @@ void SDP_DashBoardLed_init(){
     SDP_DashBoardedLed_indicator_init(&DashBoardLed.AMS,&MODULE_P00,3);
 
     IfxPort_setPinMode(&MODULE_P00, 1,  IfxPort_Mode_inputPullUp);
+}
 
-
+void SDP_Dashboard_can_init()
+{
 	{
 		CanCommunication_Message_Config config;
-        config.messageId		=	STARTBTNPushedCanMSg;
-        config.frameType		=	IfxMultican_Frame_transmit;
-        config.dataLen			=	IfxMultican_DataLengthCode_8;
-        config.node				=	&CanCommunication_canNode0;
-        CanCommunication_initMessage(&StartBtnPushedMsg, &config);
+		config.messageId = STARTBTNPushedCanMSg;
+		config.frameType = IfxMultican_Frame_transmit;
+		config.dataLen = IfxMultican_DataLengthCode_8;
+		config.node = &CanCommunication_canNode0;
+		CanCommunication_initMessage(&StartBtnPushedMsg, &config);
 	}
 
+	{
+		CanCommunication_Message_Config config2;
+		config2.messageId = STARTBTNMirrorCanMSg;
+		config2.frameType = IfxMultican_Frame_receive;
+		config2.dataLen = IfxMultican_DataLengthCode_8;
+		config2.node = &CanCommunication_canNode0;
+		CanCommunication_initMessage(&StartBtnMirrorMsg, &config2);
+	}
 }
 
 static void SDP_Dashboard_LED(Ifx_P* Module,uint8 port,boolean val){
@@ -50,9 +68,24 @@ static void SDP_Dashboard_LED(Ifx_P* Module,uint8 port,boolean val){
     IfxPort_setPinLow(Module, port);
 }
 
+void SDP_DashBoardMirrorCan(){
+    if(CanCommunication_receiveMessage(&StartBtnMirrorMsg))
+    {
+    	StartBtnMirror.TxData[0]      =   StartBtnMirrorMsg.msg.data[0];
+    	StartBtnMirror.TxData[1]      =   StartBtnMirrorMsg.msg.data[1];
+    }
+}
+
+void SDP_DashBoardCanSend(){
+    StartBtnPushed.B.Remain1 = 12345;
+    CanCommunication_setMessageData(StartBtnPushed.TxData[0],StartBtnPushed.TxData[1], &StartBtnPushedMsg);
+    CanCommunication_transmitMessage(&StartBtnPushedMsg);
+}
+
 void SDP_DashBoardLed_run_10ms(){
 
     if (IfxPort_getPinState(&MODULE_P00,1)==0){
+    // if (TRUE){
         START_BTNCount++;
         if (RTDon==FALSE && START_BTNCount %60 == 0 ){
             IfxPort_setPinHigh(DashBoardLed.TEMP1.module,DashBoardLed.TEMP1.port);
@@ -85,26 +118,33 @@ void SDP_DashBoardLed_run_10ms(){
         if (RTDon==FALSE && START_BTNCount>300){
             StartBtnPushed.B.StartBtnPushed = TRUE;
             StartBtnPushed.B.OFFvehicle     = FALSE;
-            CanCommunication_setMessageData(StartBtnPushed.TxData[0],StartBtnPushed.TxData[1], &StartBtnPushedMsg);
-            CanCommunication_transmitMessage(&StartBtnPushedMsg);
+            while(TRUE){
+                DashBoardSendMessage = TRUE;
+                SDP_DashBoardMirrorCan();
+                if (StartBtnMirror.B.StartBtnPushed){
+                    DashBoardSendMessage =FALSE;
+                    break;
+                }
+            }
             START_BTNCount = 0;
             RTDon = TRUE;
-            IfxPort_setPinLow(DashBoardLed.ECU.module,DashBoardLed.ECU.port);
-            IfxPort_setPinLow(DashBoardLed.BSPD.module,DashBoardLed.BSPD.port);
-            IfxPort_setPinLow(DashBoardLed.IMD.module,DashBoardLed.IMD.port);
-            IfxPort_setPinLow(DashBoardLed.AMS.module,DashBoardLed.AMS.port);
+            IfxPort_setPinLow(DashBoardLed.TEMP1.module,DashBoardLed.TEMP1.port);
+            IfxPort_setPinLow(DashBoardLed.TEMP2.module,DashBoardLed.TEMP2.port);
+            IfxPort_setPinLow(DashBoardLed.RTD.module,DashBoardLed.RTD.port);
+            IfxPort_setPinLow(DashBoardLed.SDC.module,DashBoardLed.SDC.port);
         }
         else if (RTDon==TRUE && START_BTNCount>300){
             StartBtnPushed.B.StartBtnPushed = FALSE;
             StartBtnPushed.B.OFFvehicle     = TRUE;
+            
             CanCommunication_setMessageData(StartBtnPushed.TxData[0],StartBtnPushed.TxData[1], &StartBtnPushedMsg);
             CanCommunication_transmitMessage(&StartBtnPushedMsg);
             START_BTNCount=0;
             RTDon = FALSE;
-            IfxPort_setPinLow(DashBoardLed.ECU.module,DashBoardLed.ECU.port);
-            IfxPort_setPinLow(DashBoardLed.BSPD.module,DashBoardLed.BSPD.port);
-            IfxPort_setPinLow(DashBoardLed.IMD.module,DashBoardLed.IMD.port);
-            IfxPort_setPinLow(DashBoardLed.AMS.module,DashBoardLed.AMS.port);
+            IfxPort_setPinLow(DashBoardLed.TEMP1.module,DashBoardLed.TEMP1.port);
+            IfxPort_setPinLow(DashBoardLed.TEMP2.module,DashBoardLed.TEMP2.port);
+            IfxPort_setPinLow(DashBoardLed.RTD.module,DashBoardLed.RTD.port);
+            IfxPort_setPinLow(DashBoardLed.SDC.module,DashBoardLed.SDC.port);
         }
         StartBtnPushed.B.StartBtnPushed = FALSE;
         StartBtnPushed.B.OFFvehicle     = FALSE;
