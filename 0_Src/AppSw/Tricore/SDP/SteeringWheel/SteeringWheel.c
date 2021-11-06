@@ -32,6 +32,10 @@ typedef struct
 const uint32 StWhlMsgId1 = 0x00101F00UL;
 const uint32 StWhlMsgId2 = 0x00101F01UL;
 const uint32 StWhlMsgId3 = 0x00101F02UL;
+const uint32 StWhlButtonID = 0x00101F03UL;
+
+CanCommunication_Message ButtonMsg;
+SteeringWheel_ButtonMsg_t ButtonValue;
 
 SteeringWheel_t SteeringWheel;
 SteeringWheel_public_t SteeringWheel_public;
@@ -67,9 +71,17 @@ void SteeringWheel_init(void)
 		CanCommunication_Message_Config config;
 		config.messageId 		= 	StWhlMsgId3;
 		config.frameType		=	IfxMultican_Frame_transmit;
-        config.dataLen			=	IfxMultican_DataLengthCode_4;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
         config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&SteeringWheel.msgObj3, &config);
+	}
+    {
+		CanCommunication_Message_Config config;
+		config.messageId 		= 	StWhlButtonID;
+		config.frameType		=	IfxMultican_Frame_receive;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode1;
+        CanCommunication_initMessage(&ButtonMsg, &config);
 	}
 }
 
@@ -81,6 +93,14 @@ void SteeringWheel_run_xms_c2(void)
 		SteeringWheel_public.data = SteeringWheel_public.shared.data;
 		IfxCpu_releaseMutex(&SteeringWheel_public.shared.mutex);
 	}
+
+	/*button input*/
+	if(CanCommunication_receiveMessage(&ButtonMsg))
+    {
+    	ButtonValue.TxData[0]      =   ButtonMsg.msg.data[0];
+    	ButtonValue.TxData[1]      =   ButtonMsg.msg.data[1];
+    }
+
 
 	/* Data parsing */
 	SteeringWheel.canMsg1.S.vehicleSpeed = (uint8)SteeringWheel_public.data.vehicleSpeed;

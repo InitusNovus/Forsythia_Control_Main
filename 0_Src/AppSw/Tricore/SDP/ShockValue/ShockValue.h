@@ -17,12 +17,15 @@
 
 typedef union
 {
-    struct{
-        uint32 isUpdated;
-        uint16 ShockValueL; 
-        uint16 ShockValueR; 
-    }S;
-    uint32 RecievedData[2];
+	uint32 TxData[2];
+	uint32 RxData[2];
+	struct{
+		unsigned int AngleR : 16;
+		unsigned int AngleL : 16;
+		unsigned int Roll : 16;
+		unsigned int Heave : 16;
+
+	}S;
 }ShockCanMsg_data_t;
 
 

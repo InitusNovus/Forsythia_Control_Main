@@ -61,7 +61,7 @@ void Task_core1_1ms (void)
 	stm_buf_c1 = IfxStm_get(&MODULE_STM0);
 
 	// HLD_Imu_run_1ms_c1();
-	SDP_MC_run_1ms();
+
 
 	ticToc_1ms_c1 = (IfxStm_get(&MODULE_STM0) - stm_buf_c1)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
 	core1Count +=1;

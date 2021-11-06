@@ -173,7 +173,7 @@ void Task_init (void)
 		SDP_ShockValue_init();
 		SDP_MC_init();
 		CanGateway_init();
-
+		SDP_Cooling_init();
 	}
 	/* Hmm... */
 	{
@@ -220,9 +220,7 @@ void Task_1ms (void)
 {
 	// SDP_DashBoardMirrorCan();
 
-	// if (DashBoardSendMessage){
 
-	// }
 	/*
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_1ms();
@@ -243,17 +241,14 @@ void Task_IsrCb_1ms (void)
 		Task_core2.flag = Task_core2.start ? TRUE : FALSE;
 		IfxCpu_releaseMutex(&Task_core2.mutex);
 	}
-
+	if (DashBoardSendMessage){
+		SDP_DashBoardCanSend();
+	}
 
 	{
 		HLD_GtmTim_run_1ms();
 	}
 	{
-		// SDP_PedalBox_run_1ms();
-		// SDP_SteeringAngle_run_1ms();
-		// SDP_WheelSpeed_run_1ms();
-		// SDP_ShockValue_run_1ms();
-
 
 		// CanGateway_run();
 	}
@@ -271,9 +266,8 @@ void Task_10ms (void)			//Slot 0
 {
 	stm_buf = IfxStm_get(&MODULE_STM0);
 	Task_counter_service_10ms();
-	SDP_DashBoardCanSend();
 	// RVC_run_10ms();
-	// SDP_DashBoardLed_run_10ms();
+	SDP_DashBoardLed_run_10ms();
 	// HLD_UserInterface_run_10ms();
 
 	ticToc_10ms_s0 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));

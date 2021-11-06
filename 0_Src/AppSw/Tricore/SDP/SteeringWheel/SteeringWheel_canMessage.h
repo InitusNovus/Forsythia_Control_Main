@@ -60,4 +60,18 @@ typedef union
 	uint32 U[2];
 }SteeringWheel_canMsg3_t;
 
+typedef union {
+	struct
+	{
+		uint8 ULbutton;
+		uint8 URbutton;
+		uint8 BLbutton;
+		uint8 BRbutton;
+		uint8 Rotswitch1;
+		uint8 Rotswitch2;
+		uint8 Rotswitch3;
+	}S;
+	uint32 TxData[2];
+}SteeringWheel_ButtonMsg_t;
+
 #endif
