@@ -5,7 +5,7 @@
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
 const uint16 InvCtr = 0x160;
-boolean alreadyOn=0;
+boolean alreadyOn=0; 
 
 ID_set Inverter_FL;
 ID_set Inverter_RL;
@@ -110,27 +110,27 @@ void AmkInverter_can_init(void)
 {   
     
 
-	SET_ID(&Inverter_FL,1);
-	SET_ID(&Inverter_RL,2);
-	SET_ID(&Inverter_RR,5);
-	SET_ID(&Inverter_FR,6);
+	SET_ID(&Inverter_FL,5);
+	SET_ID(&Inverter_RL,6);
+	SET_ID(&Inverter_RR,1);
+	SET_ID(&Inverter_FR,2);
 
     /**************************************Transmit***************************************************/
-    setTransmitMessage(Inverter_FL.ID_AMK_Set, &T_TC275_FL,2);
-    setTransmitMessage(Inverter_RL.ID_AMK_Set, &T_TC275_RL,1);
-    setTransmitMessage(Inverter_RR.ID_AMK_Set, &T_TC275_RR,1);
-    setTransmitMessage(Inverter_FR.ID_AMK_Set, &T_TC275_FR,2);
+    setTransmitMessage(Inverter_FL.ID_AMK_Set, &T_TC275_FL,1);
+    setTransmitMessage(Inverter_RL.ID_AMK_Set, &T_TC275_RL,2);
+    setTransmitMessage(Inverter_RR.ID_AMK_Set, &T_TC275_RR,2);
+    setTransmitMessage(Inverter_FR.ID_AMK_Set, &T_TC275_FR,1);
     setTransmitMessage(InvCtr,&T_InvCtr,1);
 
     /**************************************Receive***************************************************/
-    setReceiveMessage(Inverter_FL.ID_AMK_Ac1, &R_Inverter_FL_1,2);
-    setReceiveMessage(Inverter_FL.ID_AMK_Ac2, &R_Inverter_FL_2,2);
-    setReceiveMessage(Inverter_RL.ID_AMK_Ac1, &R_Inverter_RL_1,1);
-    setReceiveMessage(Inverter_RL.ID_AMK_Ac2, &R_Inverter_RL_2,1);
-    setReceiveMessage(Inverter_RR.ID_AMK_Ac1, &R_Inverter_RR_1,1);
-    setReceiveMessage(Inverter_RR.ID_AMK_Ac2, &R_Inverter_RR_2,1);
-    setReceiveMessage(Inverter_FR.ID_AMK_Ac1, &R_Inverter_FR_1,2);
-    setReceiveMessage(Inverter_FR.ID_AMK_Ac2, &R_Inverter_FR_2,2);
+    setReceiveMessage(Inverter_FL.ID_AMK_Ac1, &R_Inverter_FL_1,1);
+    setReceiveMessage(Inverter_FL.ID_AMK_Ac2, &R_Inverter_FL_2,1);
+    setReceiveMessage(Inverter_RL.ID_AMK_Ac1, &R_Inverter_RL_1,2);
+    setReceiveMessage(Inverter_RL.ID_AMK_Ac2, &R_Inverter_RL_2,2);
+    setReceiveMessage(Inverter_RR.ID_AMK_Ac1, &R_Inverter_RR_1,2);
+    setReceiveMessage(Inverter_RR.ID_AMK_Ac2, &R_Inverter_RR_2,2);
+    setReceiveMessage(Inverter_FR.ID_AMK_Ac1, &R_Inverter_FR_1,1);
+    setReceiveMessage(Inverter_FR.ID_AMK_Ac2, &R_Inverter_FR_2,1);
 
     // {
     //     CanCommunication_Message_Config config_Message8_Recive;
