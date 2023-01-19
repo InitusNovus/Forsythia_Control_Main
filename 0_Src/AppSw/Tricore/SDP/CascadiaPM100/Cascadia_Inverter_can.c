@@ -11,8 +11,8 @@
 #include "Cascadia_Inverter_can.h"
 #include "HLD.h"
 
-ID_set Inverter_L_ID;
-ID_set Inverter_R_ID;
+PM100_ID_set Inverter_L_ID;
+PM100_ID_set Inverter_R_ID;
 
 CanCommunication_Message Rx_Inverter_L[6];
 CanCommunication_Message Rx_Inverter_R[6];
@@ -26,15 +26,15 @@ PM100_Status_t Inverter_R_Status;
 PM100_Control_t Inverter_L_Control;
 PM100_Control_t Inverter_R_Control;
 
-void CascadiaInverter_SET_ID(ID_set* IN, int node);
+void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node);
 void CascadiaInverter_can_init(void);
 void CascadiaInverter_can_Run(void);
 
-static void setReceiveMessage(ID_set* ID, CanCommunication_Message* Rm);
-static void setTransmitMessage(ID_set* ID, CanCommunication_Message* Tm);
+static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm);
+static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm);
 static void setInitialControl(PM100_Control_t* Control);
 
-void CascadiaInverter_SET_ID(ID_set* IN, int node)
+void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 {
 
 	IN->node = node;
@@ -139,7 +139,7 @@ void CascadiaInverter_can_Run(void) //receive loop
 
 
 
-static void setReceiveMessage(ID_set* ID, CanCommunication_Message* Rm)
+static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm)
 {
 	/*Config in common~*/
 	IfxMultican_Can_Node* CanCommunication_canNodes[3] = {&CanCommunication_canNode0, &CanCommunication_canNode1, &CanCommunication_canNode2};
@@ -170,7 +170,7 @@ static void setReceiveMessage(ID_set* ID, CanCommunication_Message* Rm)
 	CanCommunication_initMessage(&Rm[5], &config_Message_Receive);
 }
 
-static void setTransmitMessage(ID_set* ID, CanCommunication_Message* Tm)
+static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
 {
 	/*Config in common~*/
 	IfxMultican_Can_Node* CanCommunication_canNodes[3] = {&CanCommunication_canNode0, &CanCommunication_canNode1, &CanCommunication_canNode2};

@@ -226,7 +226,7 @@ typedef struct {
 	/*TX~*/
 	uint16 ID_PM100_Command;
 	/*~TX*/
-}ID_set;
+}PM100_ID_set;
 
 typedef struct
 {
