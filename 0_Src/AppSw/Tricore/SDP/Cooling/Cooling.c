@@ -64,8 +64,8 @@ void SDP_Cooling_run_10ms(void){
     }
     if(CanCommunication_receiveMessage(&CoolingCanMsg2))
     {
-    	Cooling_msg2.RecievedData[0]      =   CoolingCanMsg2.msg.data[0];
-    	Cooling_msg2.RecievedData[1]      =   CoolingCanMsg2.msg.data[1];
+    	Cooling_msg2.ReceivedData[0]      =   CoolingCanMsg2.msg.data[0];
+    	Cooling_msg2.ReceivedData[1]      =   CoolingCanMsg2.msg.data[1];
     }
     // else if(CanCommunication_receiveMessage(&ShockCanMsg1))
     // {
