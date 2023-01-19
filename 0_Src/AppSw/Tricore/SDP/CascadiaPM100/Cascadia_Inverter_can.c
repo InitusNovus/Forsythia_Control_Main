@@ -64,8 +64,8 @@ void CascadiaInverter_can_init(void)
 	setReceiveMessage(&Inverter_L_ID, Rx_Inverter_L);
 	setReceiveMessage(&Inverter_R_ID, Rx_Inverter_R);
 
-	setFixedCommand(&Inverter_L_Control);
-	setFixedCommand(&Inverter_R_Control);
+	setInitialControl(&Inverter_L_Control);
+	setInitialControl(&Inverter_R_Control);
 }
 
 void CascadiaInverter_can_Run(void) //receive loop
@@ -137,6 +137,8 @@ void CascadiaInverter_can_Run(void) //receive loop
 	}
 }
 
+
+
 static void setReceiveMessage(ID_set* ID, CanCommunication_Message* Rm)
 {
 	/*Config in common~*/
@@ -187,5 +189,17 @@ static void setTransmitMessage(ID_set* ID, CanCommunication_Message* Tm)
 
 static void setInitialControl(PM100_Control_t* Control)
 {
+	Control->Command.S.PM100_TorqueCommand = 0;
+	Control->Command.S.PM100_SpeedCommand = 0;
+	Control->Command.S.PM100_DirectionCommand = 1;
+	Control->Command.S.PM100_InverterEnable = 0;
+	Control->Command.S.PM100_InverterDischarge = 0;
+	Control->Command.S.PM100_SpeedModeEnable = 0;
+	Control->Command.S.PM100_CommandedTorqueLimit = 0;
 	//Control->Command.S.reservedBits = 0;
+}
+
+void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R){
+	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L;
+	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R;
 }
