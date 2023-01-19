@@ -199,7 +199,7 @@ typedef union
 {
 	uint32 TransmitData[2];
 	struct{
-		unsigned int PM100_TorqueCommand : 16;
+		int PM100_TorqueCommand : 16;
 		unsigned int PM100_SpeedCommand : 16;
 		unsigned int PM100_DirectionCommand : 8;
 		unsigned int PM100_InverterEnable : 1;
