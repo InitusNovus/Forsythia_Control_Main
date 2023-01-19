@@ -25,21 +25,29 @@
 #ifndef SRC_APPSW_TRICORE_SDP_SDP_H_
 #define SRC_APPSW_TRICORE_SDP_SDP_H_
 
+#define __SDP_CLOVER__
+
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
 #include "PedalBox.h"
 #include "SteeringAngle.h"
-#include "WheelSpeed.h"
-#include "AccumulatorManager_master.h"
-#include "ShockValue.h"
 #include "Cooling.h"
 
+#ifndef __SDP_CLOVER__
+#include "ShockValue.h"
+#include "WheelSpeed.h"
+#include "AccumulatorManager_master.h"
+#endif
+#ifdef __SDP_CLOVER__
+#include "Cascadia_Inverter_can.h"
+#endif
+#endif
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
 
-
+#
 /******************************************************************************/
 /*------------------------------Type Definitions------------------------------*/
 /******************************************************************************/

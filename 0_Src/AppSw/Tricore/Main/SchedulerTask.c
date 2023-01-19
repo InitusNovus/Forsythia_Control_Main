@@ -33,6 +33,7 @@
 #define TASK_MODE_RH		1
 
 #define TASK_MODE			TASK_MODE_RH
+//#define TASK_MODE TASK_MODE_CLOVER
 /******************************************************************************/
 /*--------------------------------Enumerations--------------------------------*/
 /******************************************************************************/
@@ -167,8 +168,13 @@ void Task_init (void)
 	{
 		SDP_PedalBox_init();
 		SDP_SteeringAngle_init();
+#ifndef __SDP_CLOVER__
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
+#endif
+#ifdef __SDP_CLOVER__
+		//SensorHub init must come here
+#endif
 		SDP_Cooling_init();
 		SDP_SteeringAngleAdc_init();
 		SDP_DashBoardCan_init();
@@ -176,7 +182,12 @@ void Task_init (void)
 	/* Hmm... */
 	{
 		// AccumulatorManager_master_init();
+#ifndef __SDP_CLOVER__
 		AmkInverter_can_init();
+#endif
+#ifdef __SDP_CLOVER__
+		CascadiaInverter_can_init();
+#endif
 		OrionBms2_init();
 		RVC_init();
 		SteeringWheel_init();
@@ -239,7 +250,7 @@ void Task_IsrCb_1ms (void)
 
 		// SDP_WheelSpeed_run_1ms();
 		
-		SDP_ShockValue_run_1ms();
+		//SDP_ShockValue_run_1ms();
 
 	}
 	{
