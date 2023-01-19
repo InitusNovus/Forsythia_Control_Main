@@ -28,7 +28,22 @@ typedef union{
 		uint8 Radiator1_T;
 	}B;
 
-}Cooling_msg_t;
+}Cooling_msg1_t;
+
+typedef union{
+	uint32 ReceivedData[2];
+	struct{
+		uint8 WaterPressure0;
+		uint8 WaterPressure1;
+		uint8 duty0;
+		uint8 duty1;
+		uint8 duty2;
+		uint8 Remain;
+		uint8 Remain2;
+		uint8 Remain3;
+	}B;
+
+}Cooling_msg2_t;
 
 typedef union{
 	uint32 TxData[2];
@@ -64,7 +79,8 @@ typedef union{
 }Cooling_order_t;
 
 
-IFX_EXTERN Cooling_msg_t Cooling_msg;
+IFX_EXTERN Cooling_msg1_t Cooling_msg1;
+IFX_EXTERN Cooling_msg2_t Cooling_msg2;
 IFX_EXTERN Cooling_switch_t Cooling_switch;
 IFX_EXTERN Cooling_order_t Cooling_order;
 
