@@ -154,3 +154,5 @@ dkms.conf
 tool/
 1_ToolEnv/
 2_Out/
+
+*.txt

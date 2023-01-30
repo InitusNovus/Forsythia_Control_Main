@@ -14,8 +14,8 @@
 PM100_ID_set Inverter_L_ID;
 PM100_ID_set Inverter_R_ID;
 
-CanCommunication_Message Rx_Inverter_L[6];
-CanCommunication_Message Rx_Inverter_R[6];
+CanCommunication_Message Rx_Inverter_L[7];
+CanCommunication_Message Rx_Inverter_R[7];
 
 CanCommunication_Message Tx_TC275_L[1];
 CanCommunication_Message Tx_TC275_R[1];
@@ -33,6 +33,7 @@ void CascadiaInverter_can_Run(void);
 static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm);
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm);
 static void setInitialControl(PM100_Control_t* Control);
+static void CascadiaInverter_enable();
 
 void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 {
@@ -44,6 +45,7 @@ void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 	IN->ID_PM100_Position  = 0x0A5;
 	IN->ID_PM100_Current  = 0x0A6;
 	IN->ID_PM100_Voltage  = 0x0A7;
+	IN->ID_PM100_InternalStates = 0x0AA;
 	IN->ID_PM100_FaultCodes  = 0x0AB;
 	IN->ID_PM100_HighSpeedMessage  = 0x0B0;
 	/*~Rx*/
@@ -92,13 +94,18 @@ void CascadiaInverter_can_Run(void) //receive loop
 	}
 	if(CanCommunication_receiveMessage(&Rx_Inverter_L[4]))
 	{
-		Inverter_L_Status.FaultCodes.ReceivedData[0] = Rx_Inverter_L[4].msg.data[0];
-		Inverter_L_Status.FaultCodes.ReceivedData[1] = Rx_Inverter_L[4].msg.data[1];
+		Inverter_L_Status.InternalStates.ReceivedData[0] = Rx_Inverter_L[4].msg.data[0];
+		Inverter_L_Status.InternalStates.ReceivedData[1] = Rx_Inverter_L[4].msg.data[1];
 	}
 	if(CanCommunication_receiveMessage(&Rx_Inverter_L[5]))
 	{
-		Inverter_L_Status.HighSpeedMessage.ReceivedData[0] = Rx_Inverter_L[5].msg.data[0];
-		Inverter_L_Status.HighSpeedMessage.ReceivedData[1] = Rx_Inverter_L[5].msg.data[1];
+		Inverter_L_Status.FaultCodes.ReceivedData[0] = Rx_Inverter_L[5].msg.data[0];
+		Inverter_L_Status.FaultCodes.ReceivedData[1] = Rx_Inverter_L[5].msg.data[1];
+	}
+	if(CanCommunication_receiveMessage(&Rx_Inverter_L[6]))
+	{
+		Inverter_L_Status.HighSpeedMessage.ReceivedData[0] = Rx_Inverter_L[6].msg.data[0];
+		Inverter_L_Status.HighSpeedMessage.ReceivedData[1] = Rx_Inverter_L[6].msg.data[1];
 	}
 
 
@@ -127,14 +134,30 @@ void CascadiaInverter_can_Run(void) //receive loop
 	}
 	if(CanCommunication_receiveMessage(&Rx_Inverter_R[4]))
 	{
-		Inverter_R_Status.FaultCodes.ReceivedData[0] = Rx_Inverter_R[4].msg.data[0];
-		Inverter_R_Status.FaultCodes.ReceivedData[1] = Rx_Inverter_R[4].msg.data[1];
+		Inverter_R_Status.InternalStates.ReceivedData[0] = Rx_Inverter_R[4].msg.data[0];
+		Inverter_R_Status.InternalStates.ReceivedData[1] = Rx_Inverter_R[4].msg.data[1];
 	}
 	if(CanCommunication_receiveMessage(&Rx_Inverter_R[5]))
 	{
-		Inverter_R_Status.HighSpeedMessage.ReceivedData[0] = Rx_Inverter_R[5].msg.data[0];
-		Inverter_R_Status.HighSpeedMessage.ReceivedData[1] = Rx_Inverter_R[5].msg.data[1];
+		Inverter_R_Status.FaultCodes.ReceivedData[0] = Rx_Inverter_R[5].msg.data[0];
+		Inverter_R_Status.FaultCodes.ReceivedData[1] = Rx_Inverter_R[5].msg.data[1];
 	}
+	if(CanCommunication_receiveMessage(&Rx_Inverter_R[6]))
+	{
+		Inverter_R_Status.HighSpeedMessage.ReceivedData[0] = Rx_Inverter_R[6].msg.data[0];
+		Inverter_R_Status.HighSpeedMessage.ReceivedData[1] = Rx_Inverter_R[6].msg.data[1];
+	}
+
+	Tx_TC275_L[0].msg.data[0] = Inverter_L_Control.Command.TransmitData[0];
+	Tx_TC275_L[0].msg.data[1] = Inverter_L_Control.Command.TransmitData[1];
+
+	Tx_TC275_R[0].msg.data[0] = Inverter_R_Control.Command.TransmitData[0];
+	Tx_TC275_R[0].msg.data[1] = Inverter_R_Control.Command.TransmitData[1];
+
+
+
+	CanCommunication_transmitMessage(&Tx_TC275_L[0]);
+	CanCommunication_transmitMessage(&Tx_TC275_R[0]);
 }
 
 
@@ -163,11 +186,14 @@ static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm)
 	config_Message_Receive.messageId = ID->ID_PM100_Voltage;
 	CanCommunication_initMessage(&Rm[3], &config_Message_Receive);
 
-	config_Message_Receive.messageId = ID->ID_PM100_FaultCodes;
+	config_Message_Receive.messageId = ID->ID_PM100_InternalStates;
 	CanCommunication_initMessage(&Rm[4], &config_Message_Receive);
 
-	config_Message_Receive.messageId = ID->ID_PM100_HighSpeedMessage;
+	config_Message_Receive.messageId = ID->ID_PM100_FaultCodes;
 	CanCommunication_initMessage(&Rm[5], &config_Message_Receive);
+
+	config_Message_Receive.messageId = ID->ID_PM100_HighSpeedMessage;
+	CanCommunication_initMessage(&Rm[6], &config_Message_Receive);
 }
 
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
@@ -189,7 +215,7 @@ static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
 
 static void setInitialControl(PM100_Control_t* Control)
 {
-	Control->Command.S.PM100_TorqueCommand = 0;
+	Control->Command.S.PM100_TorqueCommand = 15;
 	Control->Command.S.PM100_SpeedCommand = 0;
 	Control->Command.S.PM100_DirectionCommand = 1;
 	Control->Command.S.PM100_InverterEnable = 0;
@@ -199,7 +225,22 @@ static void setInitialControl(PM100_Control_t* Control)
 	//Control->Command.S.reservedBits = 0;
 }
 
+//FIXME: Do this in the init step, not the main loop.
+static void CascadiaInverter_enable()
+{
+	if(Inverter_L_Status.InternalStates.InverterEnableLockout || Inverter_R_Status.InternalStates.InverterEnableLockout) //If either of two interters cannot be enabled.
+	{
+		Inverter_L_Control.Command.S.PM100_InverterEnable = 0;
+		Inverter_R_Control.Command.S.PM100_InverterEnable = 0;
+	}
+	else{
+		Inverter_L_Control.Command.S.PM100_InverterEnable = 1;
+		Inverter_R_Control.Command.S.PM100_InverterEnable = 1;
+	}
+}
+
 void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R){
+	CascadiaInverter_enable();
 	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L;
 	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R;
 }

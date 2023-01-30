@@ -72,18 +72,27 @@ void Task_core2_1ms(void)
 
 	SDP_PedalBox_run_1ms();
 	SDP_SteeringAngleAdc_run();
-
+#ifndef __SDP_CLOVER__
 	AmkInverter_can_Run();
 	// AccumulatorManager_master_run_1ms_c2();
 
 	// OrionBms2_run_1ms_c2();
 	// SteeringWheel_run_xms_c2();
+#endif
+
+#ifdef __SDP_CLOVER__
+	CascadiaInverter_can_Run();
+	OrionBms2_run_1ms_c2();
+#endif
 	task2_10ms_counter+=1;
 	value = 2.37*APPS0.value - 11.89;
 
 	writeMessage(value,value);
 	writeMessage2(value,value);
-	
+#endif
+#ifdef __SDP_CLOVER__
+	CascadiaInverter_writeTorque(10, 10);
+#endif
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
 	if (RTD_flag)AmkInverterStart();
