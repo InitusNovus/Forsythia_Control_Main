@@ -86,8 +86,8 @@ void Task_core2_1ms(void)
 
 #ifdef __SDP_CLOVER__
 	CascadiaInverter_can_Run();
+	OrionBms2_run_1ms_c2();
 #endif
-
 	task2_10ms_counter+=1;
 	value = 2.37*APPS0.value - 11.89;
 #ifndef __SDP_CLOVER__
@@ -95,7 +95,7 @@ void Task_core2_1ms(void)
 	writeMessage2(value,value);
 #endif
 #ifdef __SDP_CLOVER__
-	CascadiaInverter_writeTorque(value, value);
+	CascadiaInverter_writeTorque(10, 10);
 #endif
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();

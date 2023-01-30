@@ -81,6 +81,68 @@ typedef union
 }PM100_VoltageInformation_Can_t;
 
 /*
+ * Memory Structure for "Internal States" CAN
+ * Address: 0x0AA
+ * */
+typedef union
+{
+	uint32 ReceivedData[2];
+	struct{
+		uint8 VSM_State; //byte0
+		uint8 Reserved; //byte1. NA for Gen3
+		uint8 InverterState; //byte2
+		union{ //byte3
+			uint8 RelayState;
+			struct{
+				uint8 Relay1Status : 1;
+				uint8 Relay2Status : 1;
+				uint8 Relay3Status : 1;
+				uint8 Relay4Status : 1;
+				uint8 Relay5Status : 1;
+				uint8 Relay6Status : 1;
+				uint8 _Reserved_RelayStatus : 2;
+			};
+		};
+		union{ //byte4
+			uint8 byte4;
+			struct{
+				uint8 InverterRunMode : 1;
+				uint8 _Reserved_Byte4 : 4;
+				uint8 InverterActiveDischargeState : 3;
+			};
+		};
+		union{
+			uint8 byte5;
+			struct{
+				uint8 InverterCommandMode : 1;
+				uint8 _Reserved_Byte5 : 3;
+				uint8 RollingCounterValue : 4;
+			};
+		};
+		union
+		{
+			uint8 byte6;
+			struct{
+				uint8 InverterEnableState : 1;
+				uint8 _Reserved_Byte6 : 5;
+				uint8 StartModeActive : 1;
+				uint8 InverterEnableLockout : 1;
+			};
+		};
+		union{
+			uint8 byte7;
+			struct{
+				uint8 DirectionCommand : 1;
+				uint8 BMSActive : 1;
+				uint8 BMSLimitingTorque : 1;
+				uint8 LimitMaxSpeed : 1; //For Gen3 2042+, Available for ours, 204C.
+				uint8 _Reserved_Byte7 : 4;
+			};
+		};
+	};
+}PM100_InternalStates_Can_t;
+
+/*
  * Memory Structure for "Fault Codes" CAN
  * Address: 0x0AB
  * */
@@ -219,6 +281,7 @@ typedef struct {
 	uint16 ID_PM100_Position;
 	uint16 ID_PM100_Current;
 	uint16 ID_PM100_Voltage;
+	uint16 ID_PM100_InternalStates; //0x0AA
 	uint16 ID_PM100_FaultCodes;
 	uint16 ID_PM100_HighSpeedMessage;
 	/*~RX*/
@@ -234,6 +297,7 @@ typedef struct
 	PM100_MotorPositionInformation_Can_t Position;
 	PM100_CurrentInformation_Can_t Current;
 	PM100_VoltageInformation_Can_t Voltage;
+	PM100_InternalStates_Can_t InternalStates;
 	PM100_FaultCodes_Can_t FaultCodes;
 	PM100_HighSpeedMessage_Can_t HighSpeedMessage;
 }PM100_Status_t;
