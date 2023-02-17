@@ -95,12 +95,13 @@ void Task_core2_1ms(void)
 	writeMessage2(value,value);
 #endif
 #ifdef __SDP_CLOVER__
-	CascadiaInverter_writeTorque(10, 10);
+	//CascadiaInverter_writeTorque(10, 10);
 #endif
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
+#ifndef __SDP_CLOVER__
 	if (RTD_flag)AmkInverterStart();
-	
+#endif
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();
 		task2_10ms_counter = 0;

@@ -28,10 +28,10 @@ typedef union
 {
 	uint32 ReceivedData[2];
 	struct{
-		int PM100_CoolantTemperature : 16; //Temperature
-		int PM100_HotSpotTemperature : 16; //Temperature
-		int PM100_MotorTemperature : 16; //Temperature
-		int PM100_TorqueShudder : 16; //Torque
+		sint16 PM100_CoolantTemperature; //Temperature
+		sint16 PM100_HotSpotTemperature; //Temperature
+		sint16 PM100_MotorTemperature; //Temperature
+		sint16 PM100_TorqueShudder; //Torque
 	}S;
 }PM100_Temperature3_Can_t;
 
@@ -43,10 +43,10 @@ typedef union
 {
 	uint32 ReceivedData[2];
 	struct{
-		int PM100_MotorAngle : 16; //Angle
-		int PM100_MotorSpeed : 16; //Angular Velocity
-		int PM100_ElectricalOutputFrequency : 16;//Frequency
-		int PM100_DeltaResolverFiltered : 16; //Angle
+		sint16 PM100_MotorAngle; //Angle
+		sint16 PM100_MotorSpeed; //Angular Velocity
+		sint16 PM100_ElectricalOutputFrequency;//Frequency
+		sint16 PM100_DeltaResolverFiltered; //Angle
 	}S;
 }PM100_MotorPositionInformation_Can_t;
 
@@ -58,10 +58,10 @@ typedef union
 {
 	uint32 ReceivedData[2];
 	struct{
-		int PM100_PhaseACurrent : 16; //Current
-		int PM100_PhaseBCurrent : 16; //Current
-		int PM100_PhaseCCurrent : 16; //Current
-		int PM100_DCBusCurrent : 16; //Current
+		sint16 PM100_PhaseACurrent; //Current
+		sint16 PM100_PhaseBCurrent; //Current
+		sint16 PM100_PhaseCCurrent; //Current
+		sint16 PM100_DCBusCurrent; //Current
 	}S;
 }PM100_CurrentInformation_Can_t;
 
@@ -73,10 +73,10 @@ typedef union
 {
 	uint32 ReceivedData[2];
 	struct{
-		int PM100_DCBusVoltage : 16; //High Voltage
-		int PM100_OutputVoltage : 16; //High Voltage
-		int PM100_VAB_Vd_Voltage : 16; //High Voltage
-		int PM100_VBC_Vq_Voltage : 16; //High Voltage
+		sint16 PM100_DCBusVoltage; //High Voltage
+		sint16 PM100_OutputVoltage; //High Voltage
+		sint16 PM100_VAB_Vd_Voltage; //High Voltage
+		sint16 PM100_VBC_Vq_Voltage; //High Voltage
 	}S;
 }PM100_VoltageInformation_Can_t;
 
@@ -246,10 +246,10 @@ typedef union
 {
 	uint32 ReceivedData[2];
 	struct{
-		int PM100_TorqueCommand : 16;
-		int PM100_TorqueFeedback : 16;
-		int PM100_MotorSpeed : 16;
-		int PM100_DCBusVoltage : 16;
+		sint16 PM100_TorqueCommand;
+		sint16 PM100_TorqueFeedback;
+		sint16 PM100_MotorSpeed;
+		sint16 PM100_DCBusVoltage;
 	}S;
 }PM100_HighSpeedMessage_Can_t;
 
@@ -261,14 +261,22 @@ typedef union
 {
 	uint32 TransmitData[2];
 	struct{
-		int PM100_TorqueCommand : 16;
-		unsigned int PM100_SpeedCommand : 16;
-		unsigned int PM100_DirectionCommand : 8;
-		unsigned int PM100_InverterEnable : 1;
-		unsigned int PM100_InverterDischarge : 1;
-		unsigned int PM100_SpeedModeEnable : 1;
-		unsigned int reservedBits : 5;
-		unsigned int PM100_CommandedTorqueLimit : 16;
+		union{
+			sint16 PM100_TorqueCommand;
+			struct{
+				uint8 PM100_TorqueCommand_1;
+				uint8 PM100_TorqueCommand_2;
+			};
+		};
+		//sint8 PM100_TorqueCommand_1;
+		//sint8 PM100_TorqueCommand_2;
+		uint16 PM100_SpeedCommand;
+		uint8 PM100_DirectionCommand;
+		uint8 PM100_InverterEnable : 1;
+		uint8 PM100_InverterDischarge : 1;
+		uint8 PM100_SpeedModeEnable : 1;
+		uint8 reservedBits : 5;
+		uint16 PM100_CommandedTorqueLimit;
 	}S;
 }PM100_CommandMessage_Can_t;
 
