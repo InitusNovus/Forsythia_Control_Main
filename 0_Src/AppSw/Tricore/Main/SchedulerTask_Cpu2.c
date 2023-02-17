@@ -9,12 +9,17 @@
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
+#include "SDP.h"
 #include "SchedulerTask_Cpu2.h"
+#ifndef __SDP_CLOVER__
 #include "AmkInverter_can.h"
+#endif
 #include "OrionBms2.h"
 #include "SteeringWheel.h"
 #include "AdcSensor.h"
 #include "PedalBox.h"
+
+
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
@@ -75,7 +80,6 @@ void Task_core2_1ms(void)
 #ifndef __SDP_CLOVER__
 	AmkInverter_can_Run();
 	// AccumulatorManager_master_run_1ms_c2();
-
 	// OrionBms2_run_1ms_c2();
 	// SteeringWheel_run_xms_c2();
 #endif
@@ -86,17 +90,18 @@ void Task_core2_1ms(void)
 #endif
 	task2_10ms_counter+=1;
 	value = 2.37*APPS0.value - 11.89;
-
+#ifndef __SDP_CLOVER__
 	writeMessage(value,value);
 	writeMessage2(value,value);
 #endif
 #ifdef __SDP_CLOVER__
-	CascadiaInverter_writeTorque(10, 10);
+	//CascadiaInverter_writeTorque(10, 10);
 #endif
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
+#ifndef __SDP_CLOVER__
 	if (RTD_flag)AmkInverterStart();
-	
+#endif
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();
 		task2_10ms_counter = 0;

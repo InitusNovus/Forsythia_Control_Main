@@ -215,7 +215,12 @@ static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
 
 static void setInitialControl(PM100_Control_t* Control)
 {
-	Control->Command.S.PM100_TorqueCommand = 15;
+	Control->Command.S.PM100_TorqueCommand = 0;
+
+	//Debug
+	//Control->Command.S.PM100_TorqueCommand_1 = 0;
+	//Control->Command.S.PM100_TorqueCommand_2 = 0;
+	//~Debug 02172022
 	Control->Command.S.PM100_SpeedCommand = 0;
 	Control->Command.S.PM100_DirectionCommand = 1;
 	Control->Command.S.PM100_InverterEnable = 0;
@@ -238,9 +243,10 @@ static void CascadiaInverter_enable()
 		Inverter_R_Control.Command.S.PM100_InverterEnable = 1;
 	}
 }
-
+/*
 void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R){
 	CascadiaInverter_enable();
 	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L;
 	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R;
 }
+*/

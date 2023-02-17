@@ -261,14 +261,22 @@ typedef union
 {
 	uint32 TransmitData[2];
 	struct{
-		int PM100_TorqueCommand : 16;
-		unsigned int PM100_SpeedCommand : 16;
-		unsigned int PM100_DirectionCommand : 8;
-		unsigned int PM100_InverterEnable : 1;
-		unsigned int PM100_InverterDischarge : 1;
-		unsigned int PM100_SpeedModeEnable : 1;
-		unsigned int reservedBits : 5;
-		unsigned int PM100_CommandedTorqueLimit : 16;
+		union{
+			sint16 PM100_TorqueCommand;
+			struct{
+				uint8 PM100_TorqueCommand_1;
+				uint8 PM100_TorqueCommand_2;
+			};
+		};
+		//sint8 PM100_TorqueCommand_1;
+		//sint8 PM100_TorqueCommand_2;
+		uint16 PM100_SpeedCommand;
+		uint8 PM100_DirectionCommand;
+		uint8 PM100_InverterEnable : 1;
+		uint8 PM100_InverterDischarge : 1;
+		uint8 PM100_SpeedModeEnable : 1;
+		uint8 reservedBits : 5;
+		uint16 PM100_CommandedTorqueLimit;
 	}S;
 }PM100_CommandMessage_Can_t;
 

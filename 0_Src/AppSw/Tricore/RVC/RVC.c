@@ -505,9 +505,11 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 
 IFX_INLINE void RVC_slipComputation(void)
 {
+#ifndef __SDP_CLOVER__
 	RVC.slip.axle = SDP_WheelSpeed.velocity.rearAxle/SDP_WheelSpeed.velocity.frontAxle;
 	RVC.slip.left = SDP_WheelSpeed.wssRL.wheelLinearVelocity/SDP_WheelSpeed.wssFL.wheelLinearVelocity;
 	RVC.slip.right = SDP_WheelSpeed.wssRR.wheelLinearVelocity/SDP_WheelSpeed.wssFR.wheelLinearVelocity;
+#endif
 	// RVC.diff.rear
 	if(isnan(RVC.slip.axle)||isnan(RVC.slip.left)||isnan(RVC.slip.right)) 
 	{
@@ -745,7 +747,9 @@ IFX_INLINE void RVC_updatePwmSignal(void)
 
 IFX_INLINE void VariableUpdateRoutine(void)
 {
+#ifndef __SDP_CLOVER__
 	SteeringWheel_public.shared.data.vehicleSpeed = SDP_WheelSpeed.velocity.chassis;
+#endif
 	SteeringWheel_public.shared.data.apps = SDP_PedalBox.apps.pps;
 	SteeringWheel_public.shared.data.bpps = SDP_PedalBox.bpps.pps;
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)

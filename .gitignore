@@ -83,6 +83,7 @@ tool/
 *.sql
 
 *.sqlite
+*.txt
 
  
 
@@ -156,3 +157,5 @@ tool/
 2_Out/
 
 *.txt
+
+*.cfg
