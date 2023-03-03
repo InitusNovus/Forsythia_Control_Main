@@ -14,17 +14,20 @@
 PM100_ID_set Inverter_L_ID;
 PM100_ID_set Inverter_R_ID;
 
-CanCommunication_Message Rx_Inverter_L[7];
-CanCommunication_Message Rx_Inverter_R[7];
+CanCommunication_Message Rx_Inverter_L[8];
+CanCommunication_Message Rx_Inverter_R[8];
 
-CanCommunication_Message Tx_TC275_L[1];
-CanCommunication_Message Tx_TC275_R[1];
+CanCommunication_Message Tx_TC275_L[2];
+CanCommunication_Message Tx_TC275_R[2];
 
 PM100_Status_t Inverter_L_Status;
 PM100_Status_t Inverter_R_Status;
 
 PM100_Control_t Inverter_L_Control;
 PM100_Control_t Inverter_R_Control;
+
+PM100_RWParameter_t Inverter_L_RWParameter;
+PM100_RWParameter_t Inverter_R_RWParameter;
 
 void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node);
 void CascadiaInverter_can_init(void);
@@ -53,12 +56,17 @@ void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 	/*Tx~*/
 	IN->ID_PM100_Command  = 0x0C0;
 	/*~Tx*/
+
+	/*Parameter Messages~*/
+	IN->ID_PM100_RWParameterCommand = 0x0C1;
+	IN->ID_PM100_RWParameterResponse = 0x0C2;
+	/*~Parameter Messages*/
 }
 
 void CascadiaInverter_can_init(void)
 {
-	CascadiaInverter_SET_ID(&Inverter_L_ID,1);
-	CascadiaInverter_SET_ID(&Inverter_R_ID,2);
+	CascadiaInverter_SET_ID(&Inverter_L_ID,2);
+	CascadiaInverter_SET_ID(&Inverter_R_ID,1);
 
 	setTransmitMessage(&Inverter_L_ID, Tx_TC275_L);
 	setTransmitMessage(&Inverter_R_ID, Tx_TC275_R);
@@ -194,6 +202,9 @@ static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm)
 
 	config_Message_Receive.messageId = ID->ID_PM100_HighSpeedMessage;
 	CanCommunication_initMessage(&Rm[6], &config_Message_Receive);
+
+	config_Message_Receive.messageId = ID->ID_PM100_RWParameterResponse;
+	CanCommunication_initMessage(&Rm[7], &config_Message_Receive);
 }
 
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
@@ -211,6 +222,9 @@ static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
 
 	config_Message_Transmit.messageId = ID->ID_PM100_Command;
 	CanCommunication_initMessage(&Tm[0], &config_Message_Transmit);
+
+	config_Message_Transmit.messageId = ID->ID_PM100_RWParameterCommand;
+	CanCommunication_initMessage(&Tm[1], &config_Message_Transmit);
 }
 
 static void setInitialControl(PM100_Control_t* Control)
@@ -228,6 +242,17 @@ static void setInitialControl(PM100_Control_t* Control)
 	Control->Command.S.PM100_SpeedModeEnable = 0;
 	Control->Command.S.PM100_CommandedTorqueLimit = 0;
 	//Control->Command.S.reservedBits = 0;
+}
+
+static void setInitialParameterMessage(PM100_RWParameter_t* Parameter) 
+{
+	Parameter->ParameterCommand.TransmitData[0] = 0;
+	Parameter->ParameterCommand.TransmitData[1] = 0;
+	Parameter->ParameterResponse.ReceivedData[0] = 0;
+	Parameter->ParameterResponse.ReceivedData[1] = 0;
+	Parameter->sentTick = 0;
+	Parameter->receivedTick = 0;
+	Parameter->RTT = 0;
 }
 
 //FIXME: Do this in the init step, not the main loop.

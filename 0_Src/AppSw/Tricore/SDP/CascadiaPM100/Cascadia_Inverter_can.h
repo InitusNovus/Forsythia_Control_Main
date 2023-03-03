@@ -280,6 +280,40 @@ typedef union
 	}S;
 }PM100_CommandMessage_Can_t;
 
+/*
+* Memory Structure for "Read / Write Parameter Command"
+* Address: 0x0C1
+* Tx
+*/
+typedef union {
+	uint32 TransmitData[2];
+	struct {
+		uint16 ParameterAddress;
+		uint8 RW_Command : 1;
+		uint8 _Reserved1 : 7;
+		uint8 _Reserved2;
+		uint16 Data;
+		uint16 _Reserved3;
+	}S;
+}PM100_RWParameterCommand_Can_t;
+
+/*
+* Memory Structure for "Read / Write Parameter Response"
+* Address: 0x0C2
+* Rx
+*/
+typedef union {
+	uint32 ReceivedData[2];
+	struct {
+		uint16 ParameterAddress;
+		uint8 WriteSuccess : 1;
+		uint8 _Reserved1 : 7;
+		uint8 _Reserved2;
+		uint16 Data;
+		uint16 _Reserved3;
+	}S;
+}PM100_RWParameterResponse_Can_t;
+
 typedef struct {
 
 	int node;
@@ -297,6 +331,11 @@ typedef struct {
 	/*TX~*/
 	uint16 ID_PM100_Command;
 	/*~TX*/
+
+	/*Parameter Messages~*/
+	uint16 ID_PM100_RWParameterCommand;
+	uint16 ID_PM100_RWParameterResponse;
+	/*~Parameter Messages*/
 }PM100_ID_set;
 
 typedef struct
@@ -315,11 +354,23 @@ typedef struct
 	PM100_CommandMessage_Can_t Command;
 }PM100_Control_t;
 
+typedef struct
+{
+	PM100_RWParameterCommand_Can_t ParameterCommand;
+	PM100_RWParameterResponse_Can_t ParameterResponse;
+	uint32 sentTick;
+	uint32 receivedTick;
+	uint32 RTT; //RTT. Equals to receivedTick - sentTick;
+}PM100_RWParameter_t;
+
 IFX_EXTERN PM100_Status_t Inverter_L_Status;
 IFX_EXTERN PM100_Status_t Inverter_R_Status;
 
 IFX_EXTERN PM100_Control_t Inverter_L_Control;
 IFX_EXTERN PM100_Control_t Inverter_R_Control;
+
+IFX_EXTERN PM100_RWParameter_t Inverter_L_RWParameter;
+IFX_EXTERN PM100_RWParameter_t Inverter_R_RWParameter;
 
 IFX_EXTERN void CascadiaInverter_can_init(void);
 IFX_EXTERN void CascadiaInverter_can_Run(void);
