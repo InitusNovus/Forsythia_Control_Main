@@ -198,6 +198,7 @@ void RVC_run_10ms(void)
 	RVC_pollGpi(&RVC.airNegative);
 	RVC_pollGpi(&RVC.brakePressureOn);
 	RVC_pollGpi(&RVC.brakeSwitch);
+	RVC_pollGpi(&RVC.TSALOn);
 	RVC_r2d();
 	AdcSensor_getData(&RVC.LvBattery_Voltage);
 	AdcSensor_getData(&RVC.BrakePressure1);
@@ -333,6 +334,12 @@ IFX_STATIC void RVC_initGpio(void)
 	Gpio_Debounce_initInput(&RVC.brakePressureOn.debounce, &gpioInputConfig);
 	gpioInputConfig.port = &BSW_IN;
 	Gpio_Debounce_initInput(&RVC.brakeSwitch.debounce, &gpioInputConfig);
+
+	/* TSAL light input config */
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &TSAL_RED_ON_5V;
+	Gpio_Debounce_initInput(&RVC.brakePressureOn.debounce, &gpioInputConfig);
 }
 
 /* TODO: 
