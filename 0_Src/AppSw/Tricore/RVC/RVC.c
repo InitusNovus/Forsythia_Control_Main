@@ -339,7 +339,7 @@ IFX_STATIC void RVC_initGpio(void)
 	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
 	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
 	gpioInputConfig.port = &TSAL_RED_ON_5V;
-	Gpio_Debounce_initInput(&RVC.brakePressureOn.debounce, &gpioInputConfig);
+	Gpio_Debounce_initInput(&RVC.TSALOn.debounce, &gpioInputConfig);
 }
 
 /* TODO: 
