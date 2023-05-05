@@ -237,7 +237,7 @@ IFX_STATIC void RVC_initAdcSensor(void)
 	AdcSensor_Config adcConfig;
 
 	/* LV battery voltage */
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group2, HLD_Vadc_ChannelId_4};
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group5, HLD_Vadc_ChannelId_6};
 
 	adcConfig.adcConfig.lpf.activated = TRUE;
 	adcConfig.adcConfig.lpf.config.gain = 1;
