@@ -14,17 +14,20 @@
 PM100_ID_set Inverter_L_ID;
 PM100_ID_set Inverter_R_ID;
 
-CanCommunication_Message Rx_Inverter_L[7];
-CanCommunication_Message Rx_Inverter_R[7];
+CanCommunication_Message Rx_Inverter_L[8];
+CanCommunication_Message Rx_Inverter_R[8];
 
-CanCommunication_Message Tx_TC275_L[1];
-CanCommunication_Message Tx_TC275_R[1];
+CanCommunication_Message Tx_TC275_L[2];
+CanCommunication_Message Tx_TC275_R[2];
 
 PM100_Status_t Inverter_L_Status;
 PM100_Status_t Inverter_R_Status;
 
 PM100_Control_t Inverter_L_Control;
 PM100_Control_t Inverter_R_Control;
+
+PM100_RWParameter_t Inverter_L_RWParameter;
+PM100_RWParameter_t Inverter_R_RWParameter;
 
 void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node);
 void CascadiaInverter_can_init(void);
@@ -34,6 +37,7 @@ static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm);
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm);
 static void setInitialControl(PM100_Control_t* Control);
 static void CascadiaInverter_enable();
+//static void CascadiaInverter_disable();
 
 void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 {
@@ -53,12 +57,17 @@ void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 	/*Tx~*/
 	IN->ID_PM100_Command  = 0x0C0;
 	/*~Tx*/
+
+	/*Parameter Messages~*/
+	IN->ID_PM100_RWParameterCommand = 0x0C1;
+	IN->ID_PM100_RWParameterResponse = 0x0C2;
+	/*~Parameter Messages*/
 }
 
 void CascadiaInverter_can_init(void)
 {
-	CascadiaInverter_SET_ID(&Inverter_L_ID,1);
-	CascadiaInverter_SET_ID(&Inverter_R_ID,2);
+	CascadiaInverter_SET_ID(&Inverter_L_ID,2);
+	CascadiaInverter_SET_ID(&Inverter_R_ID,1);
 
 	setTransmitMessage(&Inverter_L_ID, Tx_TC275_L);
 	setTransmitMessage(&Inverter_R_ID, Tx_TC275_R);
@@ -194,6 +203,9 @@ static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm)
 
 	config_Message_Receive.messageId = ID->ID_PM100_HighSpeedMessage;
 	CanCommunication_initMessage(&Rm[6], &config_Message_Receive);
+
+	config_Message_Receive.messageId = ID->ID_PM100_RWParameterResponse;
+	CanCommunication_initMessage(&Rm[7], &config_Message_Receive);
 }
 
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
@@ -211,6 +223,9 @@ static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
 
 	config_Message_Transmit.messageId = ID->ID_PM100_Command;
 	CanCommunication_initMessage(&Tm[0], &config_Message_Transmit);
+
+	config_Message_Transmit.messageId = ID->ID_PM100_RWParameterCommand;
+	CanCommunication_initMessage(&Tm[1], &config_Message_Transmit);
 }
 
 static void setInitialControl(PM100_Control_t* Control)
@@ -230,23 +245,117 @@ static void setInitialControl(PM100_Control_t* Control)
 	//Control->Command.S.reservedBits = 0;
 }
 
-//FIXME: Do this in the init step, not the main loop.
-static void CascadiaInverter_enable()
+static void setInitialParameterWrite(PM100_RWParameter_t* Parameter)
 {
-	if(Inverter_L_Status.InternalStates.InverterEnableLockout || Inverter_R_Status.InternalStates.InverterEnableLockout) //If either of two interters cannot be enabled.
+	Parameter->ParameterAddress = NOWRITE;
+	Parameter->WriteStatus = NOATTEMPT;
+
+	Parameter->ParameterCommand.TransmitData[0] = 0;
+	Parameter->ParameterCommand.TransmitData[1] = 0;
+	Parameter->ParameterResponse.ReceivedData[0] = 0;
+	Parameter->ParameterResponse.ReceivedData[1] = 0;
+	Parameter->sentTick = 0;
+	Parameter->receivedTick = 0;
+	Parameter->RTT = 0;
+
+	Parameter->writeReq = 1;
+	//Parameter->failedClearCnt = 0;
+}
+
+//FIXME: Do this in the init step, not the main loop.
+void CascadiaInverter_enable()
+{
+	if(Inverter_L_Status.InternalStates.InverterEnableLockout == 0 && Inverter_R_Status.InternalStates.InverterEnableLockout == 0) //If either of two interters cannot be enabled.
 	{
-		Inverter_L_Control.Command.S.PM100_InverterEnable = 0;
-		Inverter_R_Control.Command.S.PM100_InverterEnable = 0;
-	}
-	else{
 		Inverter_L_Control.Command.S.PM100_InverterEnable = 1;
 		Inverter_R_Control.Command.S.PM100_InverterEnable = 1;
+
+	}
+	else{
+		CascadiaInverter_disable();
+
+		if(Inverter_L_RWParameter.writeReq) {
+			CascadiaInverter_clearFault(&Inverter_L_Status, &Inverter_L_RWParameter);
+		}
+		if(Inverter_R_RWParameter.writeReq) {
+			CascadiaInverter_clearFault(&Inverter_R_Status, &Inverter_R_RWParameter);
+		}
 	}
 }
+
+void CascadiaInverter_disable() {
+	Inverter_L_Control.Command.S.PM100_TorqueCommand = 0;
+	Inverter_R_Control.Command.S.PM100_TorqueCommand = 0;
+	Inverter_L_Control.Command.S.PM100_InverterEnable = 0;
+	Inverter_R_Control.Command.S.PM100_InverterEnable = 0;
+}
+
+void CascadiaInverter_initParameterWrite()
+{
+	setInitialParameter(&Inverter_L_RWParameter);
+	setInitialParameter(&Inverter_R_RWParameter);
+
+}
+/*
+ * Clear any active fault codes.
+ * Refer to page 37 of the CAN Protocol file.
+ * */
+static void CascadiaInverter_clearFault(PM100_Status_t* Status, PM100_RWParameter_t* Parameter)
+{
+	Parameter->ParameterAddress = CLEARFAULT;
+
+	if(Status->FaultCodes.ReceivedData[0] != 0 || Status->FaultCodes.ReceivedData[1] != 0) {
+		//Parameter->ParameterCommand.S.ParameterAddress = 20;
+		if(Parameter->WriteStatus == NOATTEMPT) {
+			Parameter->sentTick = IfxStm_get(&MODULE_STM0);
+			Parameter->WriteStatus = PENDING;
+			Parameter->ParameterCommand.S.RW_Command = 1;
+			Parameter->ParameterCommand.S.Data = 0;
+		}
+
+	}
+	else {
+		Parameter->writeReq = 0;
+		if(Parameter->WriteStatus == NOATTEMPT) {
+			return;
+		}
+		else if(Parameter->WriteStatus == SUCCESS) {
+			return;
+		}
+		else if(Parameter->WriteStatus == FAIL) {
+			return;
+		}
+	}
+
+	//When the response message for Clear Fault has arrived.
+	if(Parameter->ParameterResponse.S.ParameterAddress == Parameter->ParameterAddress) {
+
+		Parameter->writeReq = 0;
+
+		if(Parameter->WriteStatus == PENDING) {
+			if(Parameter->ParameterResponse.S.WriteSuccess == 1 && Parameter->ParameterResponse.S.Data == 0) { //Write Success
+				Parameter->WriteStatus = SUCCESS;
+			}
+			else if(Parameter->ParameterResponse.S.WriteSuccess == 0 && Parameter->ParameterResponse.S.Data != 0) {
+				Parameter->WriteStatus = FAIL;
+				Parameter->failedClearCnt++;
+			}
+			//else wtf?
+			//Parameter->ParameterAddress = NOWRITE;
+			Parameter->receivedTick = IfxStm_get(&MODULE_STM0);
+			Parameter->RTT = Parameter->receivedTick - Parameter->sentTick;
+		}
+	}
+
+
+
+	return;
+}
+
 /*
 void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R){
 	CascadiaInverter_enable();
 	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L;
 	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R;
 }
-*/
+
