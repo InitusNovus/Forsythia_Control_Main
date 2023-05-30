@@ -102,6 +102,11 @@ void Task_core2_1ms(void)
 #ifndef __SDP_CLOVER__
 	if (RTD_flag)AmkInverterStart();
 #endif
+	if(RTD_flag) {
+		CascadiaInverter_enable();
+	}else {
+		//CascadiaInverter_disable();
+	}
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();
 		task2_10ms_counter = 0;

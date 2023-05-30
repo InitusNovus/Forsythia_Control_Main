@@ -52,10 +52,11 @@ void SDP_DashBoardCan_run_10ms(void){
 
     if(RTD_flag == 1 && pastRTD_flag ==0){
         HLD_GtmTomBeeper_start(InvStartPattern);
+        CascadiaInverter_initParameterWrite();
     }
     else if(RTD_flag ==0 && pastRTD_flag == 1){
         HLD_GtmTomBeeper_start(InvOffPattern);
-
+       CascadiaInverter_disable();
     }
     
 
