@@ -375,4 +375,5 @@ IFX_EXTERN PM100_RWParameter_t Inverter_R_RWParameter;
 IFX_EXTERN void CascadiaInverter_can_init(void);
 IFX_EXTERN void CascadiaInverter_can_Run(void);
 IFX_EXTERN void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R);
+IFX_EXTERN void CascadiaInverter_disable();
 #endif

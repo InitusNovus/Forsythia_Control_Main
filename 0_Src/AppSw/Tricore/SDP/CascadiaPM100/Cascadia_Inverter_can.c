@@ -37,6 +37,7 @@ static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm);
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm);
 static void setInitialControl(PM100_Control_t* Control);
 static void CascadiaInverter_enable();
+//static void CascadiaInverter_disable();
 
 void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 {
@@ -268,10 +269,17 @@ static void CascadiaInverter_enable()
 		Inverter_R_Control.Command.S.PM100_InverterEnable = 1;
 	}
 }
-/*
+
+void CascadiaInverter_disable() {
+	Inverter_L_Control.Command.S.PM100_TorqueCommand = 0;
+	Inverter_R_Control.Command.S.PM100_TorqueCommand = 0;
+	Inverter_L_Control.Command.S.PM100_InverterEnable = 0;
+	Inverter_R_Control.Command.S.PM100_InverterEnable = 0;
+}
+
 void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R){
 	CascadiaInverter_enable();
 	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L;
 	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R;
 }
-*/
+
