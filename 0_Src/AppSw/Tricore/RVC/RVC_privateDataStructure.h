@@ -63,6 +63,7 @@ typedef struct
 	RVC_Gpi_t airNegative;
 	RVC_Gpi_t 	brakePressureOn;
 	RVC_Gpi_t brakeSwitch;
+	RVC_Gpi_t TSALOn;
 
 	struct 
 	{
