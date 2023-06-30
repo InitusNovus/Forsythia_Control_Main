@@ -16,11 +16,11 @@
 #define SENSORHUB_CAN_MSGADC2_ID_REAR (0x00334B02)
 #define SENSORHUB_CAN_MSGWSS_ID_REAR (0x00334B03)
 
-IFX_EXTERN SensorHub_t SensorHub_FRONT;
-IFX_EXTERN SensorHub_t SensorHub_REAR;
+SensorHub_t SensorHub_FRONT;
+SensorHub_t SensorHub_REAR;
 
 void SDP_SensorHub_init(void);
-void SDP_SensorHub_run_1ms(void);
+void SDP_SensorHub_run_10ms(void);
 
 void SDP_SensorHub_init(void)
 {
@@ -66,33 +66,33 @@ void SDP_SensorHub_init(void)
 
 }
 
-void SDP_SensorHub_run_1ms(void)
+void SDP_SensorHub_run_10ms(void)
 {
     /* CAN message refresh*/
     
     /*FRONT~*/
     if(CanCommunication_receiveMessage(&SensorHub_FRONT.SensorHub_msgADC))
     {
-    	SensorHub_FRONT.SensorHub_msgADC.ReceivedData[0]      =   SensorHub_FRONT.SensorHubADC.msg.data[0];
-    	SensorHub_FRONT.SensorHub_msgADC.ReceivedData[1]      =   SensorHub_FRONT.SensorHubADC.msg.data[1];
+    	SensorHub_FRONT.SensorHubADC.ReceivedData[0]      =   SensorHub_FRONT.SensorHub_msgADC.msg.data[0];
+    	SensorHub_FRONT.SensorHubADC.ReceivedData[1]      =   SensorHub_FRONT.SensorHub_msgADC.msg.data[1];
     }
     if(CanCommunication_receiveMessage(&SensorHub_FRONT.SensorHub_msgWSS))
     {
-        SensorHub_FRONT.SensorHub_msgWSS.ReceivedData[0]      =   SensorHub_FRONT.SensorHubWSS.msg.data[0];
-        SensorHub_FRONT.SensorHub_msgWSS.ReceivedData[1]      =   SensorHub_FRONT.SensorHubWSS.msg.data[1];
+        SensorHub_FRONT.SensorHubWSS.ReceivedData[0]      =   SensorHub_FRONT.SensorHub_msgWSS.msg.data[0];
+        SensorHub_FRONT.SensorHubWSS.ReceivedData[1]      =   SensorHub_FRONT.SensorHub_msgWSS.msg.data[1];
     }
     /*~FRONT*/
 
     /*REAR~*/
     if(CanCommunication_receiveMessage(&SensorHub_REAR.SensorHub_msgADC))
     {
-    	SensorHub_REAR.SensorHub_msgADC.ReceivedData[0]      =   SensorHub_REAR.SensorHubADC.msg.data[0];
-    	SensorHub_REAR.SensorHub_msgADC.ReceivedData[1]      =   SensorHub_REAR.SensorHubADC.msg.data[1];
+    	SensorHub_REAR.SensorHubADC.ReceivedData[0]      =   SensorHub_REAR.SensorHub_msgADC.msg.data[0];
+    	SensorHub_REAR.SensorHubADC.ReceivedData[1]      =   SensorHub_REAR.SensorHub_msgADC.msg.data[1];
     }
     if(CanCommunication_receiveMessage(&SensorHub_REAR.SensorHub_msgWSS))
     {
-        SensorHub_REAR.SensorHub_msgWSS.ReceivedData[0]      =   SensorHub_REAR.SensorHubWSS.msg.data[0];
-        SensorHub_REAR.SensorHub_msgWSS.ReceivedData[1]      =   SensorHub_REAR.SensorHubWSS.msg.data[1];
+        SensorHub_REAR.SensorHubWSS.ReceivedData[0]      =   SensorHub_REAR.SensorHub_msgWSS.msg.data[0];
+        SensorHub_REAR.SensorHubWSS.ReceivedData[1]      =   SensorHub_REAR.SensorHub_msgWSS.msg.data[1];
     }
     /*~REAR*/
 

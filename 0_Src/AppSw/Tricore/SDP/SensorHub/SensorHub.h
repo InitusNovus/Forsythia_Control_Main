@@ -27,7 +27,7 @@ typedef union
         uint16 IN2;
         uint16 IN3;
         uint16 IN4;
-    }
+    };
 }SensorHub_msgADC_t;
 
 typedef union
@@ -46,21 +46,21 @@ typedef union
                 uint8 TIM2_ERROR : 1;
                 uint8 TIM3_ERROR : 1;
                 uint8 reserved15 : 1;
-                uint8 reserved:4
+                uint8 reserved:4;
             }S;
         } dutyFlag;
         uint16 reserved1;
         uint8 reserved2;
-    }
+    };
 }SensorHub_msgWSS_t;
 
 typedef struct 
 {
-    SensorHub_msgADC_t SensorHub_msgADC;
-    SensorHub_msgWSS_t SensorHub_msgWSS;
+    SensorHub_msgADC_t SensorHubADC;
+    SensorHub_msgWSS_t SensorHubWSS;
 
-    CanCommunication_Message SensorHubADC;
-    CanCommunication_Message SensorHubWSS;
+    CanCommunication_Message SensorHub_msgADC;
+    CanCommunication_Message SensorHub_msgWSS;
 }SensorHub_t;
 
 IFX_EXTERN SensorHub_t SensorHub_FRONT;
