@@ -20,6 +20,8 @@
 #include "Multican.h"
 #include "CanCommunication.h"
 
+#include <Ifx_Assert.h>
+
 typedef enum {
 	NOWRITE = 0,
 	CLEARFAULT = 20,
@@ -387,5 +389,6 @@ IFX_EXTERN void CascadiaInverter_enable();
 IFX_EXTERN void CascadiaInverter_disable();
 IFX_EXTERN void CascadiaInverter_initParameterWrite();
 IFX_EXTERN void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R);
-IFX_EXTERN void CascadiaInverter_disable();
+IFX_EXTERN void CascadiaInverter_clearFault(PM100_Status_t* Status, PM100_RWParameter_t* Parameter);
+//IFX_EXTERN void CascadiaInverter_disable();
 #endif
