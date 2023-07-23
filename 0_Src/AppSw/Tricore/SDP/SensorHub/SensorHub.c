@@ -16,6 +16,8 @@
 #define SENSORHUB_CAN_MSGADC2_ID_REAR (0x00334B02)
 #define SENSORHUB_CAN_MSGWSS_ID_REAR (0x00334B03)
 
+#define ADC_RESOLUTION (4095)
+
 SensorHub_t SensorHub_FRONT;
 SensorHub_t SensorHub_REAR;
 
@@ -122,4 +124,85 @@ void SDP_SensorHub_run_10ms(void)
     }
     /*~REAR*/
 
+}
+
+uint16 SDP_SensorHub_getRPM_FL() {
+	return SensorHub_FRONT.SensorHubWSS.WSS2_RPM;
+}
+
+uint16 SDP_SensorHub_getRPM_FR() {
+	return SensorHub_FRONT.SensorHubWSS.WSS1_RPM;
+}
+
+uint16 SDP_SensorHub_getRPM_RL() {
+	return SensorHub_REAR.SensorHubWSS.WSS1_RPM;
+}
+
+uint16 SDP_SensorHub_getRPM_RR() {
+	return SensorHub_REAR.SensorHubWSS.WSS2_RPM;
+}
+
+//Must have a parameter of uint16 type pointer with memory assigned at least of 32bits.
+void SDP_SensorHub_getRPM_Front(uint16* frontRPM) {
+	frontRPM[0] = SDP_SensorHub_getRPM_FL();
+	frontRPM[1] = SDP_SensorHub_getRPM_FR();
+}
+
+//Must have a parameter of uint16 type pointer with memory assigned at least of 32bits.
+void SDP_SensorHub_getRPM_Rear(uint16* rearRPM) {
+	rearRPM[0] = SDP_SensorHub_getRPM_RL();
+	rearRPM[1] = SDP_SensorHub_getRPM_RR();
+}
+
+//Must have a parameter of uint16 type pointer with memory assigned at least of 32bits.
+//In the sequence of FL FR RL RR
+void SDP_SensorHub_getRPM(uint16* RPM) {
+	RPM[0] = SDP_SensorHub_getRPM_FL();
+	RPM[1] = SDP_SensorHub_getRPM_FR();
+	RPM[2] = SDP_SensorHub_getRPM_RL();
+	RPM[3] = SDP_SensorHub_getRPM_RR();
+}
+
+//Returns damper contraction ratio
+//Returns 1 when the potentiometer is at its full expansion and 0 at its full contraction.
+double SDP_SensorHub_getDamper_FL() {
+	return SensorHub_FRONT.SensorHubADC2.IN2/ADC_RESOLUTION;
+}
+
+//Returns damper contraction ratio
+//Returns 1 when the potentiometer is at its full expansion and 0 at its full contraction.
+double SDP_SensorHub_getDamper_FR() {
+	return SensorHub_FRONT.SensorHubADC1.IN3/ADC_RESOLUTION;
+}
+
+//Returns damper contraction ratio
+//Returns 1 when the potentiometer is at its full expansion and 0 at its full contraction.
+double SDP_SensorHub_getDamper_RL() {
+	return SensorHub_REAR.SensorHubADC1.IN3/ADC_RESOLUTION;
+}
+
+//Returns damper contraction ratio
+//Returns 1 when the potentiometer is at its full expansion and 0 at its full contraction.
+double SDP_SensorHub_getDamper_RR() {
+	return SensorHub_REAR.SensorHubADC2.IN2/ADC_RESOLUTION;
+}
+
+//Must have a parameter of double type pointer with memory assigned at least of two elements.
+void SDP_SensorHub_getDamper_Front(double* frontDamper) {
+	frontDamper[0] = SDP_SensorHub_getDamper_FL();
+	frontDamper[1] = SDP_SensorHub_getDamper_FR();
+}
+
+//Must have a parameter of double type pointer with memory assigned at least of two elements.
+void SDP_SensorHub_getDamper_Rear(double* rearDamper) {
+	rearDamper[0] = SDP_SensorHub_getDamper_RL();
+	rearDamper[1] = SDP_SensorHub_getDamper_RR();
+}
+
+//Must have a parameter of double type pointer with memory assigned at least of four elements.
+void SDP_SensorHub_getDamper(double* Damper) {
+	Damper[0] = SDP_SensorHub_getDamper_FL();
+	Damper[1] = SDP_SensorHub_getDamper_FR();
+	Damper[2] = SDP_SensorHub_getDamper_RL();
+	Damper[3] = SDP_SensorHub_getDamper_RR();
 }

@@ -67,4 +67,23 @@ typedef struct
 
 IFX_EXTERN SensorHub_t SensorHub_FRONT;
 IFX_EXTERN SensorHub_t SensorHub_REAR;
+
+IFX_EXTERN void SDP_SensorHub_init();
+IFX_EXTERN void SDP_SensorHub_run_10ms();
+
+IFX_EXTERN uint16 SDP_SensorHub_getRPM_FL();
+IFX_EXTERN uint16 SDP_SensorHub_getRPM_FR();
+IFX_EXTERN uint16 SDP_SensorHub_getRPM_RL();
+IFX_EXTERN uint16 SDP_SensorHub_getRPM_RR();
+IFX_EXTERN void SDP_SensorHub_getRPM_Front(uint16*);
+IFX_EXTERN void SDP_SensorHub_getRPM_Rear(uint16*);
+IFX_EXTERN void SDP_SensorHub_getRPM(uint16*);
+
+IFX_EXTERN double SDP_SensorHub_getDamper_FL();
+IFX_EXTERN double SDP_SensorHub_getDamper_FR();
+IFX_EXTERN double SDP_SensorHub_getDamper_RL();
+IFX_EXTERN double SDP_SensorHub_getDamper_RR();
+IFX_EXTERN void SDP_SensorHub_getDamper_Front(double*);
+IFX_EXTERN void SDP_SensorHub_getDamper_Rear(double*);
+IFX_EXTERN void SDP_SensorHub_getDamper(double*);
 #endif /* SENSORHUB_H*/
