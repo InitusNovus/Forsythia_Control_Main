@@ -35,11 +35,12 @@ const uint32 StWhlMsgId3 = 0x00101F02UL;
 
 SteeringWheel_t SteeringWheel;
 SteeringWheel_public_t SteeringWheel_public;
-
+/*
 amkActualValues2 INV_FL_AMK_Actual_Values2;
 amkActualValues2 INV_RL_AMK_Actual_Values2;
 amkActualValues2 INV_RR_AMK_Actual_Values2;
 amkActualValues2 INV_FR_AMK_Actual_Values2;
+*/
 /******************* Private Function Prototypes *********************/
 
 
@@ -67,7 +68,7 @@ void SteeringWheel_init(void)
 		CanCommunication_Message_Config config;
 		config.messageId 		= 	StWhlMsgId3;
 		config.frameType		=	IfxMultican_Frame_transmit;
-        config.dataLen			=	IfxMultican_DataLengthCode_4;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
         config.node				=	&CanCommunication_canNode0;
         CanCommunication_initMessage(&SteeringWheel.msgObj3, &config);
 	}
@@ -100,7 +101,7 @@ void SteeringWheel_run_xms_c2(void)
 	SteeringWheel.canMsg2.S.bpps = (uint16)(SteeringWheel_public.data.bpps*100);
 	SteeringWheel.canMsg2.S.lvBatteryVoltage = (uint16)(SteeringWheel_public.data.lvBatteryVoltage*100);
 	SteeringWheel.canMsg2.S.accumulatorVoltage = OrionBms2.msg1.packVoltage;
-
+/*
 	SteeringWheel.canMsg3.S.inverterFLTemp = INV_FL_AMK_Actual_Values2.S.AMK_TempInverter;
 	SteeringWheel.canMsg3.S.motorFLTemp = INV_FL_AMK_Actual_Values2.S.AMK_TempMotor;
 	SteeringWheel.canMsg3.S.inverterRLTemp = INV_RL_AMK_Actual_Values2.S.AMK_TempInverter;
@@ -109,6 +110,12 @@ void SteeringWheel_run_xms_c2(void)
 	SteeringWheel.canMsg3.S.motorRRTemp = INV_RR_AMK_Actual_Values2.S.AMK_TempMotor;
 	SteeringWheel.canMsg3.S.inverterFRTemp = INV_FR_AMK_Actual_Values2.S.AMK_TempInverter;
 	SteeringWheel.canMsg3.S.motorFRTemp = INV_FR_AMK_Actual_Values2.S.AMK_TempMotor;
+*/
+
+	SteeringWheel.canMsg3.S.inverter1Temp = Inverter_L_Status.Temperature3.S.PM100_HotSpotTemperature;
+	SteeringWheel.canMsg3.S.motor1Temp = Inverter_L_Status.Temperature3.S.PM100_MotorTemperature;
+	SteeringWheel.canMsg3.S.inverter2Temp = Inverter_R_Status.Temperature3.S.PM100_HotSpotTemperature;
+	SteeringWheel.canMsg3.S.motor2Temp = Inverter_R_Status.Temperature3.S.PM100_MotorTemperature;
 
 	/* Set the messages */
 	CanCommunication_setMessageData(SteeringWheel.canMsg1.U[0], SteeringWheel.canMsg1.U[1], &SteeringWheel.msgObj1);

@@ -86,7 +86,11 @@ void Task_core2_1ms(void)
 
 #ifdef __SDP_CLOVER__
 	CascadiaInverter_can_Run();
+
 	OrionBms2_run_1ms_c2();
+	SDP_SensorHub_run_10ms();
+
+	//SDP_SensorHub_run_1ms();
 #endif
 	task2_10ms_counter+=1;
 	value = 2.37*APPS0.value - 11.89;
@@ -103,13 +107,24 @@ void Task_core2_1ms(void)
 	if (RTD_flag)AmkInverterStart();
 #endif
 	if(RTD_flag) {
-		CascadiaInverter_enable();
+		//Expect to enter this snippet only once per single RTD on.
+		//That is, this condition is evaluated true when the VCU receives the "RTD ON" CAN message.
+		//The dashboard TriCore(MCU) repeatedly sends the message until it processes a ACK generated from the VCU.
+		//The VCU broadcasts the ACK for each "RTD ON" messages.
+		//So consequently, it IS possible for the VCU to enter this scope multiple times,
+		//but please clearly understand the "RTD_flag" condition only evaluates true only during a short time interval of each "Power Up"s,
+		//rather than the entire drive.
+
+		//CascadiaInverter_enable(); // Do this in the RVC_setR2d()
 	}else {
 		//CascadiaInverter_disable();
 	}
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();
 		task2_10ms_counter = 0;
+	}
+	else if(task2_10ms_counter == 5) {
+		Task_core2_10ms_slot2();
 	}
 	ticToc_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2) * 1000000 / (IfxStm_getFrequency(&MODULE_STM0));
 	
@@ -127,6 +142,7 @@ void Task_core2_10ms_slot1(void)
 	2143 -> 214.3% of nominal torque 21Nm
 	maby 21Nm is max by datasheet graph
 	*/
+	SteeringWheel_run_xms_c2();
 
 }
 

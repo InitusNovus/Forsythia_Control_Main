@@ -33,7 +33,15 @@ void SDP_SensorHub_init(void)
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_8;
         config.node				=	&CanCommunication_canNode0;
-        CanCommunication_initMessage(&SensorHub_FRONT.SensorHub_msgADC, &config);
+        CanCommunication_initMessage(&SensorHub_FRONT.SensorHub_msgADC1, &config);
+	}
+	{
+        CanCommunication_Message_Config config;
+        config.messageId		=	SENSORHUB_CAN_MSGADC2_ID_FRONT;
+        config.frameType		=	IfxMultican_Frame_receive;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode0;
+        CanCommunication_initMessage(&SensorHub_FRONT.SensorHub_msgADC2, &config);
 	}
 	{
 		CanCommunication_Message_Config config;
@@ -52,7 +60,15 @@ void SDP_SensorHub_init(void)
         config.frameType		=	IfxMultican_Frame_receive;
         config.dataLen			=	IfxMultican_DataLengthCode_8;
         config.node				=	&CanCommunication_canNode0;
-        CanCommunication_initMessage(&SensorHub_REAR.SensorHub_msgADC, &config);
+        CanCommunication_initMessage(&SensorHub_REAR.SensorHub_msgADC1, &config);
+	}
+	{
+        CanCommunication_Message_Config config;
+        config.messageId		=	SENSORHUB_CAN_MSGADC2_ID_REAR;
+        config.frameType		=	IfxMultican_Frame_receive;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode0;
+        CanCommunication_initMessage(&SensorHub_REAR.SensorHub_msgADC2, &config);
 	}
 	{
 		CanCommunication_Message_Config config;
@@ -71,10 +87,15 @@ void SDP_SensorHub_run_10ms(void)
     /* CAN message refresh*/
     
     /*FRONT~*/
-    if(CanCommunication_receiveMessage(&SensorHub_FRONT.SensorHub_msgADC))
+    if(CanCommunication_receiveMessage(&SensorHub_FRONT.SensorHub_msgADC1))
     {
-    	SensorHub_FRONT.SensorHubADC.ReceivedData[0]      =   SensorHub_FRONT.SensorHub_msgADC.msg.data[0];
-    	SensorHub_FRONT.SensorHubADC.ReceivedData[1]      =   SensorHub_FRONT.SensorHub_msgADC.msg.data[1];
+    	SensorHub_FRONT.SensorHubADC1.ReceivedData[0]      =   SensorHub_FRONT.SensorHub_msgADC1.msg.data[0];
+    	SensorHub_FRONT.SensorHubADC1.ReceivedData[1]      =   SensorHub_FRONT.SensorHub_msgADC1.msg.data[1];
+    }
+    if(CanCommunication_receiveMessage(&SensorHub_FRONT.SensorHub_msgADC2))
+    {
+    	SensorHub_FRONT.SensorHubADC2.ReceivedData[0]      =   SensorHub_FRONT.SensorHub_msgADC2.msg.data[0];
+    	SensorHub_FRONT.SensorHubADC2.ReceivedData[1]      =   SensorHub_FRONT.SensorHub_msgADC2.msg.data[1];
     }
     if(CanCommunication_receiveMessage(&SensorHub_FRONT.SensorHub_msgWSS))
     {
@@ -84,10 +105,15 @@ void SDP_SensorHub_run_10ms(void)
     /*~FRONT*/
 
     /*REAR~*/
-    if(CanCommunication_receiveMessage(&SensorHub_REAR.SensorHub_msgADC))
+    if(CanCommunication_receiveMessage(&SensorHub_REAR.SensorHub_msgADC1))
     {
-    	SensorHub_REAR.SensorHubADC.ReceivedData[0]      =   SensorHub_REAR.SensorHub_msgADC.msg.data[0];
-    	SensorHub_REAR.SensorHubADC.ReceivedData[1]      =   SensorHub_REAR.SensorHub_msgADC.msg.data[1];
+    	SensorHub_REAR.SensorHubADC1.ReceivedData[0]      =   SensorHub_REAR.SensorHub_msgADC1.msg.data[0];
+    	SensorHub_REAR.SensorHubADC1.ReceivedData[1]      =   SensorHub_REAR.SensorHub_msgADC1.msg.data[1];
+    }
+    if(CanCommunication_receiveMessage(&SensorHub_REAR.SensorHub_msgADC2))
+    {
+    	SensorHub_REAR.SensorHubADC2.ReceivedData[0]      =   SensorHub_REAR.SensorHub_msgADC2.msg.data[0];
+    	SensorHub_REAR.SensorHubADC2.ReceivedData[1]      =   SensorHub_REAR.SensorHub_msgADC2.msg.data[1];
     }
     if(CanCommunication_receiveMessage(&SensorHub_REAR.SensorHub_msgWSS))
     {

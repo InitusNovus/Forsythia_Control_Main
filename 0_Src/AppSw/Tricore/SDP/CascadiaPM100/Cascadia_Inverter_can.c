@@ -31,6 +31,8 @@ PM100_Control_t Inverter_R_Control;
 PM100_RWParameter_t Inverter_L_RWParameter;
 PM100_RWParameter_t Inverter_R_RWParameter;
 
+
+
 void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node);
 void CascadiaInverter_can_init(void);
 void CascadiaInverter_can_Run(void);
@@ -66,6 +68,32 @@ void CascadiaInverter_SET_ID(PM100_ID_set* IN, int node)
 	/*~Parameter Messages*/
 }
 
+static void setParameterMessage(PM100_ID_set* ID, PM100_RWParameter_t* inv_rwp)
+{
+	/*Config in common~*/
+	IfxMultican_Can_Node* CanCommunication_canNodes[3] = {&CanCommunication_canNode0, &CanCommunication_canNode1, &CanCommunication_canNode2};
+	CanCommunication_Message_Config config_Message_Receive;
+
+	config_Message_Receive.frameType = IfxMultican_Frame_receive;
+	config_Message_Receive.dataLen = IfxMultican_DataLengthCode_8;
+	config_Message_Receive.isStandardId = FALSE;
+	config_Message_Receive.node = CanCommunication_canNodes[ID->node];
+	/*~Config in common*/
+
+	config_Message_Receive.messageId = ID->ID_PM100_RWParameterResponse;
+	CanCommunication_initMessage(&(inv_rwp->ParameterResponse_msg),&config_Message_Receive);
+
+
+	CanCommunication_Message_Config config_Message_Transmit;
+	config_Message_Transmit.frameType = IfxMultican_Frame_transmit;
+	config_Message_Transmit.dataLen = IfxMultican_DataLengthCode_8;
+	config_Message_Transmit.isStandardId = FALSE;
+	config_Message_Transmit.node = CanCommunication_canNodes[ID->node];
+
+	config_Message_Transmit.messageId = ID->ID_PM100_RWParameterCommand;
+	CanCommunication_initMessage(&(inv_rwp->ParameterCommand_msg),&config_Message_Transmit);
+}
+
 void CascadiaInverter_can_init(void)
 {
 	CascadiaInverter_SET_ID(&Inverter_L_ID,2);
@@ -76,6 +104,9 @@ void CascadiaInverter_can_init(void)
 
 	setReceiveMessage(&Inverter_L_ID, Rx_Inverter_L);
 	setReceiveMessage(&Inverter_R_ID, Rx_Inverter_R);
+
+	setParameterMessage(&Inverter_L_ID, &Inverter_L_RWParameter);
+	setParameterMessage(&Inverter_R_ID, &Inverter_R_RWParameter);
 
 	setInitialControl(&Inverter_L_Control, 1);
 	setInitialControl(&Inverter_R_Control, 0);
@@ -167,8 +198,12 @@ void CascadiaInverter_can_Run(void) //receive loop
 
 
 
+
 	CanCommunication_transmitMessage(&Tx_TC275_L[0]);
 	CanCommunication_transmitMessage(&Tx_TC275_R[0]);
+
+
+	//CascadiaInverter_clearFault();
 }
 
 
@@ -205,9 +240,10 @@ static void setReceiveMessage(PM100_ID_set* ID, CanCommunication_Message* Rm)
 
 	config_Message_Receive.messageId = ID->ID_PM100_HighSpeedMessage;
 	CanCommunication_initMessage(&Rm[6], &config_Message_Receive);
-
+/*
 	config_Message_Receive.messageId = ID->ID_PM100_RWParameterResponse;
 	CanCommunication_initMessage(&Rm[7], &config_Message_Receive);
+	*/
 }
 
 static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
@@ -225,9 +261,10 @@ static void setTransmitMessage(PM100_ID_set* ID, CanCommunication_Message* Tm)
 
 	config_Message_Transmit.messageId = ID->ID_PM100_Command;
 	CanCommunication_initMessage(&Tm[0], &config_Message_Transmit);
-
+/*
 	config_Message_Transmit.messageId = ID->ID_PM100_RWParameterCommand;
 	CanCommunication_initMessage(&Tm[1], &config_Message_Transmit);
+	*/
 }
 
 static void setInitialControl(PM100_Control_t* Control, const int direction)
@@ -250,6 +287,7 @@ static void setInitialControl(PM100_Control_t* Control, const int direction)
 	//Control->Command.S.reservedBits = 0;
 }
 
+// Initialize Parameter Write Structure.
 static void setInitialParameterWrite(PM100_RWParameter_t* Parameter)
 {
 	Parameter->ParameterAddress = NOWRITE;
@@ -273,7 +311,6 @@ void CascadiaInverter_enable()
 #ifdef __TEST_IGNORE_FAULT__
 	Inverter_L_Control.Command.S.PM100_InverterEnable = 1;
 	Inverter_R_Control.Command.S.PM100_InverterEnable = 1;
-}
 #else
 if(Inverter_L_Status.InternalStates.InverterEnableLockout == 0 && Inverter_R_Status.InternalStates.InverterEnableLockout == 0) //If either of two interters cannot be enabled.
 {
@@ -282,6 +319,7 @@ if(Inverter_L_Status.InternalStates.InverterEnableLockout == 0 && Inverter_R_Sta
 
 }
 else{
+	//static int cnt = 0;
 	CascadiaInverter_disable();
 
 	if(Inverter_L_RWParameter.writeReq) {
@@ -292,6 +330,7 @@ else{
 	}
 }
 #endif
+}
 
 void CascadiaInverter_disable() {
 	Inverter_L_Control.Command.S.PM100_TorqueCommand = 0;
@@ -302,10 +341,9 @@ void CascadiaInverter_disable() {
 
 void CascadiaInverter_initParameterWrite()
 {
-	/* May 30th 2023: To-Resolve: setInitialParameter
-	setInitialParameter(&Inverter_L_RWParameter);
-	setInitialParameter(&Inverter_R_RWParameter);
-*/
+	// May 30th 2023: To-Resolve: setInitialParameter
+	setInitialParameterWrite(&Inverter_L_RWParameter);
+	setInitialParameterWrite(&Inverter_R_RWParameter);
 }
 /*
  * Clear any active fault codes.
@@ -313,15 +351,27 @@ void CascadiaInverter_initParameterWrite()
  * */
 void CascadiaInverter_clearFault(PM100_Status_t* Status, PM100_RWParameter_t* Parameter)
 {
+
+	static int cnt = 0;
+
 	Parameter->ParameterAddress = CLEARFAULT;
 
 	if(Status->FaultCodes.ReceivedData[0] != 0 || Status->FaultCodes.ReceivedData[1] != 0) { //If there is any fault.
-		//Parameter->ParameterCommand.S.ParameterAddress = 20;
+		Parameter->ParameterCommand.S.ParameterAddress = CLEARFAULT;
 		if(Parameter->WriteStatus == NOATTEMPT) {
 			Parameter->sentTick = IfxStm_get(&MODULE_STM0);
 			Parameter->WriteStatus = PENDING;
 			Parameter->ParameterCommand.S.RW_Command = 1;
 			Parameter->ParameterCommand.S.Data = 0;
+		}
+		if(Parameter->WriteStatus == PENDING) { //if set, transmit parameter write message.
+			//send can message here.
+			CanCommunication_setMessageData(Parameter->ParameterCommand.TransmitData[0], Parameter->ParameterCommand.TransmitData[1], &(Parameter->ParameterCommand_msg));
+			if(cnt++ == 10) {
+				CanCommunication_transmitMessage(&(Parameter->ParameterCommand_msg));
+				cnt = 0;
+			}
+			//
 		}
 
 	}
@@ -338,36 +388,43 @@ void CascadiaInverter_clearFault(PM100_Status_t* Status, PM100_RWParameter_t* Pa
 		}
 	}
 
+
+	//To-Do: Add message polling.
+
 	//When the response message for Clear Fault has arrived.
-	if(Parameter->ParameterResponse.S.ParameterAddress == Parameter->ParameterAddress) {
+	if(CanCommunication_receiveMessage(&(Parameter->ParameterResponse_msg))) { // When a parameter RW response have arrived.
+		Parameter->ParameterResponse.ReceivedData[0] = Parameter->ParameterResponse_msg.msg.data[0];
+		Parameter->ParameterResponse.ReceivedData[1] = Parameter->ParameterResponse_msg.msg.data[1];
 
-		Parameter->writeReq = 0;
+		if(Parameter->ParameterResponse.S.ParameterAddress == Parameter->ParameterAddress) {
 
-		if(Parameter->WriteStatus == PENDING) {
-			if(Parameter->ParameterResponse.S.WriteSuccess == 1 && Parameter->ParameterResponse.S.Data == 0) { //Write Success
-				Parameter->WriteStatus = SUCCESS;
+			Parameter->writeReq = 0;
+
+			if(Parameter->WriteStatus == PENDING) {
+				if(Parameter->ParameterResponse.S.WriteSuccess == 1 && Parameter->ParameterResponse.S.Data == 0) { //Write Success
+					Parameter->WriteStatus = SUCCESS;
+				}
+				else if(Parameter->ParameterResponse.S.WriteSuccess == 0 && Parameter->ParameterResponse.S.Data != 0) {
+					Parameter->WriteStatus = FAIL;
+					Parameter->failedClearCnt++;
+				}
+				//else wtf?
+				//Parameter->ParameterAddress = NOWRITE;
+				Parameter->receivedTick = IfxStm_get(&MODULE_STM0);
+				Parameter->RTT = Parameter->receivedTick - Parameter->sentTick;
 			}
-			else if(Parameter->ParameterResponse.S.WriteSuccess == 0 && Parameter->ParameterResponse.S.Data != 0) {
-				Parameter->WriteStatus = FAIL;
-				Parameter->failedClearCnt++;
-			}
-			//else wtf?
-			//Parameter->ParameterAddress = NOWRITE;
-			Parameter->receivedTick = IfxStm_get(&MODULE_STM0);
-			Parameter->RTT = Parameter->receivedTick - Parameter->sentTick;
 		}
 	}
-
-
-
 	return;
 }
 
 
+//Percentage of torque, in scale of 1 to 100
+//full torque: 100Nm = 1000 in command
 void CascadiaInverter_writeTorque(uint16 torque_L, uint16 torque_R){
 	CascadiaInverter_enable();
-	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L;
-	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R;
+	Inverter_L_Control.Command.S.PM100_TorqueCommand = torque_L * 5;
+	Inverter_R_Control.Command.S.PM100_TorqueCommand = torque_R * 5;
 }
 
 

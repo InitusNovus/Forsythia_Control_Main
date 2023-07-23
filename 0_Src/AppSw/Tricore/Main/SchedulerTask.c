@@ -16,9 +16,14 @@
 
 #include "CanCommunication.h"
 #include "AccumulatorManager_master.h"
+#ifndef __SDP_CLOVER__
 #include "RVC.h"
 #include "AmkInverter_can.h"
+#else
+#include "RVC_Clover.h"
 #include "OrionBms2.h"
+#endif
+
 #include "SteeringWheel.h"
 #include "DashBoardCan.h"
 
@@ -174,6 +179,7 @@ void Task_init (void)
 #endif
 #ifdef __SDP_CLOVER__
 		//SensorHub init must come here
+		SDP_SensorHub_init();
 #endif
 		SDP_Cooling_init();
 		SDP_SteeringAngleAdc_init();
@@ -329,7 +335,7 @@ void Task_100ms_slot5(void)
 /**********************************************************************/
 void Task_1000ms (void)
 {
-	SDP_Cooling_Switch();
+	SDP_Cooling_setVCUmode();
 	Task_counter_service_1000ms();
 }
 void Task_1000ms_slot3 (void)

@@ -87,5 +87,20 @@ IFX_EXTERN Cooling_order_t Cooling_order;
 
 IFX_EXTERN void SDP_Cooling_init(void);
 IFX_EXTERN void SDP_Cooling_run_10ms(void);
-IFX_EXTERN void SDP_Cooling_Switch(void);
+IFX_EXTERN void SDP_Cooling_setVCUmode(void);
+IFX_EXTERN void SDP_Cooling_resetVCUmode(void);
+IFX_EXTERN void SDP_Cooling_toggleWaterPump(void);
+IFX_EXTERN void SDP_Cooling_onWaterPump(void);
+IFX_EXTERN void SDP_Cooling_offWaterPump(void);
+IFX_EXTERN void SDP_Cooling_toggleRadiatorFan(void);
+IFX_EXTERN void SDP_Cooling_onRadiatorFan(void);
+IFX_EXTERN void SDP_Cooling_offRadiatorFan(void);
+IFX_EXTERN void SDP_Cooling_AllOn(void);
+IFX_EXTERN void SDP_Cooling_AllOff(void);
+IFX_EXTERN void SDP_Cooling_setWaterPumpDuty(uint8, uint8);
+IFX_EXTERN void SDP_Cooling_setWaterPump0Duty(uint8);
+IFX_EXTERN void SDP_Cooling_setWaterPump1Duty(uint8);
+IFX_EXTERN void SDP_Cooling_setRadiatorFanDuty(uint8, uint8);
+IFX_EXTERN void SDP_Cooling_setRadiatorFan0Duty(uint8);
+IFX_EXTERN void SDP_Cooling_setRadiatorFan1Duty(uint8);
 #endif /* COOLING_H */

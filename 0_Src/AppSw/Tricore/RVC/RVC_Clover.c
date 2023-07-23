@@ -33,12 +33,16 @@ TODO:
 #include "AdcSensor.h"
 #include "AdcForceStart.h"
 
-#include "RVC.h"
+#include "RVC_Clover.h"
 #include "RVC_privateDataStructure.h"
 #include "RVC_r2dSound.h"
 #include "TorqueVectoring/TorqueVectoring.h"
 
 #include "SteeringWheel.h"
+
+#include "DashBoardCan.h"
+
+#include "Build_Global_Parameter.h"
 
 /**************************** Macro **********************************/
 #define PWMFREQ 5000 // PWM frequency in Hz
@@ -86,10 +90,18 @@ TODO:
 #define THROTLE_5V
 
 #define BRAKE_ON_BP
-#define BRAKE_ON_TH_BP1	14.80f
-#define BRAKE_ON_TH_BP2 14.80f
+#define BRAKE_ON_TH_BP1	13.97f
+#define BRAKE_ON_TH_BP2 100.0f
 
 #define BMS_PDL_ERROR	TRUE
+
+
+
+
+
+
+
+#define RTDS_TIME (3000) //RTD Sound length in ms.
 
 /*********************** Global Variables ****************************/
 RVC_t RVC =
@@ -111,6 +123,8 @@ RVC_t RVC =
 
 	.power.limit = POWER_LIM,
 	.currentLimit.setValue = CURRENT_LIM_SET_VAL,
+
+	.RTDS_Tick = RTDS_TIME,
 };
 
 RVC_public_t RVC_public;
@@ -150,15 +164,26 @@ void RVC_init(void)
 
 	RVC.tvMode1.pGain = TV1PGAIN;
 	RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+
+
+
+
+
+	SDP_Cooling_setVCUmode();
+	SDP_Cooling_AllOn();
+	SDP_Cooling_setWaterPumpDuty(50, 50);
+	SDP_Cooling_setRadiatorFanDuty(50, 50);
 }
 
 void RVC_run_1ms(void)
 {
 	RVC_updateReadyToDriveSignal();
 
-	RVC_slipComputation();
+	RVC_slipComputation(); //to adapt
 
 	RVC_getTorqueRequired();
+
+#ifndef __TEST_IGNORE_BRAKE_OVERRIDE__
 
 	if(RVC.BrakePressure1.value > BRAKE_ON_TH_BP1)
 		RVC.brakeOn.bp1 = TRUE;
@@ -172,20 +197,24 @@ void RVC_run_1ms(void)
 
 	//RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2 | RVC.brakePressureOn.value;
 	RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2;
-
+#else
+	RVC.brakeOn.bp1 = FALSE;
+	RVC.brakeOn.bp2 = FALSE;
+	RVC.brakeOn.tot = FALSE;
+#endif
 	/* TODO: Torque limit: Traction control */
 
-	RVC_powerComputation();
+	RVC_powerComputation(); //max torque 결정
 
 	RVC_torqueLimit();
 
 	RVC_torqueSatuation();
 
-	RVC_torqueDistrobution();
+	RVC_torqueDistrobution(); // 무의미
 
 	/* TODO: Torque signal check*/
 
-	//RVC_writeCascadiaCAN(); Comment to Override can!
+	RVC_writeCascadiaCAN(); //Comment to Override can!
 
 	/* TODO: Shared variable update */
 	RVC_updateSharedVariable();
@@ -211,6 +240,9 @@ IFX_STATIC void RVC_setR2d(void)
 	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
 		HLD_GtmTomBeeper_start_volume(RVC_r2dSound, 1); // R2D sound	//FIXME: R2D sound
+        CascadiaInverter_initParameterWrite(); //Attempt to clear Fault
+
+        RVC.RTDS_Tick = 0;
 	}
 }
 
@@ -220,6 +252,9 @@ IFX_STATIC void RVC_resetR2d(void)
 	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
 		HLD_GtmTomBeeper_start(RVC_r2dResetSound);
+        CascadiaInverter_disable();
+
+        RVC.RTDS_Tick = 0;
 	}
 }
 
@@ -386,12 +421,12 @@ IFX_STATIC void PpsCheck(boolean *isChecked, uint32 *count, boolean isHi, uint32
 		*count = 0;
 	}
 }
-IFX_STATIC void RVC_r2d(void)
+IFX_STATIC void RVC_r2d(void) //Gpio(RH) -> CAN(Clover)
 {
-	static boolean risingEdgeFlag = FALSE;	//Ready to drive contorl button hysteresis
-	static uint32 pushCount = 0;
-	static uint32 releaseCount = 0;
-	boolean buttonState = FALSE; //GPIO debounced input result
+	//static boolean risingEdgeFlag = FALSE;	//Ready to drive contorl button hysteresis
+	//static uint32 pushCount = 0;
+	//static uint32 releaseCount = 0;
+	//boolean buttonState = FALSE; //GPIO debounced input result
 
 	boolean buttonOn = FALSE;	//Start button
 
@@ -403,7 +438,7 @@ IFX_STATIC void RVC_r2d(void)
 	boolean isBppsLo = FALSE;
 
 	/* Poll the button */
-	buttonState = Gpio_Debounce_pollInput(&RVC.startButton);
+	//buttonState = Gpio_Debounce_pollInput(&RVC.startButton); //RH Legacy
 
 	/* Poll PPS signals */
 	isAppsHi = CheckPpsHi(&SDP_PedalBox.apps);
@@ -419,55 +454,16 @@ IFX_STATIC void RVC_r2d(void)
 			RVC.R2d.isBppsChecked2 = TRUE;
 
 	/* Start button routine */
-	if( (buttonState == TRUE)&&(risingEdgeFlag == FALSE) )
-	{	/* The button is Pushed */
-		pushCount++;
-
-/* 		if( (RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)&&(pushCount > R2D_ONHOLD) )
-		{
-			pushCount = 0;
-			risingEdgeFlag = TRUE; //Rising edge detected
-			RVC_setR2d();
-		}
-		else if( (RVC.readyToDrive == RVC_ReadyToDrive_status_run)&&(pushCount > R2D_ONHOLD) )	//TODO: RTD off condition: Speed == 0,
-		{
-			pushCount = 0;
-			risingEdgeFlag = TRUE; //Rising edge detected
-			RVC_resetR2d();
-			//TODO: R2D off sound
-		}
- */
-		if(pushCount > R2D_ONHOLD)
-		{
-			buttonOn = TRUE;
-			pushCount = 0;
-			risingEdgeFlag = TRUE;	//Rising edge detected
-		}
-	}
-	else if( (buttonState == FALSE)&&(risingEdgeFlag == TRUE) )
-	{	/* The button is released */
-		buttonOn = FALSE;
-		releaseCount++;
-		if( releaseCount > R2D_REL)
-		{
-			risingEdgeFlag = FALSE;	// The button is released
-		}
-	}
-	else
-	{
-		buttonOn = FALSE;
-		pushCount = 0;
-		releaseCount = 0;
-	}
+	buttonOn = SDP_DashBoardCan_getDashBoard_RTD_Status();
 
 	/* R2D routine */
 #ifdef R2D_TEST
 	/***** Test: start button set/reset R2D directly *****/
-	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE) && (RVC.brakeOn.tot == TRUE))
+	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE)/* && (RVC.brakeOn.tot == TRUE)*/)
 	{
 		RVC_setR2d();
 	}
-	else if((RVC.readyToDrive == RVC_ReadyToDrive_status_run) && (buttonOn == TRUE))
+	else if((RVC.readyToDrive == RVC_ReadyToDrive_status_run) && (buttonOn == FALSE))
 	{
 		RVC_resetR2d();
 	}
@@ -499,7 +495,7 @@ IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi)
 
 /***************** Inline Function Implementation ******************/
 IFX_INLINE void RVC_updateReadyToDriveSignal(void)
-{
+{/*
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
 		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
@@ -509,6 +505,16 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 	{
 		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
 		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
+	}
+	*/
+	if(RVC.RTDS_Tick < RTDS_TIME){
+		RVC.RTDS_Tick++;
+		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
+	}
+	else{
+		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
+		IfxPort_setPinHigh(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
 }
 
@@ -675,7 +681,7 @@ IFX_INLINE void RVC_writeCascadiaCAN(void)
 	}
 	else
 	{
-		CascadiaInverter_disable();
+		//CascadiaInverter_disable();
 	}
 }
 

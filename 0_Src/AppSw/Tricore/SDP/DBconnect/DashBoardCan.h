@@ -23,3 +23,4 @@ IFX_EXTERN StartBtnPushed_t StartBtnMirror;
 
 IFX_EXTERN void SDP_DashBoardCan_init(void);
 IFX_EXTERN void SDP_DashBoardCan_run_10ms(void);
+IFX_EXTERN boolean SDP_DashBoardCan_getDashBoard_RTD_Status(void);

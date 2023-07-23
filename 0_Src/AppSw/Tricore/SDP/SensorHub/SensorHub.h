@@ -56,10 +56,12 @@ typedef union
 
 typedef struct 
 {
-    SensorHub_msgADC_t SensorHubADC;
+    SensorHub_msgADC_t SensorHubADC1;
+    SensorHub_msgADC_t SensorHubADC2;
     SensorHub_msgWSS_t SensorHubWSS;
 
-    CanCommunication_Message SensorHub_msgADC;
+    CanCommunication_Message SensorHub_msgADC1;
+    CanCommunication_Message SensorHub_msgADC2;
     CanCommunication_Message SensorHub_msgWSS;
 }SensorHub_t;
 

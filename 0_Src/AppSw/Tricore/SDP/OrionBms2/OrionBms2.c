@@ -8,7 +8,8 @@
 #include <IfxCpu.h>
 
 #include "OrionBms2.h"
-#include "RVC.h"
+//#include "RVC.h"
+#include "RVC_Clover.h"
 /**************************** Macro **********************************/
 
 /*********************** Global Variables ****************************/

@@ -294,8 +294,12 @@ typedef union {
 	uint32 TransmitData[2];
 	struct {
 		uint16 ParameterAddress;
+		/*
+		 * July 4th 2023: Wrong reserved space?
 		uint8 RW_Command : 1;
 		uint8 _Reserved1 : 7;
+		*/
+		uint8 RW_Command;
 		uint8 _Reserved2;
 		uint16 Data;
 		uint16 _Reserved3;
@@ -311,8 +315,11 @@ typedef union {
 	uint32 ReceivedData[2];
 	struct {
 		uint16 ParameterAddress;
+		/* July 4th 2023: Wrong reserved space?
 		uint8 WriteSuccess : 1;
 		uint8 _Reserved1 : 7;
+		*/
+		uint8 WriteSuccess;
 		uint8 _Reserved2;
 		uint16 Data;
 		uint16 _Reserved3;
@@ -372,6 +379,11 @@ typedef struct
 
 	uint8 failedClearCnt;
 	uint8 writeReq;
+
+
+	CanCommunication_Message ParameterCommand_msg;
+	CanCommunication_Message ParameterResponse_msg;
+
 }PM100_RWParameter_t;
 
 IFX_EXTERN PM100_Status_t Inverter_L_Status;

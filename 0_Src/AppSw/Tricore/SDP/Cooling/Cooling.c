@@ -72,14 +72,120 @@ void SDP_Cooling_run_10ms(void){
     //     ShockCanMsgRear.RecievedData[0]      =   ShockCanMsg1.msg.data[0];
     //     ShockCanMsgRear.RecievedData[1]      =   ShockCanMsg1.msg.data[1];
     // }
+    CanCommunication_transmitMessage(&CoolingSwitch);
     if (Cooling_msg1.B.manualMode_isOn){
         CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1],&CoolingOrder);
         CanCommunication_transmitMessage(&CoolingOrder);
     }
 }
-void SDP_Cooling_Switch(void){
-    // Cooling_switch.B.manualMode_ON = 1;
-    CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
 
-    CanCommunication_transmitMessage(&CoolingSwitch);
+void SDP_Cooling_setVCUmode(void){ //VCU
+    Cooling_switch.B.manualMode_ON = 1;
+
+    CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+    //CanCommunication_transmitMessage(&CoolingSwitch);
+}
+
+void SDP_Cooling_resetVCUmode(void) {
+	Cooling_switch.B.manualMode_ON = 0;
+
+    CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_toggleWaterPump(void) {
+	Cooling_switch.B.WaterPump0_ON ^= 1;
+	Cooling_switch.B.WaterPump1_ON ^= 1;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_onWaterPump(void) {
+	Cooling_switch.B.WaterPump0_ON = 1;
+	Cooling_switch.B.WaterPump1_ON = 1;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_offWaterPump(void) {
+	Cooling_switch.B.WaterPump0_ON = 0;
+	Cooling_switch.B.WaterPump1_ON = 0;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_toggleRadiatorFan(void) {
+	Cooling_switch.B.Radiator0_ON ^= 1;
+	Cooling_switch.B.Radiator1_ON ^= 1;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_onRadiatorFan(void) {
+	Cooling_switch.B.Radiator0_ON = 1;
+	Cooling_switch.B.Radiator1_ON = 1;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_offRadiatorFan(void) {
+	Cooling_switch.B.Radiator0_ON = 0;
+	Cooling_switch.B.Radiator1_ON = 0;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_AllOn(void) {
+	Cooling_switch.B.WaterPump0_ON = 1;
+	Cooling_switch.B.WaterPump1_ON = 1;
+	Cooling_switch.B.Radiator0_ON = 1;
+	Cooling_switch.B.Radiator1_ON = 1;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_AllOff(void) {
+	Cooling_switch.B.WaterPump0_ON = 0;
+	Cooling_switch.B.WaterPump1_ON = 0;
+	Cooling_switch.B.Radiator0_ON = 0;
+	Cooling_switch.B.Radiator1_ON = 0;
+
+	CanCommunication_setMessageData(Cooling_switch.TxData[0],Cooling_switch.TxData[1], &CoolingSwitch);
+}
+
+void SDP_Cooling_setWaterPumpDuty(uint8 duty0, uint8 duty1) {
+	Cooling_order.B.WaterPump0_DutyOrder = duty0;
+	Cooling_order.B.WaterPump1_DutyOrder = duty1;
+
+	CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1], &CoolingOrder);
+}
+
+void SDP_Cooling_setWaterPump0Duty(uint8 duty0) {
+	Cooling_order.B.WaterPump0_DutyOrder = duty0;
+
+	CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1], &CoolingOrder);
+}
+
+void SDP_Cooling_setWaterPump1Duty(uint8 duty1) {
+	Cooling_order.B.WaterPump1_DutyOrder = duty1;
+
+	CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1], &CoolingOrder);
+}
+
+void SDP_Cooling_setRadiatorFanDuty(uint8 duty0, uint8 duty1) {
+	Cooling_order.B.Radiator0_DutyOrder = duty0;
+	Cooling_order.B.Radiator1_DutyOrder = duty1;
+
+	CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1], &CoolingOrder);
+}
+
+void SDP_Cooling_setRadiatorFan0Duty(uint8 duty0) {
+	Cooling_order.B.Radiator0_DutyOrder = duty0;
+
+	CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1], &CoolingOrder);
+}
+
+void SDP_Cooling_setRadiatorFan1Duty(uint8 duty1) {
+	Cooling_order.B.Radiator1_DutyOrder = duty1;
+
+	CanCommunication_setMessageData(Cooling_order.TxData[0],Cooling_order.TxData[1], &CoolingOrder);
 }
