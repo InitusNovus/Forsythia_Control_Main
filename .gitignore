@@ -83,6 +83,7 @@ tool/
 *.sql
 
 *.sqlite
+*.txt
 
  
 
@@ -155,5 +156,9 @@ tool/
 1_ToolEnv/
 2_Out/
 
-_connection_failed_report_*.txt
 
+*.txt
+
+*.cfg
+
+_connection_failed_report_*.txt

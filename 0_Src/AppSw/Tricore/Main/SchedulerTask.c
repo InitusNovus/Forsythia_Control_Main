@@ -16,9 +16,14 @@
 
 #include "CanCommunication.h"
 #include "AccumulatorManager_master.h"
+#ifndef __SDP_CLOVER__
 #include "RVC.h"
 #include "AmkInverter_can.h"
+#else
+#include "RVC_Clover.h"
 #include "OrionBms2.h"
+#endif
+
 #include "SteeringWheel.h"
 #include "DashBoardCan.h"
 
@@ -33,6 +38,7 @@
 #define TASK_MODE_RH		1
 
 #define TASK_MODE			TASK_MODE_RH
+//#define TASK_MODE TASK_MODE_CLOVER
 /******************************************************************************/
 /*--------------------------------Enumerations--------------------------------*/
 /******************************************************************************/
@@ -167,8 +173,14 @@ void Task_init (void)
 	{
 		SDP_PedalBox_init();
 		SDP_SteeringAngle_init();
+#ifndef __SDP_CLOVER__
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
+#endif
+#ifdef __SDP_CLOVER__
+		//SensorHub init must come here
+		SDP_SensorHub_init();
+#endif
 		SDP_Cooling_init();
 		SDP_SteeringAngleAdc_init();
 		SDP_DashBoardCan_init();
@@ -176,7 +188,12 @@ void Task_init (void)
 	/* Hmm... */
 	{
 		// AccumulatorManager_master_init();
+#ifndef __SDP_CLOVER__
 		AmkInverter_can_init();
+#endif
+#ifdef __SDP_CLOVER__
+		CascadiaInverter_can_init();
+#endif
 		OrionBms2_init();
 		RVC_init();
 		SteeringWheel_init();
@@ -239,7 +256,7 @@ void Task_IsrCb_1ms (void)
 
 		// SDP_WheelSpeed_run_1ms();
 		
-		SDP_ShockValue_run_1ms();
+		//SDP_ShockValue_run_1ms();
 
 	}
 	{
@@ -318,7 +335,7 @@ void Task_100ms_slot5(void)
 /**********************************************************************/
 void Task_1000ms (void)
 {
-	SDP_Cooling_Switch();
+	SDP_Cooling_setVCUmode();
 	Task_counter_service_1000ms();
 }
 void Task_1000ms_slot3 (void)

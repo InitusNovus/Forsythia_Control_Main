@@ -53,6 +53,7 @@
 #define AIR_N_IN					IfxPort_P00_7
 #define BP_IN						IfxPort_P14_1
 #define BSW_IN						IfxPort_P00_0
+#define TSAL_RED_ON_5V				IfxPort_P33_0
 
 /*Qspi2 macros*/
 #define QSPI2_SCLK					IfxQspi2_SCLK_P15_6_OUT
