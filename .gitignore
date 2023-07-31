@@ -154,3 +154,6 @@ dkms.conf
 tool/
 1_ToolEnv/
 2_Out/
+
+_connection_failed_report_*.txt
+
