@@ -88,6 +88,10 @@ TODO:
 #define BRAKE_ON_TH_BP1	3.3f
 #define BRAKE_ON_TH_BP2 5.6f
 
+#define BP_MAX_BAR 172.369f
+#define BP_MAX_V 4.5f
+#define BP_MIN_V 0.5f
+
 #define BMS_PDL_ERROR	TRUE
 
 /*********************** Global Variables ****************************/
@@ -262,8 +266,8 @@ IFX_STATIC void RVC_initAdcSensor(void)
 
 	adcConfig.isOvervoltageProtected = FALSE;
 	adcConfig.linCalConfig.isAct = FALSE;
-	adcConfig.tfConfig.a = 50;
-	adcConfig.tfConfig.b = -25;
+	adcConfig.tfConfig.a = BP_MAX_BAR/(BP_MAX_V - BP_MIN_V);
+	adcConfig.tfConfig.b = BP_MAX_BAR/(BP_MAX_V - BP_MIN_V)*(-BP_MIN_V);
 
 	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group4, HLD_Vadc_ChannelId_4};
 	AdcSensor_initSensor(&RVC.BrakePressure1, &adcConfig);
