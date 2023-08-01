@@ -265,9 +265,9 @@ IFX_STATIC void RVC_initAdcSensor(void)
 	adcConfig.tfConfig.a = 50;
 	adcConfig.tfConfig.b = -25;
 
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_2};
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group4, HLD_Vadc_ChannelId_4};
 	AdcSensor_initSensor(&RVC.BrakePressure1, &adcConfig);
-	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_1};
+	adcConfig.adcConfig.channelIn = &(HLD_Vadc_Channel_In){HLD_Vadc_group0, HLD_Vadc_ChannelId_2};
 	AdcSensor_initSensor(&RVC.BrakePressure2, &adcConfig);
 	HLD_AdcForceStart(RVC.BrakePressure1.adcChannel.channel.group);
 
