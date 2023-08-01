@@ -109,29 +109,44 @@ void SET_ID(ID_set *IN, int node)
 void AmkInverter_can_init(void)
 {   
     
+    //Previous Front/Rear Split setting
+	SET_ID(&Inverter_FL,5); //2, FR, node1
+	SET_ID(&Inverter_RL,6); //4, FL, node2
+	SET_ID(&Inverter_RR,1); //3, RL, node2
+	SET_ID(&Inverter_FR,2); //1, RR, node1
 
-	SET_ID(&Inverter_FL,5);
-	SET_ID(&Inverter_RL,6);
-	SET_ID(&Inverter_RR,1);
-	SET_ID(&Inverter_FR,2);
+    //New Right/Left Split setting
+    
+	SET_ID(&Inverter_FR,5); //Inverter #2,Node 1, Address 5
+	SET_ID(&Inverter_RR,2); //Inverter #1,Node 1, Address 2
+
+    SET_ID(&Inverter_FL,6); //Inverter #4, Node 2, Address 6
+	SET_ID(&Inverter_RL,1); //Inverter #3, Node 2, Address 1
 
     /**************************************Transmit***************************************************/
-    setTransmitMessage(Inverter_FL.ID_AMK_Set, &T_TC275_FL,1);
-    setTransmitMessage(Inverter_RL.ID_AMK_Set, &T_TC275_RL,2);
-    setTransmitMessage(Inverter_RR.ID_AMK_Set, &T_TC275_RR,2);
     setTransmitMessage(Inverter_FR.ID_AMK_Set, &T_TC275_FR,1);
+    setTransmitMessage(Inverter_RR.ID_AMK_Set, &T_TC275_RR,1);
+    
+    setTransmitMessage(Inverter_FL.ID_AMK_Set, &T_TC275_FL,2);
+    setTransmitMessage(Inverter_RL.ID_AMK_Set, &T_TC275_RL,2);
+    
     setTransmitMessage(InvCtr,&T_InvCtr,1);
 
     /**************************************Receive***************************************************/
-    setReceiveMessage(Inverter_FL.ID_AMK_Ac1, &R_Inverter_FL_1,1);
-    setReceiveMessage(Inverter_FL.ID_AMK_Ac2, &R_Inverter_FL_2,1);
-    setReceiveMessage(Inverter_RL.ID_AMK_Ac1, &R_Inverter_RL_1,2);
-    setReceiveMessage(Inverter_RL.ID_AMK_Ac2, &R_Inverter_RL_2,2);
-    setReceiveMessage(Inverter_RR.ID_AMK_Ac1, &R_Inverter_RR_1,2);
-    setReceiveMessage(Inverter_RR.ID_AMK_Ac2, &R_Inverter_RR_2,2);
     setReceiveMessage(Inverter_FR.ID_AMK_Ac1, &R_Inverter_FR_1,1);
     setReceiveMessage(Inverter_FR.ID_AMK_Ac2, &R_Inverter_FR_2,1);
+    
+    setReceiveMessage(Inverter_RR.ID_AMK_Ac1, &R_Inverter_RR_1,1);
+    setReceiveMessage(Inverter_RR.ID_AMK_Ac2, &R_Inverter_RR_2,1);
 
+    
+    setReceiveMessage(Inverter_FL.ID_AMK_Ac1, &R_Inverter_FL_1,2);
+    setReceiveMessage(Inverter_FL.ID_AMK_Ac2, &R_Inverter_FL_2,2);
+
+    setReceiveMessage(Inverter_RL.ID_AMK_Ac1, &R_Inverter_RL_1,2);
+    setReceiveMessage(Inverter_RL.ID_AMK_Ac2, &R_Inverter_RL_2,2);
+
+    
     // {
     //     CanCommunication_Message_Config config_Message8_Recive;
     //     config_Message8_Recive.messageId        =   STM32ID;
