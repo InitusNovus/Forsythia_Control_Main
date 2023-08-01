@@ -30,6 +30,7 @@ void OrionBms2_init(void)
 		config.frameType = IfxMultican_Frame_receive;
 		config.dataLen = IfxMultican_DataLengthCode_6;
 		config.node = &CanCommunication_canNode0;
+		config.isStandardId = FALSE;
 		CanCommunication_initMessage(&OrionBms2.msgObj1, &config);
 	}
 	{
@@ -38,6 +39,7 @@ void OrionBms2_init(void)
 		config.frameType = IfxMultican_Frame_receive;
 		config.dataLen = IfxMultican_DataLengthCode_4;
 		config.node = &CanCommunication_canNode0;
+		config.isStandardId = FALSE;
 		CanCommunication_initMessage(&OrionBms2.msgObj2, &config);
 	}
 	{
@@ -46,6 +48,7 @@ void OrionBms2_init(void)
 		config.frameType = IfxMultican_Frame_receive;
 		config.dataLen = IfxMultican_DataLengthCode_6;
 		config.node = &CanCommunication_canNode0;
+		config.isStandardId = FALSE;
 		CanCommunication_initMessage(&OrionBms2.msgObj3, &config);
 	}
 }

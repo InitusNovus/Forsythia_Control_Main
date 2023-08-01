@@ -76,7 +76,7 @@ void Task_core2_1ms(void)
 	AmkInverter_can_Run();
 	// AccumulatorManager_master_run_1ms_c2();
 
-	// OrionBms2_run_1ms_c2();
+	OrionBms2_run_1ms_c2();
 	// SteeringWheel_run_xms_c2();
 	task2_10ms_counter+=1;
 	// value = 2.37*APPS0.value - 11.89;
