@@ -19,6 +19,7 @@
 /*-----------------------------------Macros-----------------------------------*/
 /******************************************************************************/
 
+#if PPSMODE == PWM
 /*FIXME Temporary values*/
 #define A0END		27.6
 #define A0STT		20.7
@@ -42,6 +43,13 @@
 
 #define V0_CONST_A 		-9.2980636458f
 #define V0_CONST_B		100.7315829998f
+#elif PPSMODE == ADC
+#define A0STT		(1.15f)
+#define A0END		(3.20f)
+
+#define A1STT		(0.74f)
+#define A1END		(2.00f)
+#endif
 
 #define PBERRORLIMIT	10
 
@@ -158,8 +166,8 @@ void SDP_PedalBox_init(void)
 		config_adc.adcConfig.lpf.activated = TRUE;
 
 		config_adc.adcConfig.channelIn = &HLD_Vadc_P20_6_G2CH4_AD7;
-		config_adc.tfConfig.a = 28.0;
-		config_adc.tfConfig.b = 4.8;
+		config_adc.tfConfig.a = 100.0f / (A0END - A0STT);
+		config_adc.tfConfig.b = config_adc.tfConfig.a * (-A0STT);
 
 		config_adc.isOvervoltageProtected = TRUE;
 
@@ -168,8 +176,8 @@ void SDP_PedalBox_init(void)
 
 		//APPS1
 		config_adc.adcConfig.channelIn = &HLD_Vadc_P23_4_G0CH0_AD11;
-		config_adc.tfConfig.a = 42.5;
-		config_adc.tfConfig.b = 4.8;
+		config_adc.tfConfig.a = 100.0f / (A1END - A1STT);
+		config_adc.tfConfig.b = config_adc.tfConfig.a * (-A1STT);
 		AdcSensor_initSensor(&APPS1, &config_adc);
 		HLD_AdcForceStart(APPS1.adcChannel.channel.group);
 		
@@ -503,6 +511,15 @@ IFX_STATIC void SDP_PedalBox_updateAPPS(void)
 	{
 		SDP_PedalBox.apps.pps = 0;
 		SDP_PedalBox.apps.isValueOk = FALSE;
+	}
+
+	if(SDP_PedalBox.apps.pps < 0)
+	{
+		SDP_PedalBox.apps.pps = 0.0f;
+	}
+	else if(SDP_PedalBox.apps.pps > 100)
+	{
+		SDP_PedalBox.apps.pps = 100.0f;
 	}
 }
 
