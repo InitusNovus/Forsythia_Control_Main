@@ -15,10 +15,13 @@ CanCommunication_Message StartBtnMirrorMsg;
 boolean RTD_flag;
 boolean pastRTD_flag = 0;
 
+boolean DashBoard_RTD_Status = 0;
+
 // CanCommunication_Message ShockCanMsg1;
 
 void SDP_DashBoardCan_init(void);
 void SDP_DashBoardCan_run_10ms(void);
+boolean SDP_DashBoardCan_getDashBoard_RTD_Status();
 
 void SDP_DashBoardCan_init(void){
     /* CAN message init */
@@ -51,11 +54,16 @@ void SDP_DashBoardCan_run_10ms(void){
     RTD_flag = StartBtnPushed.B.StartBtnPushed;
 
     if(RTD_flag == 1 && pastRTD_flag ==0){
+    	DashBoard_RTD_Status = 1;
+    	/* RVC_setR2d
         HLD_GtmTomBeeper_start(InvStartPattern);
+        */
     }
     else if(RTD_flag ==0 && pastRTD_flag == 1){
+    	DashBoard_RTD_Status = 0;
+    	/* RVC_resetR2d
         HLD_GtmTomBeeper_start(InvOffPattern);
-
+        */
     }
     
 
@@ -67,4 +75,8 @@ void SDP_DashBoardCan_run_10ms(void){
         CanCommunication_transmitMessage(&StartBtnMirrorMsg);
     }
     pastRTD_flag = RTD_flag;
+}
+
+boolean SDP_DashBoardCan_getDashBoard_RTD_Status(void) {
+	return DashBoard_RTD_Status;
 }
