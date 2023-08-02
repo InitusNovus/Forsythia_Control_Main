@@ -74,19 +74,18 @@ void Task_core2_1ms(void)
 	SDP_SteeringAngleAdc_run();
 
 	AmkInverter_can_Run();
-	// AccumulatorManager_master_run_1ms_c2();
 
 	OrionBms2_run_1ms_c2();
-	// SteeringWheel_run_xms_c2();
+	
 	task2_10ms_counter+=1;
-	// value = 2.37*APPS0.value - 11.89;
-
+	
 	writeMessage(value,value);
 	writeMessage2(value,value);
 	
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
-	if (RTD_flag)AmkInverterStart();
+	if (RTD_flag)
+		AmkInverterStart();
 	
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();
