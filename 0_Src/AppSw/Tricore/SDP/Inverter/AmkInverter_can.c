@@ -1,6 +1,7 @@
 #include "AmkInverter_can.h"
 #include "HLD.h"
 
+#define AMK_TORQUE_LIM  2143
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
@@ -276,9 +277,28 @@ void writeMessage2(uint16 Value1, uint16 Value2)
     AmkInverter_can_write(&INV_RL_AMK_Setpoint1,T_TC275_RL,Value2);        
 
 }
-
+boolean AmkInverterError = FALSE;
 void AmkInverterStart(){
-    if (alreadyOn==0){
+    
+    if(INV_FL_AMK_Actual_Values1.S.AMK_bSError | 
+       INV_FR_AMK_Actual_Values1.S.AMK_bSError | 
+       INV_RL_AMK_Actual_Values1.S.AMK_bSError | 
+       INV_RR_AMK_Actual_Values1.S.AMK_bSError)
+    {
+        AmkInverterError = TRUE;
+    }
+    else
+    {
+        AmkInverterError = FALSE;
+    }
+
+    if (alreadyOn==0 && AmkInverterError == TRUE)
+    {
+        SWITCH.ErrorReset = TRUE;
+    }
+    else if (alreadyOn==0)
+    {
+        SWITCH.ErrorReset = FALSE;
         if(!(INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady&
             INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady&
             INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady&
@@ -306,7 +326,8 @@ void AmkInverterStart(){
                     INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
                     INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn){
                         SWITCH.BE2 = 1;
-                        SWITCH.posTorquelimit = 2143;
+                        // SWITCH.posTorquelimit = 2143;
+                        SWITCH.posTorquelimit = AMK_TORQUE_LIM;
                         // SWITCH.negTorquelimit = 
                         alreadyOn = TRUE;
                     }

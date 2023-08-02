@@ -9,43 +9,43 @@
 
 typedef struct
 {
-	unsigned int AMK_bReserve : 8;
-	unsigned int AMK_bSystemReady :1;
-	unsigned int AMK_bWarn : 1;
-	unsigned int AMK_bSError : 1;
-	unsigned int AMK_bQuitDcOn : 1;
-	unsigned int AMK_bDcOn : 1;
-	unsigned int AMK_bQuitInverterOn : 1;
-	unsigned int AMK_bInverterOn : 1;
-	unsigned int AMK_bDerating : 1;
+	uint8 AMK_bReserve : 8;
+	boolean AMK_bSystemReady :1;
+	boolean AMK_bWarn : 1;
+	boolean AMK_bSError : 1;
+	boolean AMK_bQuitDcOn : 1;
+	boolean AMK_bDcOn : 1;
+	boolean AMK_bQuitInverterOn : 1;
+	boolean AMK_bInverterOn : 1;
+	boolean AMK_bDerating : 1;
 }AMK_Status;
 
 typedef struct
 {
-	unsigned int AMK_bReserve1 : 8;
-	unsigned int AMK_bInverterOn : 1;
-	unsigned int AMK_bDcOn : 1;
-	unsigned int AMK_bEnable : 1;
-	unsigned int AMK_bErrorReset : 1;
-	unsigned int AMK_bReserve2 : 4;
+	uint8 AMK_bReserve1 : 8;
+	boolean AMK_bInverterOn : 1;
+	boolean AMK_bDcOn : 1;
+	boolean AMK_bEnable : 1;
+	boolean AMK_bErrorReset : 1;
+	uint8 AMK_bReserve2 : 4;
 }AMK_Control;
 
 typedef union
 {
 	uint32 RecievedData[2];
 	struct{
-		unsigned int AMK_bReserve : 8;
-		unsigned int AMK_bSystemReady : 1;
-		unsigned int AMK_bSError : 1;
-		unsigned int AMK_bWarn : 1;
-		unsigned int AMK_bQuitDcOn : 1;
-		unsigned int AMK_bDcOn : 1;
-		unsigned int AMK_bQuitInverterOn : 1;
-		unsigned int AMK_bInverterOn : 1;
-		unsigned int AMK_bDerating : 1;
-		int AMK_ActualVelocity : 16;
-		int AMK_TorqueCurrent : 16;
-		int AMK_MagnetizingCurrent : 16;
+		uint8 AMK_bReserve : 8;
+		boolean AMK_bSystemReady : 1;
+		boolean AMK_bSError : 1;
+		boolean AMK_bWarn : 1;
+		boolean AMK_bQuitDcOn : 1;
+		boolean AMK_bDcOn : 1;
+		boolean AMK_bQuitInverterOn : 1;
+		boolean AMK_bInverterOn : 1;
+		boolean AMK_bDerating : 1;
+		sint16 AMK_ActualVelocity : 16;
+		sint16 AMK_TorqueCurrent : 16;
+		sint16 AMK_MagnetizingCurrent : 16;
 	}S;
 }amkActualValues1;
 
@@ -53,10 +53,10 @@ typedef union
 {
 	uint32 RecievedData[2];
 	    struct{
-			int AMK_TempMotor : 16;
-	        int AMK_TempInverter : 16;
-	        unsigned int AMK_ErrorInfo : 16;
-	        int AMK_TempIGBT : 16;
+			sint16 AMK_TempMotor : 16;
+	        sint16 AMK_TempInverter : 16;
+	        uint16 AMK_ErrorInfo : 16;
+	        sint16 AMK_TempIGBT : 16;
 	    }S;
 }amkActualValues2;
 
@@ -64,25 +64,25 @@ typedef union
 {
 	uint32 TransmitData[2];
 	    struct{
-			unsigned int AMK_bReserve1 : 8;
-			unsigned int AMK_bInverterOn : 1;
-			unsigned int AMK_bDcOn : 1;
-			unsigned int AMK_bEnable : 1;
-			unsigned int AMK_bErrorReset : 1;
-			unsigned int AMK_bReserve2 : 4;
-	        volatile int AMK_Torque_setpoint: 16;	//0.1Mn
-	        int AMK_TorqueLimitPositv : 16;
-	        int AMK_TorqueLimitNegativ : 16;
+			uint8 AMK_bReserve1 : 8;
+			boolean AMK_bInverterOn : 1;
+			boolean AMK_bDcOn : 1;
+			boolean AMK_bEnable : 1;
+			boolean AMK_bErrorReset : 1;
+			uint8 AMK_bReserve2 : 4;
+	    	sint16 AMK_Torque_setpoint: 16;	//0.1Mn
+	        sint16 AMK_TorqueLimitPositv : 16;
+	        sint16 AMK_TorqueLimitNegativ : 16;
 	    }S;
 }amkSetpoint1;
 
 typedef union{
 	uint32 TransmitData[2];
 	struct{
-		uint16_t EFon;
-		uint16_t BE1on;
-		uint16_t BE2on;
-		uint16_t Remain;
+		uint16 EFon;
+		uint16 BE1on;
+		uint16 BE2on;
+		uint16 Remain;
 	}B;
 }Inv_switch_msg_t;
 
