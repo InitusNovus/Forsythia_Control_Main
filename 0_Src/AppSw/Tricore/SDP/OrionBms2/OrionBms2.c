@@ -37,7 +37,7 @@ void OrionBms2_init(void)
 		CanCommunication_Message_Config config;
 		config.messageId = OrionMsgId2;
 		config.frameType = IfxMultican_Frame_receive;
-		config.dataLen = IfxMultican_DataLengthCode_4;
+		config.dataLen = IfxMultican_DataLengthCode_6;
 		config.node = &CanCommunication_canNode0;
 		config.isStandardId = FALSE;
 		CanCommunication_initMessage(&OrionBms2.msgObj2, &config);
