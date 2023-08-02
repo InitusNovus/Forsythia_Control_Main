@@ -54,6 +54,15 @@
 #define BP_IN						IfxPort_P14_1
 #define BSW_IN						IfxPort_P00_0
 #define TSAL_RED_ON_5V				IfxPort_P33_0
+#define SDC_SEN_BSPD_5V				IfxPort_P00_5
+#define SDC_SEN_IMD_5V				IfxPort_P00_4
+#define SDC_SEN_AMS_5V				IfxPort_P00_3
+#define SDC_SEN_FINAL_5V			IfxPort_P00_2
+#define BMS_OK						IfxPort_P00_1
+#define IMD_OK						IfxPort_P00_0
+#define BSPD_OK						IfxPort_P14_1
+#define BMS_MPO_5V					IfxPort_P33_1
+#define CHARGE_EN					IfxPort_P33_2
 
 /*Qspi2 macros*/
 #define QSPI2_SCLK					IfxQspi2_SCLK_P15_6_OUT

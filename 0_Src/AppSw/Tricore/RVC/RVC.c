@@ -204,7 +204,16 @@ void RVC_run_10ms(void)
 	RVC_pollGpi(&RVC.airNegative);
 	RVC_pollGpi(&RVC.brakePressureOn);
 	RVC_pollGpi(&RVC.brakeSwitch);
-	RVC_pollGpi(&RVC.TSALOn);
+	RVC_pollGpi(&RVC.tsalOn);
+	RVC_pollGpi(&RVC.sdcSenBspd);
+	RVC_pollGpi(&RVC.sdcSenImd);
+	RVC_pollGpi(&RVC.sdcSenAms);
+	RVC_pollGpi(&RVC.sdcSenFinal);
+	RVC_pollGpi(&RVC.bmsOk);
+	RVC_pollGpi(&RVC.imdOk);
+	RVC_pollGpi(&RVC.bspdOk);
+	RVC_pollGpi(&RVC.bmsMpo);
+	RVC_pollGpi(&RVC.chargeEn);
 	RVC_r2d();
 	AdcSensor_getData(&RVC.LvBattery_Voltage);
 	AdcSensor_getData(&RVC.BrakePressure1);
@@ -345,8 +354,54 @@ IFX_STATIC void RVC_initGpio(void)
 	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
 	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
 	gpioInputConfig.port = &TSAL_RED_ON_5V;
-	Gpio_Debounce_initInput(&RVC.TSALOn.debounce, &gpioInputConfig);
+	Gpio_Debounce_initInput(&RVC.tsalOn.debounce, &gpioInputConfig);
+
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &SDC_SEN_BSPD_5V;
+	Gpio_Debounce_initInput(&RVC.sdcSenBspd.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &SDC_SEN_IMD_5V;
+	Gpio_Debounce_initInput(&RVC.sdcSenImd.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &SDC_SEN_AMS_5V;
+	Gpio_Debounce_initInput(&RVC.sdcSenAms.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &SDC_SEN_FINAL_5V;
+	Gpio_Debounce_initInput(&RVC.sdcSenFinal.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &BMS_OK;
+	Gpio_Debounce_initInput(&RVC.bmsOk.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &IMD_OK;
+	Gpio_Debounce_initInput(&RVC.imdOk.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &BSPD_OK;
+	Gpio_Debounce_initInput(&RVC.bspdOk.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &BMS_MPO_5V;
+	Gpio_Debounce_initInput(&RVC.bmsMpo.debounce, &gpioInputConfig);
+	
+	gpioInputConfig.bufferLen = Gpio_Debounce_BufferLength_10;
+	gpioInputConfig.inputMode = IfxPort_InputMode_noPullDevice;
+	gpioInputConfig.port = &CHARGE_EN;
+	Gpio_Debounce_initInput(&RVC.chargeEn.debounce, &gpioInputConfig);
 }
+
 
 /* TODO: 
 	Check APPS and BPPS
