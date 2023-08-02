@@ -1,3 +1,6 @@
+#ifndef DASHBOARDCAN_H_
+#define DASHBOARDCAN_H_
+
 #include "HLD.h"
 #include <Port/Io/IfxPort_Io.h>
 #include "Configuration.h"
@@ -21,5 +24,9 @@ typedef union{
 IFX_EXTERN StartBtnPushed_t StartBtnPushed;
 IFX_EXTERN StartBtnPushed_t StartBtnMirror;
 
+IFX_EXTERN boolean RTD_flag;
+
 IFX_EXTERN void SDP_DashBoardCan_init(void);
 IFX_EXTERN void SDP_DashBoardCan_run_10ms(void);
+
+#endif

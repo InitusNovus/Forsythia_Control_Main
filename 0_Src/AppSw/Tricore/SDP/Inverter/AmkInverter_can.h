@@ -1,11 +1,14 @@
-#ifndef MULTICANCOMUNICATE_H
-#define MULTICANCOMUNICATE_H
+#ifndef AMKINVERTER_CAN_H_
+#define AMKINVERTER_CAN_H_
+
 #include <Ifx_Types.h>
 #include "Configuration.h"
 #include "ConfigurationIsr.h"
 #include <stdint.h>
 #include "Multican.h"
 #include "CanCommunication.h"
+
+#define AMK_TORQUE_LIM  2143
 
 typedef struct
 {
@@ -94,12 +97,35 @@ typedef struct
 	uint16 ID_AMK_Set;
 }ID_set;
 
+typedef struct 
+{
+	boolean r2d;
+
+	float32 fl;
+	float32 fr;
+	float32 rl;
+	float32 rr;
+
+	float32 spdFl;
+	float32 spdFr;
+	float32 spdRl;
+	float32 spdRr;
+
+	IfxCpu_mutexLock mutex;
+}AmkInverterPublic_t;
+
+IFX_EXTERN AmkInverterPublic_t AmkInverterPublic;
+
 IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
 IFX_EXTERN amkActualValues1 INV_FL_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV_RL_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV_RR_AMK_Actual_Values1;
 IFX_EXTERN amkActualValues1 INV_FR_AMK_Actual_Values1;
 
+IFX_EXTERN amkActualValues2 INV_FL_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_RL_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_RR_AMK_Actual_Values2;
+IFX_EXTERN amkActualValues2 INV_FR_AMK_Actual_Values2;
 
 
 IFX_EXTERN amkSetpoint1 INV1_AMK_Setpoint1;
@@ -120,4 +146,4 @@ IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
 IFX_EXTERN void InverterControlSet();
 IFX_EXTERN void AmkInverterStart();
 
-#endif /* MULTICANCOMUNICATE_H */
+#endif 

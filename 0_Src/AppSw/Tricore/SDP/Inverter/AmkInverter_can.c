@@ -1,7 +1,6 @@
 #include "AmkInverter_can.h"
 #include "HLD.h"
 
-#define AMK_TORQUE_LIM  2143
 
 const float Inverter_peak_current = 107.2;
 const float Nominal_torque = 9.8;
@@ -35,10 +34,12 @@ amkActualValues1 INV_RL_AMK_Actual_Values1;
 amkActualValues1 INV_RR_AMK_Actual_Values1;
 amkActualValues1 INV_FR_AMK_Actual_Values1;
 
-IFX_EXTERN amkActualValues2 INV_FL_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV_RL_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV_RR_AMK_Actual_Values2;
-IFX_EXTERN amkActualValues2 INV_FR_AMK_Actual_Values2;
+amkActualValues2 INV_FL_AMK_Actual_Values2;
+amkActualValues2 INV_RL_AMK_Actual_Values2;
+amkActualValues2 INV_RR_AMK_Actual_Values2;
+amkActualValues2 INV_FR_AMK_Actual_Values2;
+
+AmkInverterPublic_t AmkInverterPublic;
 
 amkSetpoint1 INV_FL_AMK_Setpoint1;
 amkSetpoint1 INV_RL_AMK_Setpoint1;

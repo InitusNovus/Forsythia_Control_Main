@@ -42,7 +42,17 @@ uint64 ticToc_1ms_c2 = 0;
 uint64 delay_1ms_c2 = 0;
 uint16_t task2_10ms_counter = 0;
 
-extern AdcSensor APPS0;
+// extern AdcSensor APPS0;
+float32 tpsFl;
+float32 tpsFr;
+float32 tpsRl;
+float32 tpsRr;
+
+sint16 valueFl;
+sint16 valueFr;
+sint16 valueRl;
+sint16 valueRr;
+
 int value = 0;
 // boolean RTD_flag;
 /******************************************************************************/
@@ -79,8 +89,27 @@ void Task_core2_1ms(void)
 	
 	task2_10ms_counter+=1;
 	
+	while(IfxCpu_acquireMutex(&AmkInverterPublic.mutex));	//Wait for the mutex
+	{
+		tpsFl = AmkInverterPublic.fl;
+		tpsFr = AmkInverterPublic.fr;
+		tpsRl = AmkInverterPublic.rl;
+		tpsRr = AmkInverterPublic.rr;
+		IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
+	}
+
+	// valueFl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFl);
+	// valueFr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFr);
+	// valueRl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRl);
+	// valueRr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRr);
+
+
 	writeMessage(value,value);
 	writeMessage2(value,value);
+
+
+	// writeMessage(valueFl,valueFr);
+	// writeMessage2(valueRl,valueRr);
 	
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();

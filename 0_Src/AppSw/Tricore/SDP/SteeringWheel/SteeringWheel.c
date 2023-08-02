@@ -12,6 +12,7 @@
 
 /***************************** Includes ******************************/
 #include "SteeringWheel.h"
+#include "AmkInverter_can.h"
 
 
 /**************************** Macro **********************************/
@@ -35,11 +36,6 @@ const uint32 StWhlMsgId3 = 0x00101F02UL;
 
 SteeringWheel_t SteeringWheel;
 SteeringWheel_public_t SteeringWheel_public;
-
-amkActualValues2 INV_FL_AMK_Actual_Values2;
-amkActualValues2 INV_RL_AMK_Actual_Values2;
-amkActualValues2 INV_RR_AMK_Actual_Values2;
-amkActualValues2 INV_FR_AMK_Actual_Values2;
 /******************* Private Function Prototypes *********************/
 
 

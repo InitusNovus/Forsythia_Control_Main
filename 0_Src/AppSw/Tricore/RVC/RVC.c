@@ -38,6 +38,8 @@ TODO:
 #include "TorqueVectoring/TorqueVectoring.h"
 
 #include "SteeringWheel.h"
+#include "AmkInverter_can.h"
+#include "DashBoardCan.h"
 
 /**************************** Macro **********************************/
 #define PWMFREQ 5000 // PWM frequency in Hz
@@ -83,6 +85,7 @@ TODO:
 #define VAR_UPDATE_ERROR_LIM	10
 
 #define THROTLE_5V
+#define AMK_TEST		1
 
 #define BRAKE_ON_BP
 #define BRAKE_ON_TH_BP1	3.3f
@@ -176,7 +179,8 @@ void RVC_run_1ms(void)
 	else
 		RVC.brakeOn.bp2 = FALSE;
 
-	RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2 | RVC.brakePressureOn.value;
+	// RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2 | RVC.brakePressureOn.value;
+	RVC.brakeOn.tot = RVC.brakeOn.bp1 | RVC.brakeOn.bp2;
 
 	/* TODO: Torque limit: Traction control */
 
@@ -570,14 +574,24 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
 	*/
-	if(RVC.RTDS_Tick < RTDS_TIME){
-		RVC.RTDS_Tick++;
-		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
-		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
-}
-	else{
-		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
-		IfxPort_setPinHigh(FWD_OUT.port, FWD_OUT.pinIndex);
+	if(RTD_flag)
+	{
+		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+		if(RVC.RTDS_Tick < RTDS_TIME)
+		{
+			RVC.RTDS_Tick++;
+			IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
+			IfxPort_setPinHigh(FWD_OUT.port, FWD_OUT.pinIndex);
+		}
+		else
+		{
+			IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+			IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
+		}
+	}
+	else 
+	{
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
 	}
 }
 
@@ -728,6 +742,21 @@ IFX_INLINE void RVC_torqueDistrobution(void)
 
 IFX_INLINE void RVC_torqueSignalGeneration(void)
 {
+#ifdef AMK_TEST
+	while(IfxCpu_acquireMutex(&AmkInverterPublic.mutex));	//Wait for the mutex
+	{
+		if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
+			AmkInverterPublic.r2d = TRUE;
+		else
+			AmkInverterPublic.r2d = FALSE;
+		
+		AmkInverterPublic.fl = RVC.torque.controlled;
+		AmkInverterPublic.fr = RVC.torque.controlled;
+		AmkInverterPublic.rl = RVC.torque.controlled;
+		AmkInverterPublic.rr = RVC.torque.controlled;
+		IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
+	}
+#else
 #ifdef THROTLE_5V
 	// 0~100% maped to 0~5V ( = 0.0~1.0 duty)
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
@@ -810,6 +839,7 @@ IFX_INLINE void RVC_torqueSignalGeneration(void)
 		RVC.pwmDuty.rearLeftDec = (0) * 0.006f * RVC.calibration.leftDec.mul + 0.2f + RVC.calibration.leftDec.offset;
 		RVC.pwmDuty.rearRightDec = (0) * 0.006f * RVC.calibration.rightDec.mul + 0.2f + RVC.calibration.rightDec.offset;
 	}
+#endif
 #endif 
 }
 

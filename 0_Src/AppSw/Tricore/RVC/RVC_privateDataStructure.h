@@ -109,6 +109,9 @@ typedef struct
 		float32 desired;
 		float32 controlled;
 
+		
+		float32 frontLeft;
+		float32 frontRight;
 		float32 rearLeft;
 		float32 rearRight;
 
