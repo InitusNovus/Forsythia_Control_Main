@@ -155,6 +155,11 @@ typedef struct
 		float32 pGain;
 	} tvMode1;
 
+
+
+
+	uint16 RTDS_Tick;
+
 } RVC_t;
 
 #endif

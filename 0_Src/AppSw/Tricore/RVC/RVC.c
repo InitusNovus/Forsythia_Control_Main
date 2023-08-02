@@ -94,6 +94,8 @@ TODO:
 
 #define BMS_PDL_ERROR	TRUE
 
+#define RTDS_TIME (3000) //RTD Sound length in ms.
+
 /*********************** Global Variables ****************************/
 RVC_t RVC = 
 {
@@ -390,10 +392,10 @@ IFX_STATIC void PpsCheck(boolean *isChecked, uint32 *count, boolean isHi, uint32
 }
 IFX_STATIC void RVC_r2d(void)
 {
-	static boolean risingEdgeFlag = FALSE;	//Ready to drive contorl button hysteresis
-	static uint32 pushCount = 0;
-	static uint32 releaseCount = 0;
-	boolean buttonState = FALSE; //GPIO debounced input result
+	//static boolean risingEdgeFlag = FALSE;	//Ready to drive contorl button hysteresis
+	//static uint32 pushCount = 0;
+	//static uint32 releaseCount = 0;
+	//boolean buttonState = FALSE; //GPIO debounced input result
 
 	boolean buttonOn = FALSE;	//Start button 
 
@@ -405,7 +407,7 @@ IFX_STATIC void RVC_r2d(void)
 	boolean isBppsLo = FALSE;
 	
 	/* Poll the button */
-	buttonState = Gpio_Debounce_pollInput(&RVC.startButton);
+	//buttonState = Gpio_Debounce_pollInput(&RVC.startButton); //RH Legacy
 
 	/* Poll PPS signals */
 	isAppsHi = CheckPpsHi(&SDP_PedalBox.apps);
@@ -420,52 +422,52 @@ IFX_STATIC void RVC_r2d(void)
 		if(isBppsLo)
 			RVC.R2d.isBppsChecked2 = TRUE;
 	
-	/* Start button routine */
-	if( (buttonState == TRUE)&&(risingEdgeFlag == FALSE) )
-	{	/* The button is Pushed */
-		pushCount++;
+// 	/* Start button routine */
+// 	if( (buttonState == TRUE)&&(risingEdgeFlag == FALSE) )
+// 	{	/* The button is Pushed */
+// 		pushCount++;
 
-/* 		if( (RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)&&(pushCount > R2D_ONHOLD) )
-		{
-			pushCount = 0;
-			risingEdgeFlag = TRUE; //Rising edge detected
-			RVC_setR2d();
-		}
-		else if( (RVC.readyToDrive == RVC_ReadyToDrive_status_run)&&(pushCount > R2D_ONHOLD) )	//TODO: RTD off condition: Speed == 0, 
-		{
-			pushCount = 0;
-			risingEdgeFlag = TRUE; //Rising edge detected
-			RVC_resetR2d();
-			//TODO: R2D off sound
-		}
- */		
-		if(pushCount > R2D_ONHOLD)
-		{
-			buttonOn = TRUE;
-			pushCount = 0;
-			risingEdgeFlag = TRUE;	//Rising edge detected
-		}
-	}
-	else if( (buttonState == FALSE)&&(risingEdgeFlag == TRUE) )
-	{	/* The button is released */
-		buttonOn = FALSE;
-		releaseCount++;
-		if( releaseCount > R2D_REL)
-		{
-			risingEdgeFlag = FALSE;	// The button is released
-		}
-	}
-	else
-	{
-		buttonOn = FALSE;
-		pushCount = 0;
-		releaseCount = 0;
-	}
+// /* 		if( (RVC.readyToDrive == RVC_ReadyToDrive_status_initialized)&&(pushCount > R2D_ONHOLD) )
+// 		{
+// 			pushCount = 0;
+// 			risingEdgeFlag = TRUE; //Rising edge detected
+// 			RVC_setR2d();
+// 		}
+// 		else if( (RVC.readyToDrive == RVC_ReadyToDrive_status_run)&&(pushCount > R2D_ONHOLD) )	//TODO: RTD off condition: Speed == 0, 
+// 		{
+// 			pushCount = 0;
+// 			risingEdgeFlag = TRUE; //Rising edge detected
+// 			RVC_resetR2d();
+// 			//TODO: R2D off sound
+// 		}
+//  */		
+// 		if(pushCount > R2D_ONHOLD)
+// 		{
+// 			buttonOn = TRUE;
+// 			pushCount = 0;
+// 			risingEdgeFlag = TRUE;	//Rising edge detected
+// 		}
+// 	}
+// 	else if( (buttonState == FALSE)&&(risingEdgeFlag == TRUE) )
+// 	{	/* The button is released */
+// 		buttonOn = FALSE;
+// 		releaseCount++;
+// 		if( releaseCount > R2D_REL)
+// 		{
+// 			risingEdgeFlag = FALSE;	// The button is released
+// 		}
+// 	}
+// 	else
+// 	{
+// 		buttonOn = FALSE;
+// 		pushCount = 0;
+// 		releaseCount = 0;
+// 	}
 
 	/* R2D routine */
 #ifdef R2D_TEST
 	/***** Test: start button set/reset R2D directly *****/
-	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE) && (RVC.brakeOn.tot == TRUE))
+	if((RVC.readyToDrive == RVC_ReadyToDrive_status_initialized) && (buttonOn == TRUE)/* && (RVC.brakeOn.tot == TRUE)*/)
 	{
 		RVC_setR2d();
 	}
@@ -501,7 +503,7 @@ IFX_STATIC void RVC_pollGpi(RVC_Gpi_t *gpi)
 
 /***************** Inline Function Implementation ******************/
 IFX_INLINE void RVC_updateReadyToDriveSignal(void)
-{
+{/*
 	if(RVC.readyToDrive == RVC_ReadyToDrive_status_run)
 	{
 		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
@@ -511,6 +513,16 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 	{
 		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
 		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
+	}
+	*/
+	if(RVC.RTDS_Tick < RTDS_TIME){
+		RVC.RTDS_Tick++;
+		IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
+		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
+}
+	else{
+		IfxPort_setPinHigh(R2DOUT.port, R2DOUT.pinIndex);
+		IfxPort_setPinHigh(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
 }
 
