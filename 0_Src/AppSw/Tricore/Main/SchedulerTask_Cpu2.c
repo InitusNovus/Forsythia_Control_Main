@@ -127,7 +127,7 @@ void Task_core2_1ms(void)
 void Task_core2_10ms_slot1(void)
 {
 
-
+	SteeringWheel_run_xms_c2();
 	/*
 	FIXME:
 	tempPedal to target torque value

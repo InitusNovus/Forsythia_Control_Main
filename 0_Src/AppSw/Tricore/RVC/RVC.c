@@ -7,6 +7,8 @@
 
 /* 	
 TODO: 
+	RVC frequency
+		- To 10 ms instead of 1ms
 	CAN associated functions 
 		- R2D entry routine display
 		- Steering wheel function
@@ -18,6 +20,8 @@ TODO:
 		- Steering Wheel Analog: need calibration code
 	GPIO
 		- Charge Enable
+	WheelSpeed
+		- Wheel speed calculation by motor info
  */
 
 
@@ -78,7 +82,7 @@ TODO:
 
 #define REGEN_ON_INIT	FALSE	//***** Regen is not abailable now!!! ***** //FIXME //TODO: Regen limit
 
-#define LVBAT_LINCAL_A	1.015f
+#define LVBAT_LINCAL_A	1.021f
 #define LVBAT_LINCAL_B	0
 #define LVBAT_LINCAL_D	0
 
@@ -268,7 +272,7 @@ IFX_STATIC void RVC_initAdcSensor(void)
 	adcConfig.linCalConfig.a = LVBAT_LINCAL_A;
 	adcConfig.linCalConfig.b = LVBAT_LINCAL_B;
 	adcConfig.linCalConfig.d = LVBAT_LINCAL_D;
-	adcConfig.tfConfig.a = (20.0f+8.2f)/8.2f;
+	adcConfig.tfConfig.a = (130.0f+20.0f)/20.0f;
 	adcConfig.tfConfig.b = 0.0f;
 	
 	AdcSensor_initSensor(&RVC.LvBattery_Voltage, &adcConfig);
