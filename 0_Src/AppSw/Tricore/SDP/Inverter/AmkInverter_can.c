@@ -303,9 +303,10 @@ void AmkInverterStart(){
         if(!(INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady&
             INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady&
             INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady&
-            INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady)){
-                return ;
-            }
+            INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady))
+        {
+            return ;
+        }
            
         SWITCH.negTorquelimit = 0;
         SWITCH.posTorquelimit = 0;
@@ -329,7 +330,7 @@ void AmkInverterStart(){
                         SWITCH.BE2 = 1;
                         // SWITCH.posTorquelimit = 2143;
                         SWITCH.posTorquelimit = AMK_TORQUE_LIM;
-                        // SWITCH.negTorquelimit = 
+                        SWITCH.negTorquelimit = -AMK_TORQUE_LIM;
                         alreadyOn = TRUE;
                     }
             }
