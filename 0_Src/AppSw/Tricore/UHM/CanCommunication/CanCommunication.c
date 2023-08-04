@@ -100,32 +100,60 @@ void CanCommunication_initMessage(CanCommunication_Message* ccMsg, CanCommunicat
 }
 
 
-void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsg, CanCommunication_Message_Config* config){
-	IfxMultican_Can_MsgObj* obj 	= &ccMsg->obj;
+void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsgSrc, CanCommunication_Message* ccMsgDest, 
+										  CanCommunication_Gateway_Message_Config* config)
+{
+	{
+		IfxMultican_Can_MsgObj* objSrc 	= &ccMsgSrc->obj;
 
-	IfxMultican_Can_MsgObjConfig canMsgObjConfig;
-	IfxMultican_Can_MsgObj_initConfig(&canMsgObjConfig, config->node);
+		IfxMultican_Can_MsgObjConfig canMsgObjConfig;
+		IfxMultican_Can_MsgObj_initConfig(&canMsgObjConfig, config->nodeSrc);
 
-	canMsgObjConfig.msgObjId		= numMsgObj;
-	canMsgObjConfig.messageId		= config->messageId;
-	canMsgObjConfig.acceptanceMask	= 0x7FFFFFFFUL;
-	canMsgObjConfig.frame			=config->frameType;
-	canMsgObjConfig.control.messageLen		= config->dataLen;
-	canMsgObjConfig.control.extendedFrame	= TRUE;	//Default: extended address
-	if(config->isStandardId)
-		canMsgObjConfig.control.extendedFrame = FALSE;
-	canMsgObjConfig.gatewayTransfers 		= TRUE;
-	canMsgObjConfig.gatewayConfig.copyDataLengthCode = TRUE;
-	canMsgObjConfig.gatewayConfig.copyData			 = TRUE;
-	canMsgObjConfig.gatewayConfig.copyId			 = TRUE;
-	canMsgObjConfig.gatewayConfig.enableTransmit	 = TRUE;
-	canMsgObjConfig.gatewayConfig.gatewayDstObjId 	 = numMsgObj+1;
-	IfxMultican_Can_MsgObj_init(obj, &canMsgObjConfig);
+		canMsgObjConfig.msgObjId		= numMsgObj;
+		canMsgObjConfig.messageId		= config->messageId;
+		canMsgObjConfig.acceptanceMask	= 0x7FFFFFFFUL;
+		canMsgObjConfig.frame			= IfxMultican_Frame_receive;
+		canMsgObjConfig.control.messageLen		= config->dataLen;
+		canMsgObjConfig.control.extendedFrame	= TRUE;	//Default: extended address
+		if(config->isStandardId)
+			canMsgObjConfig.control.extendedFrame = FALSE;
+		canMsgObjConfig.control.matchingId = TRUE;
+		canMsgObjConfig.gatewayTransfers 		= TRUE;
+		canMsgObjConfig.gatewayConfig.copyDataLengthCode = TRUE;
+		canMsgObjConfig.gatewayConfig.copyData			 = TRUE;
+		canMsgObjConfig.gatewayConfig.copyId			 = TRUE;
+		// canMsgObjConfig.gatewayConfig.copyId			 = FALSE;
+		canMsgObjConfig.gatewayConfig.enableTransmit	 = TRUE;
+		canMsgObjConfig.gatewayConfig.gatewayDstObjId 	 = numMsgObj+1;
+		IfxMultican_Can_MsgObj_init(objSrc, &canMsgObjConfig);
 
-	ccMsg->isUpdated = FALSE;
-	IfxMultican_Message_init(&ccMsg->msg, config->messageId, 0xdeadbeef, 0xdeadbeef,config-> dataLen);
+		ccMsgSrc->isUpdated = FALSE;
+		IfxMultican_Message_init(&ccMsgSrc->msg, config->messageId, 0xdeadbeef, 0xdeadbeef,config-> dataLen);
+		numMsgObj++;
+	}
+	{
+		IfxMultican_Can_MsgObj* objDest 	= &ccMsgDest->obj;
 
-	numMsgObj++;
+		IfxMultican_Can_MsgObjConfig canMsgObjConfig;
+		IfxMultican_Can_MsgObj_initConfig(&canMsgObjConfig, config->nodeDest);
+
+		canMsgObjConfig.msgObjId		= numMsgObj;
+		canMsgObjConfig.messageId		= config->messageId;
+		canMsgObjConfig.acceptanceMask	= 0x7FFFFFFFUL;
+		canMsgObjConfig.frame			= IfxMultican_Frame_transmit;
+		canMsgObjConfig.control.messageLen		= config->dataLen;
+		canMsgObjConfig.control.extendedFrame	= TRUE;	//Default: extended address
+		if(config->isStandardId)
+			canMsgObjConfig.control.extendedFrame = FALSE;
+		canMsgObjConfig.control.matchingId = TRUE;
+		canMsgObjConfig.gatewayTransfers 		= FALSE;
+		IfxMultican_Can_MsgObj_init(objDest, &canMsgObjConfig);
+
+		ccMsgSrc->isUpdated = FALSE;
+		IfxMultican_Message_init(&ccMsgDest->msg, config->messageId, 0xdeadbeef, 0xdeadbeef,config-> dataLen);
+
+		numMsgObj++;
+	}
 }
 
 

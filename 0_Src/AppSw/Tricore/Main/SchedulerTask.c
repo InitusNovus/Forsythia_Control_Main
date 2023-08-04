@@ -173,7 +173,7 @@ void Task_init (void)
 		SDP_ShockValue_init();
 		SDP_MC_init();
 		CanGateway_init();
-		SDP_Cooling_init();
+		// SDP_Cooling_init();
 	}
 	/* Hmm... */
 	{
@@ -250,12 +250,13 @@ void Task_IsrCb_1ms (void)
 	}
 	{
 
-		// CanGateway_run();
+		CanGateway_run();
 	}
 	{
 		// RVC_run_1ms();
 	}
-
+	
+	HLD_GtmTomBeeper_run_1ms();
 
 	ticToc_1ms = (IfxStm_get(&MODULE_STM0) - stm_buf_1ms)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
 }

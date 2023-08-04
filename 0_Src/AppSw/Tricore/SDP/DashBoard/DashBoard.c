@@ -75,11 +75,14 @@ void SDP_DashBoardMirrorCan(){
     	StartBtnMirror.TxData[1]      =   StartBtnMirrorMsg.msg.data[1];
     }
 }
-
+volatile uint32 CNT_DashBoardCanSend = 0;
 void SDP_DashBoardCanSend(){
+    
     StartBtnPushed.B.Remain1 = 12345;
     CanCommunication_setMessageData(StartBtnPushed.TxData[0],StartBtnPushed.TxData[1], &StartBtnPushedMsg);
     CanCommunication_transmitMessage(&StartBtnPushedMsg);
+
+    CNT_DashBoardCanSend++;
 }
 
 void SDP_DashBoardLed_run_10ms(){
@@ -90,30 +93,30 @@ void SDP_DashBoardLed_run_10ms(){
         if (RTDon==FALSE && START_BTNCount %60 == 0 ){
             IfxPort_setPinHigh(DashBoardLed.TEMP1.module,DashBoardLed.TEMP1.port);
         }
-        else if(RTDon==TRUE && START_BTNCount %60 == 0 ){
-            IfxPort_setPinHigh(DashBoardLed.SDC.module,DashBoardLed.SDC.port);
-        }
+        // else if(RTDon==TRUE && START_BTNCount %60 == 0 ){
+        //     IfxPort_setPinHigh(DashBoardLed.SDC.module,DashBoardLed.SDC.port);
+        // }
 
         if (RTDon==FALSE && START_BTNCount %120 == 0){
             IfxPort_setPinHigh(DashBoardLed.TEMP2.module,DashBoardLed.TEMP2.port);
         }
-        else if(RTDon==TRUE && START_BTNCount %120 == 0 ){
-            IfxPort_setPinHigh(DashBoardLed.RTD.module,DashBoardLed.RTD.port);
-        }
+        // else if(RTDon==TRUE && START_BTNCount %120 == 0 ){
+        //     IfxPort_setPinHigh(DashBoardLed.RTD.module,DashBoardLed.RTD.port);
+        // }
 
         if (RTDon==FALSE && START_BTNCount %180 == 0){
             IfxPort_setPinHigh(DashBoardLed.RTD.module,DashBoardLed.RTD.port);
         }
-        else if(RTDon==TRUE && START_BTNCount %180 == 0 ){
-            IfxPort_setPinHigh(DashBoardLed.TEMP2.module,DashBoardLed.TEMP2.port);
-        }
+        // else if(RTDon==TRUE && START_BTNCount %180 == 0 ){
+        //     IfxPort_setPinHigh(DashBoardLed.TEMP2.module,DashBoardLed.TEMP2.port);
+        // }
 
         if (RTDon==FALSE && START_BTNCount %240 == 0){
             IfxPort_setPinHigh(DashBoardLed.SDC.module,DashBoardLed.SDC.port);
         }
-        else if(RTDon==TRUE && START_BTNCount %240 == 0 ){
-            IfxPort_setPinHigh(DashBoardLed.TEMP1.module,DashBoardLed.TEMP1.port);
-        }
+        // else if(RTDon==TRUE && START_BTNCount %240 == 0 ){
+        //     IfxPort_setPinHigh(DashBoardLed.TEMP1.module,DashBoardLed.TEMP1.port);
+        // }
 
         if (RTDon==FALSE && START_BTNCount>300){
             StartBtnPushed.B.StartBtnPushed = TRUE;

@@ -41,6 +41,15 @@ typedef struct
 	boolean isStandardId;
 }CanCommunication_Message_Config;
 
+typedef struct 
+{
+	IfxMultican_Can_Node* nodeSrc;
+	IfxMultican_Can_Node* nodeDest;
+	uint32 messageId;
+	IfxMultican_DataLengthCode dataLen;
+	boolean isStandardId;
+}CanCommunication_Gateway_Message_Config;
+
 
 /* Global Variables */
 IFX_EXTERN IfxMultican_Can_Node	CanCommunication_canNode0;
@@ -59,6 +68,7 @@ IFX_EXTERN void CanCommunication_resetUpdateState(CanCommunication_Message* msg)
 
 IFX_EXTERN void CanCommunication_transmitMessage(CanCommunication_Message *msg);
 IFX_EXTERN void CanCommunication_setMessageData(uint32 data0, uint32 data1, CanCommunication_Message *msg);
-IFX_EXTERN void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsg, CanCommunication_Message_Config* config);
+void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsgSrc, CanCommunication_Message* ccMsgDest, 
+										  CanCommunication_Gateway_Message_Config* config);
 
 #endif
