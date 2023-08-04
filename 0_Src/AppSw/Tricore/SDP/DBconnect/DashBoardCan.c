@@ -66,11 +66,12 @@ void SDP_DashBoardCan_run_10ms(void){
         */
     }
     
-
+    StartBtnMirror.RxData[0] = StartBtnPushed.RxData[0];
+    StartBtnMirror.RxData[1] = StartBtnPushed.RxData[1];
 
     if (StartBtnPushed.B.OFFvehicle || StartBtnPushed.B.StartBtnPushed ){
 
-        CanCommunication_setMessageData(StartBtnPushed.RxData[0],StartBtnPushed.RxData[1], &StartBtnMirrorMsg);
+        CanCommunication_setMessageData(StartBtnMirror.RxData[0],StartBtnMirror.RxData[1], &StartBtnMirrorMsg);
 
         CanCommunication_transmitMessage(&StartBtnMirrorMsg);
     }
