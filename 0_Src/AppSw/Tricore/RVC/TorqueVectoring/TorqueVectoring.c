@@ -25,6 +25,8 @@ void RVC_TorqueVectoring_run_modeOpen(void)
 	}
 	else
 	{
+		RVC.torque.frontLeft = RVC.torque.controlled;
+		RVC.torque.frontRight = RVC.torque.controlled;
 		RVC.torque.rearLeft = RVC.torque.controlled;
 		RVC.torque.rearRight = RVC.torque.controlled;
 	}

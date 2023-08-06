@@ -314,26 +314,31 @@ void AmkInverterStart(){
         if(INV_FL_AMK_Actual_Values1.S.AMK_bDcOn&
             INV_FR_AMK_Actual_Values1.S.AMK_bDcOn&
             INV_RL_AMK_Actual_Values1.S.AMK_bDcOn&
-            INV_RR_AMK_Actual_Values1.S.AMK_bDcOn){
-                SWITCH.EF = 1;
-                SWITCH.BE1 = 1;
-                SWITCH.Enable =1;
-                SWITCH.inverter = 1;
-                if (INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn&
-                    INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn&
-                    INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn&
-                    INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn&
-                    INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
-                    INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
-                    INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&
-                    INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn){
-                        SWITCH.BE2 = 1;
-                        // SWITCH.posTorquelimit = 2143;
-                        SWITCH.posTorquelimit = AMK_TORQUE_LIM;
-                        SWITCH.negTorquelimit = -AMK_TORQUE_LIM;
-                        alreadyOn = TRUE;
-                    }
-            }
+            INV_RR_AMK_Actual_Values1.S.AMK_bDcOn)
+        {
+            alreadyOn = TRUE;
+            SWITCH.EF = 1;
+            SWITCH.BE1 = 1;
+            SWITCH.Enable =1;
+            SWITCH.inverter = 1;
+            
+        }
+    }
+
+    if (INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn&&
+        INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn&&
+        INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn&&
+        INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn&&
+        INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&&
+        INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn&&
+        INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&&
+        INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn)
+    {
+        SWITCH.BE2 = 1;
+        // SWITCH.posTorquelimit = 2143;
+        SWITCH.posTorquelimit = AMK_TORQUE_LIM;
+        SWITCH.negTorquelimit = -AMK_TORQUE_LIM;
+        // alreadyOn = TRUE;
     }
     
 }

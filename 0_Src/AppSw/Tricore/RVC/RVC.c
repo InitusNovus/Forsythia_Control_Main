@@ -92,8 +92,10 @@ TODO:
 #define AMK_TEST		1
 
 #define BRAKE_ON_BP
-#define BRAKE_ON_TH_BP1	3.3f
-#define BRAKE_ON_TH_BP2 5.6f
+// #define BRAKE_ON_TH_BP1	3.3f
+// #define BRAKE_ON_TH_BP2 5.6f
+#define BRAKE_ON_TH_BP1	15.0f
+#define BRAKE_ON_TH_BP2 15.0f
 
 #define BP_MAX_BAR 172.369f
 #define BP_MAX_V 4.5f

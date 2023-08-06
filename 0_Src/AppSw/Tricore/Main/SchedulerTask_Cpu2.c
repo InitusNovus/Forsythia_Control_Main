@@ -98,18 +98,18 @@ void Task_core2_1ms(void)
 		IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
 	}
 
-	// valueFl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFl);
-	// valueFr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFr);
-	// valueRl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRl);
-	// valueRr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRr);
+	valueFl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFl);
+	valueFr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsFr);
+	valueRl = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRl);
+	valueRr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRr);
 
 
-	writeMessage(value,value);
-	writeMessage2(value,value);
+	// writeMessage(value,value);
+	// writeMessage2(value,value);
 
 
-	// writeMessage(valueFl,valueFr);
-	// writeMessage2(valueRl,valueRr);
+	writeMessage(valueFl,valueFr);
+	writeMessage2(valueRl,valueRr);
 	
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
