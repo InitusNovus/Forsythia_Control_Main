@@ -59,8 +59,6 @@ static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 no
 static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node);
 void AmkInverter_writeMessage(uint16 Value1, uint16 Value2);
 void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2);
-void InverterControlSet();
-void AmkInverter_Start();
 
 struct setSwitch
 {
@@ -104,8 +102,28 @@ struct Monitor
     //     uint16 velocity_FR;
     // }
 };
+
+typedef enum AmkState_e
+{
+    AmkState_S0 = 0,    //Power On
+    AmkState_S1 = 1,    //System Ready
+    AmkState_S2 = 2,    //DC On
+    AmkState_S3 = 3,    //EF on
+    AmkState_S4 = 4,    //BE1 on
+    AmkState_S5 = 5,    //Enable/InverterEnable on
+    AmkState_S6 = 6,    //Ready To Drive
+} AmkState_t;
+
+uint32 AmkState_S2cnt = 0;
+uint32 AmkState_S3cnt = 0;
+
+const uint32 AmkState_constS2threshold = 100;
+const uint32 AmkState_constS3threshold = 100;
+
 struct Monitor Monitor;//
 struct setSwitch SWITCH = {0,0,0,0,0,0};
+AmkState_t AmkState = AmkState_S0;
+
 void SET_ID(ID_set *IN, int node)
 {
 	IN->ID_AMK_Ac1 = 0x282 + node;
@@ -115,6 +133,7 @@ void SET_ID(ID_set *IN, int node)
 
 void AmkInverter_can_init(void)
 {   
+    AmkState = AmkState_S0;
     
     //Previous Front/Rear Split setting
 	SET_ID(&Inverter_FL,5); //2, FR, node1
@@ -167,7 +186,6 @@ void AmkInverter_can_init(void)
     setPointInit(&INV_RL_AMK_Setpoint1);
     setPointInit(&INV_RR_AMK_Setpoint1);
     setPointInit(&INV_FR_AMK_Setpoint1);
-
 }
 
 void AmkInverter_can_Run(void)
@@ -280,73 +298,194 @@ void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2)
 {    
 
     AmkInverter_can_write(&INV_RR_AMK_Setpoint1,T_TC275_RR,Value1);
-    AmkInverter_can_write(&INV_RL_AMK_Setpoint1,T_TC275_RL,Value2);        
-
+    AmkInverter_can_write(&INV_RL_AMK_Setpoint1,T_TC275_RL,Value2);
 }
 
-void AmkInverter_Start()
-{    
-    /*Inverter Error Check*/
-    if(INV_FL_AMK_Actual_Values1.S.AMK_bSError | 
-       INV_FR_AMK_Actual_Values1.S.AMK_bSError | 
-       INV_RL_AMK_Actual_Values1.S.AMK_bSError | 
-       INV_RR_AMK_Actual_Values1.S.AMK_bSError)
-    {
-        AmkInverterError = TRUE;
-    }
-    else
-    {
-        AmkInverterError = FALSE;
-    }
+void AmkInverter_Start(boolean rtdFlag)
+{
+	if(AmkState == AmkState_S0)
+	{
+		SWITCH.DCon = 0;
+		SWITCH.negTorquelimit = 0;
+		SWITCH.posTorquelimit = 0;
+		SWITCH.EF = 0;
+		SWITCH.BE1 = 0;
+		SWITCH.BE2 = 0;
+		SWITCH.Enable = 0;
+		SWITCH.inverter = 0;
+	}
 
-    if (alreadyOn==0 && AmkInverterError == TRUE)
-    {
-        SWITCH.ErrorReset = TRUE;
-    }
-    else if (alreadyOn==0)
-    {
-        SWITCH.ErrorReset = FALSE;
-        if(!(INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady&
-            INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady&
-            INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady&
-            INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady))
-        {
-            return ;
-        }
-           
-        SWITCH.negTorquelimit = 0;
-        SWITCH.posTorquelimit = 0;
-        SWITCH.DCon = 1;
-        if(INV_FL_AMK_Actual_Values1.S.AMK_bDcOn&
-            INV_FR_AMK_Actual_Values1.S.AMK_bDcOn&
-            INV_RL_AMK_Actual_Values1.S.AMK_bDcOn&
-            INV_RR_AMK_Actual_Values1.S.AMK_bDcOn)
-        {
-            alreadyOn = TRUE;
-            SWITCH.EF = 1;
-            SWITCH.BE1 = 1;
-            SWITCH.Enable =1;
-            SWITCH.inverter = 1;
-            
-        }
-    }
+	/*Inverter Start Sequence*/
+	if(rtdFlag == TRUE)
+	{
+		/*Inverter Error Check*/
+		if(INV_FL_AMK_Actual_Values1.S.AMK_bSError | INV_FR_AMK_Actual_Values1.S.AMK_bSError |
+		    INV_RL_AMK_Actual_Values1.S.AMK_bSError | INV_RR_AMK_Actual_Values1.S.AMK_bSError)
+		{
+			AmkInverterError = TRUE;
+		}
+		else
+		{
+			AmkInverterError = FALSE;
+		}
 
-    if (INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn&&
-        INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn&&
-        INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn&&
-        INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn&&
-        INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&&
-        INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn&&
-        INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn&&
-        INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn)
+		/*State 0: Power On*/
+		if(AmkState == AmkState_S0)
+		{
+
+			/*Try to reset the errors and return to S0*/
+			// if(alreadyOn == 0 && AmkInverterError == TRUE)
+			if(AmkInverterError == TRUE)
+			{
+				SWITCH.ErrorReset = TRUE;
+				AmkState = AmkState_S0;
+				return;
+			}
+
+			/*When the errors are cleared -> To the state S1*/
+			if((INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady & INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady &
+			       INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady & INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady))
+			{
+				SWITCH.ErrorReset = FALSE;
+				AmkState = AmkState_S1;
+				return;
+			}
+		}
+		/*State 1: System Ready*/
+		else if(AmkState == AmkState_S1)
+		{
+			if(alreadyOn == 0)
+			{
+				if(!(INV_FL_AMK_Actual_Values1.S.AMK_bSystemReady & INV_FR_AMK_Actual_Values1.S.AMK_bSystemReady &
+				       INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady & INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady))
+				{
+					AmkState = AmkState_S0;
+					return;
+				}
+
+				SWITCH.EF = 0;
+				SWITCH.BE1 = 0;
+				SWITCH.BE2 = 0;
+				SWITCH.Enable = 0;
+				SWITCH.inverter = 0;
+				SWITCH.negTorquelimit = 0;
+				SWITCH.posTorquelimit = 0;
+
+				SWITCH.DCon = 1;
+				if(INV_FL_AMK_Actual_Values1.S.AMK_bDcOn & INV_FR_AMK_Actual_Values1.S.AMK_bDcOn &
+				    INV_RL_AMK_Actual_Values1.S.AMK_bDcOn & INV_RR_AMK_Actual_Values1.S.AMK_bDcOn)
+				{
+					AmkState = AmkState_S2;
+					return;
+				}
+			}
+		}
+		/*State 2: DC On*/
+		else if(AmkState == AmkState_S2)
+		{
+			// TODO: Error state
+			alreadyOn = TRUE;
+			SWITCH.EF = 1;
+			SWITCH.BE1 = 0;
+			SWITCH.Enable = 0;
+			SWITCH.inverter = 0;
+			AmkState_S2cnt++;
+			if(AmkState_S2cnt > AmkState_constS2threshold)
+			{
+				AmkState = AmkState_S3;
+				return;
+			}
+			else
+			{
+				AmkState = AmkState_S2;
+				return;
+			}
+		}
+		/*State 3: EF on*/
+		else if(AmkState == AmkState_S3)
+		{
+			// TODO: Error state
+			alreadyOn = TRUE;
+			SWITCH.EF = 1;
+			SWITCH.BE1 = 1;
+			SWITCH.Enable = 0;
+			SWITCH.inverter = 0;
+			AmkState_S3cnt++;
+			if(AmkState_S3cnt > AmkState_constS3threshold)
+			{
+				AmkState = AmkState_S4;
+				return;
+			}
+			else
+			{
+				AmkState = AmkState_S3;
+				return;
+			}
+		}
+		/*State 4: BE1 on*/
+		else if(AmkState == AmkState_S4)
+		{
+			// TODO: Error state
+			alreadyOn = TRUE;
+			SWITCH.EF = 1;
+			SWITCH.BE1 = 1;
+			SWITCH.Enable = 1;
+			SWITCH.inverter = 1;
+			if(INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn && INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn &&
+			    INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn && INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn &&
+			    INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn && INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn &&
+			    INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn && INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn)
+			{
+				AmkState = AmkState_S5;
+				return;
+			}
+			else
+			{
+				AmkState = AmkState_S4;
+			}
+		}
+		/*State 5: Enable/InverterEnable on*/
+		else if(AmkState == AmkState_S5)
+		{
+			// TODO: Error state
+			alreadyOn = TRUE;
+			SWITCH.EF = 1;
+			SWITCH.BE1 = 1;
+			SWITCH.Enable = 1;
+			SWITCH.inverter = 1;
+
+			/*Check again*/
+			if(INV_FL_AMK_Actual_Values1.S.AMK_bInverterOn && INV_FR_AMK_Actual_Values1.S.AMK_bInverterOn &&
+			    INV_RL_AMK_Actual_Values1.S.AMK_bInverterOn && INV_RR_AMK_Actual_Values1.S.AMK_bInverterOn &&
+			    INV_FL_AMK_Actual_Values1.S.AMK_bQuitInverterOn && INV_FR_AMK_Actual_Values1.S.AMK_bQuitInverterOn &&
+			    INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn && INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn)
+			{
+				SWITCH.BE2 = 1;
+				SWITCH.posTorquelimit = AMK_TORQUE_LIM;
+				SWITCH.negTorquelimit = -AMK_TORQUE_LIM;
+				AmkState = AmkState_S6;
+				return;
+			}
+			else
+			{
+				AmkState = AmkState_S5;
+				return;
+			}
+		}
+	}
+    else //rtdFlag is FALSE
     {
-        SWITCH.BE2 = 1;
-        // SWITCH.posTorquelimit = 2143;
-        SWITCH.posTorquelimit = AMK_TORQUE_LIM;
-        SWITCH.negTorquelimit = -AMK_TORQUE_LIM;
-        // alreadyOn = TRUE;
+        SWITCH.DCon = 0;
+		SWITCH.negTorquelimit = 0;
+		SWITCH.posTorquelimit = 0;
+		SWITCH.EF = 0;
+		SWITCH.BE1 = 0;
+		SWITCH.BE2 = 0;
+		SWITCH.Enable = 0;
+		SWITCH.inverter = 0;
+        AmkState = AmkState_S0;
+        return;
     }
-    
 }
 
 static void setPointInit(amkSetpoint1 *setpoint){

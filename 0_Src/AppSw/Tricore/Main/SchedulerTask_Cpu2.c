@@ -113,9 +113,9 @@ void Task_core2_1ms(void)
 	
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
-	if (RTD_flag)
-		AmkInverter_Start();
 	
+	AmkInverter_Start(RTD_flag);
+
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();
 		task2_10ms_counter = 0;
