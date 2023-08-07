@@ -50,6 +50,39 @@ typedef union{
 
 }StartBtnPushed_t;
 
+typedef union 
+{
+	uint32 data[2];				//[0-31][32-64]
+	struct 
+	{
+		uint8 AmkState;				//[0-7]
+		boolean SdcAmsOk		:1;	//[8]
+		boolean SdcImdOk		:1;	//[9]
+		boolean SdcBspdOk		:1; //[10]
+		boolean SdcSen			:1;	//[11]
+		boolean reserved0		:4;	//[12-15]
+		uint32 reserved1		:16;//[16-32]
+	}B;
+} DashBoardMsg0_t;
+
+typedef struct 
+{
+	boolean bmsOk;
+	boolean imdOk;
+	boolean bspdOk;
+	boolean sdcSenFinal;
+}DashBoard_info_t;
+
+typedef struct
+{
+	DashBoard_info_t data;
+	struct 
+	{
+		DashBoard_info_t data;
+		IfxCpu_mutexLock mutex;
+	}shared;
+}DashBoard_public_t;
+
 IFX_EXTERN void SDP_Dashboard_can_init();
 
 // IFX_EXTERN boolean DashBoardSendMessage;
