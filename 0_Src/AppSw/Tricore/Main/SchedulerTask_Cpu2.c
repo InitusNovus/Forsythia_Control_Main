@@ -104,17 +104,17 @@ void Task_core2_1ms(void)
 	valueRr = ((float32)AMK_TORQUE_LIM / (100.0f) * tpsRr);
 
 
-	// writeMessage(value,value);
-	// writeMessage2(value,value);
+	// AmkInverter_writeMessage(value,value);
+	// AmkInverter_writeMessage2(value,value);
 
 
-	writeMessage(valueFl,valueFr);
-	writeMessage2(valueRl,valueRr);
+	AmkInverter_writeMessage(valueFl,valueFr);
+	AmkInverter_writeMessage2(valueRl,valueRr);
 	
 	// else if (task2_10ms_counter ==15)
 	SDP_DashBoardCan_run_10ms();
 	if (RTD_flag)
-		AmkInverterStart();
+		AmkInverter_Start();
 	
 	if (task2_10ms_counter == 10){
 		Task_core2_10ms_slot1();

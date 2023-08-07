@@ -141,9 +141,9 @@ IFX_EXTERN ID_set Inverter4;
 IFX_EXTERN void AmkInverter_can_init(void);
 IFX_EXTERN void AmkInverter_can_Run(void);
 IFX_EXTERN void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
-IFX_EXTERN void writeMessage(uint16 Value1, uint16 Value2);
-IFX_EXTERN void writeMessage2(uint16 Value1, uint16 Value2);
+IFX_EXTERN void AmkInverter_writeMessage(uint16 Value1, uint16 Value2);
+IFX_EXTERN void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2);
 IFX_EXTERN void InverterControlSet();
-IFX_EXTERN void AmkInverterStart();
+IFX_EXTERN void AmkInverter_Start();
 
 #endif 

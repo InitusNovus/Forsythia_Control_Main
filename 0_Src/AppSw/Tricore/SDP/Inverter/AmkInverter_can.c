@@ -47,6 +47,8 @@ amkSetpoint1 INV_RR_AMK_Setpoint1;
 amkSetpoint1 INV_FR_AMK_Setpoint1;
 Inv_switch_msg_t Inv_switch_msg;
 
+boolean AmkInverterError = FALSE;
+
 void AmkInverter_can_init(void);
 void AmkInverter_can_Run(void);
 void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);
@@ -55,12 +57,13 @@ static void setPointInit(amkSetpoint1 *setpoint);
 
 static void setReceiveMessage(uint16_t ID, CanCommunication_Message *Rm,uint8 node);
 static void setTransmitMessage(uint16_t ID, CanCommunication_Message *Tm,uint8 node);
-void writeMessage(uint16 Value1, uint16 Value2);
-void writeMessage2(uint16 Value1, uint16 Value2);
+void AmkInverter_writeMessage(uint16 Value1, uint16 Value2);
+void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2);
 void InverterControlSet();
-void AmkInverterStart();
+void AmkInverter_Start();
 
-struct setSwitch{
+struct setSwitch
+{
     uint8 DCon;
     uint8 Enable;
     uint8 inverter;
@@ -72,7 +75,9 @@ struct setSwitch{
     boolean BE2;
     boolean EF;
 };
-struct Monitor{
+
+struct Monitor
+{
     int InverterTemp;
     struct {
         uint16 error_FL;
@@ -259,7 +264,7 @@ void InverterControlSet(){
     CanCommunication_transmitMessage(&T_InvCtr);
 }
 
-void writeMessage(uint16 Value1, uint16 Value2)
+void AmkInverter_writeMessage(uint16 Value1, uint16 Value2)
 {
 
     AmkInverter_can_write(&INV_FL_AMK_Setpoint1,T_TC275_FL,Value1);
@@ -271,16 +276,17 @@ void writeMessage(uint16 Value1, uint16 Value2)
     // }
 
 }
-void writeMessage2(uint16 Value1, uint16 Value2)
+void AmkInverter_writeMessage2(uint16 Value1, uint16 Value2)
 {    
 
     AmkInverter_can_write(&INV_RR_AMK_Setpoint1,T_TC275_RR,Value1);
     AmkInverter_can_write(&INV_RL_AMK_Setpoint1,T_TC275_RL,Value2);        
 
 }
-boolean AmkInverterError = FALSE;
-void AmkInverterStart(){
-    
+
+void AmkInverter_Start()
+{    
+    /*Inverter Error Check*/
     if(INV_FL_AMK_Actual_Values1.S.AMK_bSError | 
        INV_FR_AMK_Actual_Values1.S.AMK_bSError | 
        INV_RL_AMK_Actual_Values1.S.AMK_bSError | 
