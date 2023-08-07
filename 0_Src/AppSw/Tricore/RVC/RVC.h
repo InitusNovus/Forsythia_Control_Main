@@ -61,6 +61,7 @@ typedef struct
 			boolean isUpdated;
 		} shared;
 	} inverter1, inverter2;
+	
 } RVC_public_t;
 
 /* Global Variables */

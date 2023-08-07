@@ -150,6 +150,8 @@ IFX_EXTERN ID_set Inverter2;
 IFX_EXTERN ID_set Inverter3;
 IFX_EXTERN ID_set Inverter4;
 
+IFX_EXTERN AmkState_t AmkState;
+
 IFX_EXTERN void AmkInverter_can_init(void);
 IFX_EXTERN void AmkInverter_can_Run(void);
 IFX_EXTERN void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV);

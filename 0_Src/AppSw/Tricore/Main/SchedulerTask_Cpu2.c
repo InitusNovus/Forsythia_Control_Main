@@ -58,7 +58,8 @@ int value = 0;
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
-
+IFX_STATIC void Task_core2_10ms_slot0(void);
+IFX_STATIC void Task_core2_10ms_slot1(void);
 
 /******************************************************************************/
 /*------------------------Private Variables/Constants-------------------------*/
@@ -70,7 +71,7 @@ int value = 0;
 /******************************************************************************/
 void Task_core2_primaryService(void)
 {
-	
+	;
 }
 
 void Task_core2_1ms(void)
@@ -112,22 +113,29 @@ void Task_core2_1ms(void)
 	AmkInverter_writeMessage2(valueRl,valueRr);
 	
 	// else if (task2_10ms_counter ==15)
-	SDP_DashBoardCan_run_10ms();
-	
+	// SDP_DashBoardCan_run_10ms();
+
 	AmkInverter_Start(RTD_flag);
 
-	if (task2_10ms_counter == 10){
-		Task_core2_10ms_slot1();
+	if(task2_10ms_counter == 10)
+	{
 		task2_10ms_counter = 0;
 	}
+	if(task2_10ms_counter == 0)
+	{
+		Task_core2_10ms_slot0();
+	}
+	if(task2_10ms_counter == 1)
+	{
+		Task_core2_10ms_slot1();
+	}
 	ticToc_1ms_c2 = (IfxStm_get(&MODULE_STM0) - stm_buf_c2) * 1000000 / (IfxStm_getFrequency(&MODULE_STM0));
-	
 }
 
-void Task_core2_10ms_slot1(void)
+IFX_STATIC void Task_core2_10ms_slot0(void)
 {
-
-	SteeringWheel_run_xms_c2();
+	SDP_DashBoardCan_run_10ms();
+	// SteeringWheel_run_xms_c2();
 	/*
 	FIXME:
 	tempPedal to target torque value
@@ -139,8 +147,9 @@ void Task_core2_10ms_slot1(void)
 
 }
 
-void Task_core2_10ms_slot2(void){
-
+IFX_STATIC void Task_core2_10ms_slot1(void)
+{
+	SteeringWheel_run_xms_c2();
 }
 
 void Task_core2_backgroundService(void)
