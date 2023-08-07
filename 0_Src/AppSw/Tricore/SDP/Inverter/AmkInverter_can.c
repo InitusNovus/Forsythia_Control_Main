@@ -461,6 +461,7 @@ void AmkInverter_Start(boolean rtdFlag)
 		SWITCH.BE2 = 0;
 		SWITCH.Enable = 0;
 		SWITCH.inverter = 0;
+        alreadyOn = FALSE;
         AmkState = AmkState_S0;
         return;
     }
