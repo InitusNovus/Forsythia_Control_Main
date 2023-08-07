@@ -97,9 +97,21 @@ typedef struct
 	uint16 ID_AMK_Set;
 }ID_set;
 
+
+typedef enum AmkState_e
+{
+    AmkState_S0 = 0,    //Power On
+    AmkState_S1 = 1,    //System Ready
+    AmkState_S2 = 2,    //DC On
+    AmkState_S3 = 3,    //EF on
+    AmkState_S4 = 4,    //BE1 on
+    AmkState_S5 = 5,    //Enable/InverterEnable on
+    AmkState_RTD    //Ready To Drive
+} AmkState_t;
+
 typedef struct 
 {
-	boolean r2d;
+	AmkState_t r2d;
 
 	float32 fl;
 	float32 fr;

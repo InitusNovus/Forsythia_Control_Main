@@ -103,17 +103,6 @@ struct Monitor
     // }
 };
 
-typedef enum AmkState_e
-{
-    AmkState_S0 = 0,    //Power On
-    AmkState_S1 = 1,    //System Ready
-    AmkState_S2 = 2,    //DC On
-    AmkState_S3 = 3,    //EF on
-    AmkState_S4 = 4,    //BE1 on
-    AmkState_S5 = 5,    //Enable/InverterEnable on
-    AmkState_S6 = 6,    //Ready To Drive
-} AmkState_t;
-
 uint32 AmkState_S2cnt = 0;
 uint32 AmkState_S3cnt = 0;
 
@@ -339,7 +328,6 @@ void AmkInverter_Start(boolean rtdFlag)
 			{
 				SWITCH.ErrorReset = TRUE;
 				AmkState = AmkState_S0;
-				return;
 			}
 
 			/*When the errors are cleared -> To the state S1*/
@@ -348,7 +336,6 @@ void AmkInverter_Start(boolean rtdFlag)
 			{
 				SWITCH.ErrorReset = FALSE;
 				AmkState = AmkState_S1;
-				return;
 			}
 		}
 		/*State 1: System Ready*/
@@ -360,7 +347,6 @@ void AmkInverter_Start(boolean rtdFlag)
 				       INV_RL_AMK_Actual_Values1.S.AMK_bSystemReady & INV_RR_AMK_Actual_Values1.S.AMK_bSystemReady))
 				{
 					AmkState = AmkState_S0;
-					return;
 				}
 
 				SWITCH.EF = 0;
@@ -376,7 +362,6 @@ void AmkInverter_Start(boolean rtdFlag)
 				    INV_RL_AMK_Actual_Values1.S.AMK_bDcOn & INV_RR_AMK_Actual_Values1.S.AMK_bDcOn)
 				{
 					AmkState = AmkState_S2;
-					return;
 				}
 			}
 		}
@@ -393,12 +378,10 @@ void AmkInverter_Start(boolean rtdFlag)
 			if(AmkState_S2cnt > AmkState_constS2threshold)
 			{
 				AmkState = AmkState_S3;
-				return;
 			}
 			else
 			{
 				AmkState = AmkState_S2;
-				return;
 			}
 		}
 		/*State 3: EF on*/
@@ -414,12 +397,10 @@ void AmkInverter_Start(boolean rtdFlag)
 			if(AmkState_S3cnt > AmkState_constS3threshold)
 			{
 				AmkState = AmkState_S4;
-				return;
 			}
 			else
 			{
 				AmkState = AmkState_S3;
-				return;
 			}
 		}
 		/*State 4: BE1 on*/
@@ -437,7 +418,6 @@ void AmkInverter_Start(boolean rtdFlag)
 			    INV_RL_AMK_Actual_Values1.S.AMK_bQuitInverterOn && INV_RR_AMK_Actual_Values1.S.AMK_bQuitInverterOn)
 			{
 				AmkState = AmkState_S5;
-				return;
 			}
 			else
 			{
@@ -463,13 +443,11 @@ void AmkInverter_Start(boolean rtdFlag)
 				SWITCH.BE2 = 1;
 				SWITCH.posTorquelimit = AMK_TORQUE_LIM;
 				SWITCH.negTorquelimit = -AMK_TORQUE_LIM;
-				AmkState = AmkState_S6;
-				return;
+				AmkState = AmkState_RTD;
 			}
 			else
 			{
 				AmkState = AmkState_S5;
-				return;
 			}
 		}
 	}
@@ -485,6 +463,13 @@ void AmkInverter_Start(boolean rtdFlag)
 		SWITCH.inverter = 0;
         AmkState = AmkState_S0;
         return;
+    }
+
+    /*Update the state for the public*/
+    while(IfxCpu_acquireMutex(&AmkInverterPublic.mutex));   //Wait for the mutex
+    {
+        AmkInverterPublic.r2d = AmkState;
+        IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
     }
 }
 

@@ -580,9 +580,38 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 		IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
 	}
 	*/
-	if(RTD_flag)
+	static AmkState_t AmkState = AmkState_S0;
+	static AmkState_t pastAmkState = AmkState_S0;
+	static boolean rtds = FALSE;
+
+	/*Store past AMK State*/
+	pastAmkState = AmkState;
+
+	/*Get current AMK State*/
+	while(IfxCpu_acquireMutex(&AmkInverterPublic.mutex));	//Wait for the mutex
+	{
+		AmkState = AmkInverterPublic.r2d;
+		IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
+	}
+
+	/*Update RTD state*/
+	if(AmkState == AmkState_RTD)
 	{
 		RVC.readyToDrive = RVC_ReadyToDrive_status_run;
+	}
+	else 
+	{
+		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
+	}
+
+	/*Invoke RTDS*/
+	if((pastAmkState != AmkState_RTD) && (AmkState == AmkState_RTD))
+	{
+		rtds = TRUE;
+	}
+
+	if(rtds)
+	{
 		if(RVC.RTDS_Tick < RTDS_TIME)
 		{
 			RVC.RTDS_Tick++;
@@ -590,14 +619,12 @@ IFX_INLINE void RVC_updateReadyToDriveSignal(void)
 			IfxPort_setPinHigh(FWD_OUT.port, FWD_OUT.pinIndex);
 		}
 		else
-		{
+		{	
+			rtds = FALSE;
+			RVC.RTDS_Tick = 0;
 			IfxPort_setPinLow(R2DOUT.port, R2DOUT.pinIndex);
 			IfxPort_setPinLow(FWD_OUT.port, FWD_OUT.pinIndex);
 		}
-	}
-	else 
-	{
-		RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
 	}
 }
 
