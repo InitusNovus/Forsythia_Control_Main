@@ -1,3 +1,7 @@
+#ifndef CANGATEWAY_H_
+#define CANGATEWAY_H_
+
+
 #include <Ifx_Types.h>
 #include "Configuration.h"
 #include "ConfigurationIsr.h"
@@ -23,3 +27,5 @@ typedef union
 
 IFX_EXTERN void CanGateway_init();
 IFX_EXTERN void CanGateway_run();
+
+#endif

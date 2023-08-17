@@ -68,7 +68,7 @@ IFX_EXTERN void CanCommunication_resetUpdateState(CanCommunication_Message* msg)
 
 IFX_EXTERN void CanCommunication_transmitMessage(CanCommunication_Message *msg);
 IFX_EXTERN void CanCommunication_setMessageData(uint32 data0, uint32 data1, CanCommunication_Message *msg);
-void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsgSrc, CanCommunication_Message* ccMsgDest, 
+IFX_EXTERN void CanCommunication_Gateway_initMessage(CanCommunication_Message* ccMsgSrc, CanCommunication_Message* ccMsgDest, 
 										  CanCommunication_Gateway_Message_Config* config);
-
+IFX_EXTERN void CanCommunication_sendGateway(CanCommunication_Message *ccMsgSrc, CanCommunication_Message *ccMsgDest);
 #endif

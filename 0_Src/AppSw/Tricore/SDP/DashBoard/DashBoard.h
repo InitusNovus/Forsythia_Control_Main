@@ -52,7 +52,7 @@ typedef union{
 
 typedef union 
 {
-	uint32 data[2];				//[0-31][32-64]
+	uint32 data[2];				//[0-31][32-63]
 	struct 
 	{
 		uint8 AmkState;				//[0-7]
@@ -60,10 +60,24 @@ typedef union
 		boolean SdcImdOk		:1;	//[9]
 		boolean SdcBspdOk		:1; //[10]
 		boolean SdcSen			:1;	//[11]
-		boolean reserved0		:4;	//[12-15]
-		uint32 reserved1		:16;//[16-32]
+		boolean tsalOn			:1;	//[12]
+		boolean reserved0		:3;	//[13-15]
+		uint16 startCnt			:16;//[16-31]
+		uint32 reserved2		:32;//[32-63]
 	}B;
 } DashBoardMsg0_t;
+
+typedef union 
+{
+	uint32 data[2];				//[0-31][32-63]
+	struct 
+	{
+		boolean StartBtn		:1;	//[0]
+		uint16 reserved0		:15;//[1-15]
+		uint16 startCntMirror	:16;//[16-31]
+		uint32 reserved2		:32;//[32-63]
+	}B;
+} DashBoardMsg1_t;
 
 typedef struct 
 {

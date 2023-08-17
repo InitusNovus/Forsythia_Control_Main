@@ -229,3 +229,15 @@ void CanCommunication_setMessageData(uint32 data0, uint32 data1, CanCommunicatio
 	msg->msg.data[0] = data0;
 	msg->msg.data[1] = data1;
 }
+
+void CanCommunication_sendGateway(CanCommunication_Message *ccMsgSrc, CanCommunication_Message *ccMsgDest)
+{
+	if(CanCommunication_receiveMessage(ccMsgSrc))
+	{
+		ccMsgDest->msg.data[0] = ccMsgSrc->msg.data[0];
+		ccMsgDest->msg.data[1] = ccMsgSrc->msg.data[1];
+		CanCommunication_transmitMessage(ccMsgDest);
+	}
+
+	return;
+}

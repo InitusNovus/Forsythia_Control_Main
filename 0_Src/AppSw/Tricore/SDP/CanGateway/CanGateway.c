@@ -56,10 +56,13 @@ void CanGateway_init(){
 }
 
 void CanGateway_run(){
-    if(CanCommunication_receiveMessage(&CanGateway_Msg2_src))
-    {
-    	CanGateway_Msg2_dest.msg.data[0]      =   CanGateway_Msg2_src.msg.data[0];
-    	CanGateway_Msg2_dest.msg.data[1]      =   CanGateway_Msg2_src.msg.data[1];
-    }
-    CanCommunication_transmitMessage(&CanGateway_Msg2_dest);
+    // if(CanCommunication_receiveMessage(&CanGateway_Msg2_src))
+    // {
+    // 	CanGateway_Msg2_dest.msg.data[0]      =   CanGateway_Msg2_src.msg.data[0];
+    // 	CanGateway_Msg2_dest.msg.data[1]      =   CanGateway_Msg2_src.msg.data[1];
+    // }
+    // CanCommunication_transmitMessage(&CanGateway_Msg2_dest);
+    CanCommunication_sendGateway(&CanGateway_Msg1_src, &CanGateway_Msg1_dest);
+    CanCommunication_sendGateway(&CanGateway_Msg2_src, &CanGateway_Msg2_dest);
+    CanCommunication_sendGateway(&CanGateway_Msg3_src, &CanGateway_Msg3_dest);
 }
