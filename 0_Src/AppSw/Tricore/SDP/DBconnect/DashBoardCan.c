@@ -82,7 +82,7 @@ void SDP_DashBoardCan_run_1ms(void)
 {
 	
 }
-
+volatile uint32 testCnt = 0;
 void SDP_DashBoardCan_run_10ms(void)
 {
 	// /*RTD button routine(Legacy)*/
@@ -157,6 +157,7 @@ void SDP_DashBoardCan_run_10ms(void)
 	}
 	else	//(RTD_flag == TRUE) 
 	{
+		testCnt++;
 		if(DashBoard_canMsg1.B.StartBtn)
 		{
 			RTD_cnt++;
@@ -165,15 +166,16 @@ void SDP_DashBoardCan_run_10ms(void)
 				RTD_flag = FALSE;
 				RTD_cnt = 0;
 			}
-			else
-			{
-				RTD_cnt = 0;
-			}
 		}
 		else if(DashBoard_public.data.tsalOn == FALSE)
 		{
 			RTD_flag = FALSE;
 		}
+		else
+		{
+			RTD_cnt = 0;
+		}
+		
 	}
 
 	/*Dash Board Info TX*/

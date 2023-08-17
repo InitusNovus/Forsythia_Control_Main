@@ -75,7 +75,7 @@ TODO:
 #define PEDAL_BRAKE_ON_THRESHOLD 10
 #define REGEN_MUL	1	//2
 
-#define POWER_LIM				40000	//40kW
+#define POWER_LIM				80000	//80kW
 #define CURRENT_LIM_SET_VAL		10		//10A
 
 #define TV1PGAIN 0.001
@@ -173,6 +173,12 @@ void RVC_run_1ms(void)
 {
 	RVC_updateReadyToDriveSignal();
 
+	while(IfxCpu_acquireMutex(&RVC_public.bms.shared.mutex))
+			; // Wait for mutex
+	{
+		RVC_public.bms.data = RVC_public.bms.shared.data;
+		IfxCpu_releaseMutex(&RVC_public.bms.shared.mutex);
+	}
 	
 	while(IfxCpu_acquireMutex(&AmkInverterMonitorPublic.mutex))
 		; // wait for the mutex
