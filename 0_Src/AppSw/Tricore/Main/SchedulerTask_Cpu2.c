@@ -48,6 +48,8 @@ float32 tpsFr;
 float32 tpsRl;
 float32 tpsRr;
 
+boolean brakeOn = FALSE;
+
 sint16 valueFl;
 sint16 valueFr;
 sint16 valueRl;
@@ -96,6 +98,9 @@ void Task_core2_1ms(void)
 		tpsFr = AmkInverterPublic.fr;
 		tpsRl = AmkInverterPublic.rl;
 		tpsRr = AmkInverterPublic.rr;
+
+		brakeOn = AmkInverterPublic.brakeOn;
+
 		IfxCpu_releaseMutex(&AmkInverterPublic.mutex);
 	}
 

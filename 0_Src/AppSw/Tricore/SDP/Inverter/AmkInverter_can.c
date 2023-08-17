@@ -74,34 +74,34 @@ struct setSwitch
     boolean EF;
 };
 
-struct Monitor
-{
-    int InverterTemp;
-    struct {
-        uint16 error_FL;
-        uint16 error_RL;
-        uint16 error_RR;
-        uint16 error_FR;
-    }InverterErrorState;
-    struct {
-        uint16 temp_FL;
-        uint16 temp_RL;
-        uint16 temp_RR;
-        uint16 temp_FR;
-    }MotorTemp;
-    struct{
-        uint16 velocity_FL;
-        uint16 velocity_RL;
-        uint16 velocity_RR;
-        uint16 velocity_FR;
-    } MotorVelocity;
-    // struct MotorCurrent{
-    //     uint16 velocity_RL;
-    //     uint16 velocity_FL;
-    //     uint16 velocity_RR;
-    //     uint16 velocity_FR;
-    // }
-};
+// struct Monitor
+// {
+//     int InverterTemp;
+//     struct {
+//         uint16 error_FL;
+//         uint16 error_RL;
+//         uint16 error_RR;
+//         uint16 error_FR;
+//     }InverterErrorState;
+//     struct {
+//         uint16 temp_FL;
+//         uint16 temp_RL;
+//         uint16 temp_RR;
+//         uint16 temp_FR;
+//     }MotorTemp;
+//     struct{
+//         uint16 velocity_FL;
+//         uint16 velocity_RL;
+//         uint16 velocity_RR;
+//         uint16 velocity_FR;
+//     } MotorVelocity;
+//     // struct MotorCurrent{
+//     //     uint16 velocity_RL;
+//     //     uint16 velocity_FL;
+//     //     uint16 velocity_RR;
+//     //     uint16 velocity_FR;
+//     // }
+// };
 
 uint32 AmkState_S2cnt = 0;
 uint32 AmkState_S3cnt = 0;
@@ -112,6 +112,8 @@ const uint32 AmkState_constS3threshold = 100;
 struct Monitor Monitor;//
 struct setSwitch SWITCH = {0,0,0,0,0,0};
 AmkState_t AmkState = AmkState_S0;
+
+AmkInverterMonitorPublic_t AmkInverterMonitorPublic;
 
 void SET_ID(ID_set *IN, int node)
 {
@@ -175,6 +177,7 @@ void AmkInverter_can_init(void)
     setPointInit(&INV_RL_AMK_Setpoint1);
     setPointInit(&INV_RR_AMK_Setpoint1);
     setPointInit(&INV_FR_AMK_Setpoint1);
+
 }
 
 void AmkInverter_can_Run(void)
@@ -220,25 +223,35 @@ void AmkInverter_can_Run(void)
         INV_FR_AMK_Actual_Values2.RecievedData[1]      =   R_Inverter_FR_2.msg.data[1];
     }
 
-    Monitor.InverterErrorState.error_RL = INV_RL_AMK_Actual_Values1.S.AMK_bSError;
-    Monitor.InverterErrorState.error_FL = INV_FL_AMK_Actual_Values1.S.AMK_bSError;
-    Monitor.InverterErrorState.error_RR = INV_RR_AMK_Actual_Values1.S.AMK_bSError;
-    Monitor.InverterErrorState.error_FR = INV_FR_AMK_Actual_Values1.S.AMK_bSError;
+	Monitor.InverterErrorState.error_RL = INV_RL_AMK_Actual_Values1.S.AMK_bSError;
+	Monitor.InverterErrorState.error_FL = INV_FL_AMK_Actual_Values1.S.AMK_bSError;
+	Monitor.InverterErrorState.error_RR = INV_RR_AMK_Actual_Values1.S.AMK_bSError;
+	Monitor.InverterErrorState.error_FR = INV_FR_AMK_Actual_Values1.S.AMK_bSError;
 
-    Monitor.MotorTemp.temp_RL = INV_RL_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
-    Monitor.MotorTemp.temp_FL = INV_FL_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
-    Monitor.MotorTemp.temp_RR = INV_RR_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
-    Monitor.MotorTemp.temp_FR = INV_FR_AMK_Actual_Values2.S.AMK_TempMotor*0.1;
+	// Monitor.MotorTemp.temp_RL = INV_RL_AMK_Actual_Values2.S.AMK_TempMotor * 0.1;
+	// Monitor.MotorTemp.temp_FL = INV_FL_AMK_Actual_Values2.S.AMK_TempMotor * 0.1;
+	// Monitor.MotorTemp.temp_RR = INV_RR_AMK_Actual_Values2.S.AMK_TempMotor * 0.1;
+	// Monitor.MotorTemp.temp_FR = INV_FR_AMK_Actual_Values2.S.AMK_TempMotor * 0.1;
 
-    Monitor.MotorVelocity.velocity_RL = INV_RL_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorVelocity.velocity_FL = INV_FL_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorVelocity.velocity_RR = INV_RR_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.MotorVelocity.velocity_FR = INV_FR_AMK_Actual_Values1.S.AMK_ActualVelocity;
-    Monitor.InverterTemp = INV_RL_AMK_Actual_Values2.S.AMK_TempInverter;
-    SWITCH.Checker+=1;
+	Monitor.MotorTemp.temp_RL = INV_RL_AMK_Actual_Values2.S.AMK_TempMotor;
+	Monitor.MotorTemp.temp_FL = INV_FL_AMK_Actual_Values2.S.AMK_TempMotor;
+	Monitor.MotorTemp.temp_RR = INV_RR_AMK_Actual_Values2.S.AMK_TempMotor;
+	Monitor.MotorTemp.temp_FR = INV_FR_AMK_Actual_Values2.S.AMK_TempMotor;
+
+	Monitor.MotorVelocity.velocity_RL = INV_RL_AMK_Actual_Values1.S.AMK_ActualVelocity;
+	Monitor.MotorVelocity.velocity_FL = INV_FL_AMK_Actual_Values1.S.AMK_ActualVelocity;
+	Monitor.MotorVelocity.velocity_RR = INV_RR_AMK_Actual_Values1.S.AMK_ActualVelocity;
+	Monitor.MotorVelocity.velocity_FR = INV_FR_AMK_Actual_Values1.S.AMK_ActualVelocity;
+	Monitor.InverterTemp = INV_RL_AMK_Actual_Values2.S.AMK_TempInverter;
+	SWITCH.Checker += 1;
+
+	while(IfxCpu_acquireMutex(&AmkInverterMonitorPublic.mutex))
+		; // wait for the mutex
+	{
+		AmkInverterMonitorPublic.monitor = Monitor;
+		IfxCpu_releaseMutex(&AmkInverterMonitorPublic.mutex);
+	}
 }
-
-
 
 void AmkInverter_can_write(amkSetpoint1 *INV, CanCommunication_Message TC, uint16 tV)
 {    

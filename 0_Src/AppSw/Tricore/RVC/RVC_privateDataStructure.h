@@ -11,6 +11,7 @@
 #include "HLD.h"
 #include "Gpio_Debounce.h"
 #include "AdcSensor.h"
+#include "AmkInverter_can.h"
 
 /****************************** Enumerations *********************************/
 typedef enum
@@ -117,6 +118,8 @@ typedef struct
 
 		float32 predeterminedLimit;
 
+		float32 frontDist;	//0.0 ~ 0.5: 0% ~ 50% front torque distribution
+
 		boolean isRegenOn;
 	} torque;
 
@@ -167,7 +170,7 @@ typedef struct
 		float32 pGain;
 	} tvMode1;
 
-
+	struct Monitor AmkMonitor;
 
 
 	uint16 RTDS_Tick;

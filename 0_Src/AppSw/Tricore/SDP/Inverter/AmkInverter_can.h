@@ -123,10 +123,49 @@ typedef struct
 	float32 spdRl;
 	float32 spdRr;
 
+	boolean brakeOn;
+
 	IfxCpu_mutexLock mutex;
 }AmkInverterPublic_t;
 
+struct Monitor
+{
+    int InverterTemp;
+    struct {
+        uint16 error_FL;
+        uint16 error_RL;
+        uint16 error_RR;
+        uint16 error_FR;
+    }InverterErrorState;
+    struct {
+        sint16 temp_FL;
+        sint16 temp_RL;
+        sint16 temp_RR;
+        sint16 temp_FR;
+    }MotorTemp;
+    struct{
+        sint16 velocity_FL;
+        sint16 velocity_RL;
+        sint16 velocity_RR;
+        sint16 velocity_FR;
+    } MotorVelocity;
+    // struct MotorCurrent{
+    //     uint16 velocity_RL;
+    //     uint16 velocity_FL;
+    //     uint16 velocity_RR;
+    //     uint16 velocity_FR;
+    // }
+};
+
+typedef struct 
+{
+	struct Monitor monitor;
+	IfxCpu_mutexLock mutex;
+} AmkInverterMonitorPublic_t;
+
 IFX_EXTERN AmkInverterPublic_t AmkInverterPublic;
+
+IFX_EXTERN AmkInverterMonitorPublic_t AmkInverterMonitorPublic;
 
 IFX_EXTERN Inv_switch_msg_t Inv_switch_msg;
 IFX_EXTERN amkActualValues1 INV_FL_AMK_Actual_Values1;
