@@ -107,6 +107,8 @@ TODO:
 #define RTDS_TIME (3000) //RTD Sound length in ms.
 
 /*********************** Global Variables ****************************/
+static const float32 frontDist_initial = 0.35f;
+
 RVC_t RVC = 
 {
     .readyToDrive = RVC_ReadyToDrive_status_notInitialized,
@@ -164,7 +166,7 @@ void RVC_init(void)
 
 	RVC_initGpio();
 
-	RVC.torque.frontDist = 0.3f;
+	RVC.torque.frontDist = frontDist_initial;
 	RVC.tvMode1.pGain = TV1PGAIN;
 	RVC.readyToDrive = RVC_ReadyToDrive_status_initialized;
 }
