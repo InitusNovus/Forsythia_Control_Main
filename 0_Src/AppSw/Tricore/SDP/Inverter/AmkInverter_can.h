@@ -163,6 +163,36 @@ typedef struct
 	IfxCpu_mutexLock mutex;
 } AmkInverterMonitorPublic_t;
 
+typedef union
+{
+	uint32 TransmitData[2];
+	struct{
+		uint8 AMK_bReserve : 8;
+		boolean AMK_bSystemReady : 1;
+		boolean AMK_bSError : 1;
+		boolean AMK_bWarn : 1;
+		boolean AMK_bQuitDcOn : 1;
+		boolean AMK_bDcOn : 1;
+		boolean AMK_bQuitInverterOn : 1;
+		boolean AMK_bInverterOn : 1;
+		boolean AMK_bDerating : 1;
+		sint16 AMK_ActualVelocity : 16;
+		sint16 AMK_TorqueCurrent : 16;
+		sint16 AMK_MagnetizingCurrent : 16;
+	}S;
+}AmkActualValues1_log_t;
+
+typedef union
+{
+	uint32 TransmitData[2];
+	    struct{
+			sint16 AMK_TempMotor : 16;
+	        sint16 AMK_TempInverter : 16;
+	        uint16 AMK_ErrorInfo : 16;
+	        sint16 AMK_TempIGBT : 16;
+	    }S;
+}AmkActualValues2_log_t;
+
 IFX_EXTERN AmkInverterPublic_t AmkInverterPublic;
 
 IFX_EXTERN AmkInverterMonitorPublic_t AmkInverterMonitorPublic;
@@ -190,6 +220,16 @@ IFX_EXTERN ID_set Inverter3;
 IFX_EXTERN ID_set Inverter4;
 
 IFX_EXTERN AmkState_t AmkState;
+
+IFX_EXTERN AmkActualValues1_log_t INV_FL_AMK_Actual_Values1_log;
+IFX_EXTERN AmkActualValues1_log_t INV_RL_AMK_Actual_Values1_log;
+IFX_EXTERN AmkActualValues1_log_t INV_RR_AMK_Actual_Values1_log;
+IFX_EXTERN AmkActualValues1_log_t INV_FR_AMK_Actual_Values1_log;
+
+IFX_EXTERN AmkActualValues2_log_t INV_FL_AMK_Actual_Values2_log;
+IFX_EXTERN AmkActualValues2_log_t INV_RL_AMK_Actual_Values2_log;
+IFX_EXTERN AmkActualValues2_log_t INV_RR_AMK_Actual_Values2_log;
+IFX_EXTERN AmkActualValues2_log_t INV_RR_AMK_Actual_Values2_log;
 
 IFX_EXTERN void AmkInverter_can_init(void);
 IFX_EXTERN void AmkInverter_can_Run(void);
