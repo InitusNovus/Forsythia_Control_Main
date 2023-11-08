@@ -562,13 +562,13 @@ void AMKInverter_initLoggingMessage(void) {
 	//Init CAN msg of AMK_Actual_Values1
 	setTransmitMessage(Inverter_FL.ID_AMK_Ac1, &T_INV_FL_AMK_Actual_Values1_log,0);
 	setTransmitMessage(Inverter_RL.ID_AMK_Ac1, &T_INV_RL_AMK_Actual_Values1_log,0);
-	setTransmitMessage(Inverter_FR.ID_AMK_Ac1, &T_INV_FL_AMK_Actual_Values1_log,0);
+	setTransmitMessage(Inverter_FR.ID_AMK_Ac1, &T_INV_FR_AMK_Actual_Values1_log,0);
 	setTransmitMessage(Inverter_RR.ID_AMK_Ac1, &T_INV_RR_AMK_Actual_Values1_log,0);
 	//Init CAN msg of AMK_Actual_Values1
 	setTransmitMessage(Inverter_FL.ID_AMK_Ac2, &T_INV_FL_AMK_Actual_Values2_log,0);
 	setTransmitMessage(Inverter_RL.ID_AMK_Ac2, &T_INV_RL_AMK_Actual_Values2_log,0);
     setTransmitMessage(Inverter_RR.ID_AMK_Ac2, &T_INV_RR_AMK_Actual_Values2_log,0);
-	setTransmitMessage(Inverter_FR.ID_AMK_Ac2, &T_INV_FL_AMK_Actual_Values2_log,0);
+	setTransmitMessage(Inverter_FR.ID_AMK_Ac2, &T_INV_FR_AMK_Actual_Values2_log,0);
 
 }
 
