@@ -16,7 +16,8 @@
 
 
 /**************************** Macro **********************************/
-
+#define _MAX_BP_PER_BRAKE_LINE_ 75.0
+#define _MIN_BP_PER_BRAKE_LINE_ 5.0
 
 /************************* Data Structures ***************************/
 typedef struct 
@@ -93,7 +94,19 @@ void SteeringWheel_run_xms_c2(void)
 	SteeringWheel.canMsg1.S.status.S.bppsError = SteeringWheel_public.data.bppsError;
 
 	SteeringWheel.canMsg2.S.apps = (uint16)(SteeringWheel_public.data.apps*100);
-	SteeringWheel.canMsg2.S.bpps = (uint16)(SteeringWheel_public.data.bpps*100);
+	// SteeringWheel.canMsg2.S.bpps = (uint16)(SteeringWheel_public.data.bpps*100);
+	double brakePercentage;
+	if(SteeringWheel_public.data.bpps < _MIN_BP_PER_BRAKE_LINE_) {
+		brakePercentage = 0.0;
+	}
+	else if(SteeringWheel_public.data.bpps > _MAX_BP_PER_BRAKE_LINE_) {
+		brakePercentage = 100.0;
+	}
+	else {
+		brakePercentage = (double)SteeringWheel_public.data.bpps / (_MAX_BP_PER_BRAKE_LINE_);
+		brakePercentage *= 100;
+	}
+	SteeringWheel.canMsg2.S.bpps = (uint16)(brakePercentage * 100);
 	SteeringWheel.canMsg2.S.lvBatteryVoltage = (uint16)(SteeringWheel_public.data.lvBatteryVoltage*100);
 	SteeringWheel.canMsg2.S.accumulatorVoltage = OrionBms2.msg1.packVoltage;
 

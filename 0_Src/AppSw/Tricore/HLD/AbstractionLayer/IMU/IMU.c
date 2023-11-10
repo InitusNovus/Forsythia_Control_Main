@@ -18,6 +18,9 @@
 
 #define IMU_UNIT 				IMU_UNIT_RADPERSEC
 
+#define IMU_GYRO_CAN_MSG		0x275E01
+#define IMU_ACCEL_CAN_MSG		0x275E02
+
 #if IMU_UNIT == IMU_UNIT_RADPERSEC
 #define IMU_UNIT_CONST			(IFX_PI/180)
 #elif IMU_UNIT == IMU_UNIT_DEGPERSEC
@@ -28,6 +31,12 @@
 /*---------------------------------Data Structures------------------------------*/
 
 HLD_Imu_t HLD_Imu;
+
+HLD_Imu_Gyro_log_t	HLD_Imu_Gyro_log;
+HLD_Imu_Accel_log_t	HLD_Imu_Accel_log;
+
+CanCommunication_Message T_HLD_Imu_Gyro_log;
+CanCommunication_Message T_HLD_Imu_Accel_log;
 
 
 
@@ -94,3 +103,44 @@ IFX_STATIC void HLD_Imu_procData(void)
 	}
 }
 
+void HLD_Imu_procData_msg_init(void){
+	/* CAN message init */
+	{
+        CanCommunication_Message_Config config;
+        config.messageId		=	IMU_GYRO_CAN_MSG;
+        config.frameType		=	IfxMultican_Frame_transmit;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode0;
+        CanCommunication_initMessage(&T_HLD_Imu_Gyro_log, &config);
+	}
+	{
+		CanCommunication_Message_Config config;
+        config.messageId		=	IMU_ACCEL_CAN_MSG;
+        config.frameType		=	IfxMultican_Frame_transmit;
+        config.dataLen			=	IfxMultican_DataLengthCode_8;
+        config.node				=	&CanCommunication_canNode0;
+        CanCommunication_initMessage(&T_HLD_Imu_Accel_log, &config);
+	}
+}
+
+void HLD_Imu_procData_msg_log(void){
+	while(IfxCpu_acquireMutex(&HLD_Imu.shared.mutex));		//Wait for mutex
+	{
+		IfxCpu_releaseMutex(&HLD_Imu.shared.mutex);
+	}
+	HLD_Imu_Gyro_log.MPU.Gyro_x = HLD_Imu.MPU.Gyro_x;
+	HLD_Imu_Gyro_log.MPU.Gyro_y = HLD_Imu.MPU.Gyro_y;
+	HLD_Imu_Gyro_log.MPU.Gyro_z = HLD_Imu.MPU.Gyro_z;
+	HLD_Imu_Gyro_log.MPU.WhoAmI = HLD_Imu.MPU.WhoAmI;
+
+	HLD_Imu_Accel_log.MPU.Accel_x = HLD_Imu.MPU.Accel_x;
+	HLD_Imu_Accel_log.MPU.Accel_y = HLD_Imu.MPU.Accel_y;
+	HLD_Imu_Accel_log.MPU.Accel_z = HLD_Imu.MPU.Accel_z;
+	HLD_Imu_Accel_log.MPU.WhoAmI = HLD_Imu.MPU.WhoAmI;
+
+	CanCommunication_setMessageData(HLD_Imu_Gyro_log.TransmitData[0], HLD_Imu_Gyro_log.TransmitData[1], &T_HLD_Imu_Gyro_log);
+	CanCommunication_setMessageData(HLD_Imu_Accel_log.TransmitData[0], HLD_Imu_Accel_log.TransmitData[1], &T_HLD_Imu_Accel_log);
+
+	CanCommunication_transmitMessage(&T_HLD_Imu_Gyro_log);
+	CanCommunication_transmitMessage(&T_HLD_Imu_Accel_log);
+}

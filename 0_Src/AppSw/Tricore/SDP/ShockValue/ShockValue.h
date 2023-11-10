@@ -33,6 +33,7 @@ typedef struct{
     float rearHeave;
 }ShockValue_t;
 
+/*
 typedef union
 {
 	uint32 TransmitData[2];
@@ -43,13 +44,14 @@ typedef union
 			unsigned int Heave : 16;
 		}S;
 }ShockCanMsg_data_log_t;
+*/
 
 IFX_EXTERN ShockValue_t shockValue;
 IFX_EXTERN ShockCanMsg_data_t ShockCanMsgFront;
 IFX_EXTERN ShockCanMsg_data_t ShockCanMsgRear;
 
-IFX_EXTERN ShockCanMsg_data_log_t ShockCanMsgFront_log;
-IFX_EXTERN ShockCanMsg_data_log_t ShockCanMsgRear_log;
+// IFX_EXTERN ShockCanMsg_data_log_t ShockCanMsgFront_log;
+// IFX_EXTERN ShockCanMsg_data_log_t ShockCanMsgRear_log;
 
 
 IFX_EXTERN void SDP_ShockValue_init(void);

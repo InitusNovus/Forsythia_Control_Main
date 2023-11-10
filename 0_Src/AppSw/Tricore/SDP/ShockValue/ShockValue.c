@@ -3,21 +3,27 @@
 #define SHOCK_CAN_MSG_0     0x405A
 #define SHOCK_CAN_MSG_1     0x405B
 
+/*
 #define SHOCK_CAN_MSG_0_log     0x275F01
 #define SHOCK_CAN_MSG_1_log     0x275F02
+*/
 
 ShockCanMsg_data_t ShockCanMsgFront;
 ShockCanMsg_data_t ShockCanMsgRear;
 ShockValue_t shockValue;
 
+/*
 ShockCanMsg_data_log_t ShockCanMsgFront_log;
 ShockCanMsg_data_log_t ShockCanMsgRear_log;
+*/
 
 CanCommunication_Message ShockCanMsg0;
 CanCommunication_Message ShockCanMsg1;
 
+/*
 CanCommunication_Message ShockCanMsg0_log;
 CanCommunication_Message ShockCanMsg1_log;
+*/
 
 void SDP_ShockValue_init(void);
 void SDP_ShockValue_run_1ms(void);
@@ -60,8 +66,9 @@ void SDP_ShockValue_run_1ms(void){
     shockValue.rearRoll = (float)(ShockCanMsgRear.S.Roll/10);
 }
 
+/*
 void SDP_ShockValue_log_init(void){
-    /* CAN message init */
+    // CAN message init 
 	{
         CanCommunication_Message_Config config;
         config.messageId		=	SHOCK_CAN_MSG_0_log;
@@ -97,3 +104,4 @@ void SDP_ShockValue_run_log(void){
     CanCommunication_transmitMessage(&ShockCanMsg0_log);
     CanCommunication_transmitMessage(&ShockCanMsg1_log);
 }
+*/

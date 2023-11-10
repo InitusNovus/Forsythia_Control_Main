@@ -163,13 +163,17 @@ void Task_init (void)
 	{
 		CanCommunication_init();
 	}
+	/*HLD_Log initialization*/
+	{
+		// HLD_Imu_procData_msg_init();
+	}
 	/*SDP initialization*/
 	{
 		SDP_PedalBox_init();
 		SDP_SteeringAngle_init();
 		SDP_WheelSpeed_init();
 		SDP_ShockValue_init();
-		SDP_ShockValue_log_init();
+		// SDP_ShockValue_log_init();
 		SDP_Cooling_init();
 		SDP_SteeringAngleAdc_init();
 		SDP_DashBoardCan_init();
@@ -272,7 +276,9 @@ void Task_10ms_slot1 (void)
 
 	//	HLD_Imu_run_10ms_s1();
 
-	SDP_ShockValue_run_log();
+	// SDP_ShockValue_run_log();
+
+	// HLD_Imu_procData_msg_log();
 
 	ticToc_10ms_s1 = (IfxStm_get(&MODULE_STM0) - stm_buf)*1000000/(IfxStm_getFrequency(&MODULE_STM0));
 }

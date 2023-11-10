@@ -21,6 +21,8 @@
 #include "ConfigurationIsr.h"
 #include "HLD.h"
 
+#include "CanCommunication.h"
+
 /*-------------------------------------Macros-----------------------------------*/
 
 #define GYRO_SENSE			(131)
@@ -71,9 +73,42 @@ typedef struct
 
 }HLD_Imu_t;
 
+typedef struct
+{
+	uint32 TransmitData[2];
+		struct
+		{
+			sint16 Gyro_x;
+			sint16 Gyro_y;
+			sint16 Gyro_z;
+
+			uint16 WhoAmI;	
+
+		}MPU;
+
+}HLD_Imu_Gyro_log_t;
+
+typedef struct
+{
+	uint32 TransmitData[2];
+		struct
+		{
+			sint16 Accel_x;
+			sint16 Accel_y;
+			sint16 Accel_z;
+
+			uint16 WhoAmI;	
+
+		}MPU;
+
+}HLD_Imu_Accel_log_t;
+
 
 /*--------------------------------Global variables------------------------------*/
 IFX_EXTERN HLD_Imu_t	HLD_Imu;
+
+IFX_EXTERN HLD_Imu_Gyro_log_t	HLD_Imu_Gyro_log;
+IFX_EXTERN HLD_Imu_Accel_log_t	HLD_Imu_Accel_log;
 
 /*-------------------------------Function Prototypes----------------------------*/
 
